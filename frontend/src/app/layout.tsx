@@ -1,15 +1,19 @@
-import type { Metadata } from "next"
-import "./globals.css"
+import type { Metadata } from 'next';
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: "B.O.S.S POS — Business Operations & Smart Systems",
-  description: "The AI-powered business operating system for modern retail.",
-}
+  title: 'B.O.S.S',
+  description: 'AI SaaS Operating System',
+};
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>{children}</body>
     </html>
-  )
+  );
 }

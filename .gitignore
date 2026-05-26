@@ -1,4 +1,37 @@
-node_modules
-.next
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Database files — NEVER commit these
+*.db
+*.db-shm
+*.db-wal
+backend/data/
+
+# Build output
+.next/
+out/
+dist/
+build/
+
+# Environment files — NEVER commit these
+.env
+.env.local
+.env.production
+backend/.env
+
+# Junk files
+*.save
+*.backup
+"backend/src/indexconst*"
 .DS_Store
-*.env
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
