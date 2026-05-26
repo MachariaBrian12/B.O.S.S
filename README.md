@@ -1,7 +1,7 @@
 # B.O.S.S
 ### Business Operations & Orchestration Software Systems
 
-> An AI-native point of sale SaaS — powered by an AI that sees beyond every 
+> An AI-native point of sale SaaS — powered by an AI that sees beyond every
 > transaction, turning each sale into a signal, every pattern into an advantage.
 
 **Intelligent by design. Powerful by nature.**
@@ -14,7 +14,7 @@
 ## Features
 - 🧠 AI Intelligence Feed
 - 📊 Real-time Dashboard
-- ⚡ Predictive Signals Engine  
+- ⚡ Predictive Signals Engine
 - 🚨 Smart Alert System
 - 🔥 Streak Tracking
 - 📈 7-Day Trend Charts
@@ -28,9 +28,9 @@
 | v0.5   | Intelligence Feed + Alerts + Signals |
 
 ## Run Locally
-```bash
+\`\`\`bash
 npm run dev
-```
+\`\`\`
 
 ---
 
