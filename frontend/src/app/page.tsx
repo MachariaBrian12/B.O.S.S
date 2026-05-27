@@ -308,12 +308,12 @@ export default function Landing() {
         /* ── PRICING ── */
         .pricing{padding:80px 24px;max-width:1140px;margin:0 auto;text-align:center;}
         .pg{display:grid;grid-template-columns:1fr;gap:13px;margin-top:56px;text-align:left;}@media(min-width:769px){.pg{grid-template-columns:repeat(3,1fr);}}
-        .price-card{background:var(--gb);border:1px solid var(--gbr);border-radius:18px;padding:30px;position:relative;overflow:hidden;transition:all .35s ease;cursor:none;}
+        .price-card{background:var(--gb);border:1px solid var(--gbr);border-radius:18px;padding:30px;position:relative;overflow:hidden;transition:all .35s ease;cursor:none;width:100%;box-sizing:border-box;}
         .price-card:hover{transform:translateY(-7px);box-shadow:0 36px 90px rgba(0,0,0,.55);}
         .price-card.feat{background:linear-gradient(135deg,rgba(59,130,246,.065),rgba(139,92,246,.065));border-color:rgba(59,130,246,.3);}
         .price-card.feat::before{content:'MOST POPULAR';position:absolute;top:18px;right:18px;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--blue);background:rgba(59,130,246,.12);padding:3px 9px;border-radius:100px;border:1px solid rgba(59,130,246,.22);}
         .pt{font-size:10px;font-weight:500;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:22px;}
-        .pp{font-family:'Syne',sans-serif;font-size:50px;font-weight:800;letter-spacing:-.05em;margin-bottom:4px;}
+        .pp{font-family:'Syne',sans-serif;font-size:clamp(28px,8vw,50px);font-weight:800;letter-spacing:-.05em;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
         .pper{font-size:12px;color:var(--t3);margin-bottom:28px;font-weight:300;}
         .pf{list-style:none;margin-bottom:28px;}
         .pf li{font-size:12.5px;color:var(--t2);padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:9px;font-weight:300;}
@@ -589,7 +589,8 @@ export default function Landing() {
             {[
               {tier:"Starter",    price:"Free",   per:"forever · 1 location",           feat:["1 POS device","Core analytics","500 products","QR & M-Pesa payments"],              btn:"Begin for Free",       cls:"price-card"},
               {tier:"Growth",     price:"$49",    per:"per month · unlimited locations", feat:["Unlimited POS devices","Real-time analytics","Full AI intelligence suite","Multi-store command centre","Staff & shift management"], btn:"Start 14-Day Trial",   cls:"price-card feat"},
-              {tier:"Enterprise", price:"Custom", per:"tailored to your scale",          feat:["Everything in Growth","Dedicated account team","Custom integrations & API","Enterprise SLA guarantees"],  btn:"Talk to Sales",        cls:"price-card"},
+              {tier:"Professional",price:"$99",   per:"per month · up to 5 locations",  feat:["Everything in Growth","Priority support","Advanced analytics","Custom branding"],                         btn:"Start 14-Day Trial",   cls:"price-card"},
+              {tier:"Enterprise", price:"Custom", per:"tailored to your scale",          feat:["Everything in Professional","Dedicated account team","Custom integrations & API","Enterprise SLA guarantees"],btn:"Talk to Sales",        cls:"price-card"},
             ].map(p=>(
               <div key={p.tier} className={p.cls}>
                 <div className="pt">{p.tier}</div>
