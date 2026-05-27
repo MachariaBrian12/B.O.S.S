@@ -189,10 +189,10 @@ export default function Landing() {
         .nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;letter-spacing:.04em;background:linear-gradient(135deg,#fff,var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:flex;align-items:center;gap:8px;text-decoration:none;}
         .nav-pulse{width:6px;height:6px;background:var(--green);border-radius:50%;box-shadow:0 0 10px var(--green);flex-shrink:0;-webkit-text-fill-color:initial;animation:blink 2s ease-in-out infinite;}
         @keyframes blink{0%,100%{box-shadow:0 0 8px var(--green);}50%{box-shadow:0 0 20px var(--green),0 0 40px rgba(16,185,129,.4);}}
-        .nav-links{display:flex;gap:4px;list-style:none;}
+        .nav-links{gap:4px;list-style:none;}
         .nav-link{color:var(--t3);text-decoration:none;font-size:13px;font-weight:400;padding:7px 14px;border-radius:10px;transition:all .22s ease;letter-spacing:.01em;cursor:none;}
         .nav-link:hover{color:var(--t1);background:rgba(255,255,255,.06);}
-        .nav-btns{display:flex;gap:8px;align-items:center;}
+        .nav-btns{gap:8px;align-items:center;}
         .btn-nav-ghost{padding:8px 16px;background:transparent;border:1px solid rgba(255,255,255,.10);border-radius:10px;color:var(--t2);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400;cursor:none;transition:all .22s ease;text-decoration:none;display:inline-flex;align-items:center;}
         .btn-nav-ghost:hover{background:rgba(255,255,255,.06);color:var(--t1);border-color:rgba(255,255,255,.18);}
         .btn-nav-primary{padding:8px 20px;background:linear-gradient(135deg,var(--blue),var(--purple));border:none;border-radius:10px;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:none;transition:all .25s ease;text-decoration:none;display:inline-flex;align-items:center;}
