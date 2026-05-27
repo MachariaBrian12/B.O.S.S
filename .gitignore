@@ -1,7 +1,5 @@
 # Dependencies
 node_modules/
-.pnp
-.pnp.js
 
 # Database files — NEVER commit these
 *.db
@@ -19,12 +17,14 @@ build/
 .env
 .env.local
 .env.production
+.env.development.local
+.env.test.local
+.env.production.local
 backend/.env
 
 # Junk files
 *.save
 *.backup
-"backend/src/indexconst*"
 .DS_Store
 Thumbs.db
 

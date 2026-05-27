@@ -15,7 +15,7 @@ interface Alert      { level:string; title:string; body:string; action:string; }
 interface HistoryRow { date:string; sales:number; expenses:number; profit:number; }
 
 /* ── motion variants ── */
-const fadeUp  = { hidden:{opacity:0,y:18}, show:{opacity:1,y:0,transition:{duration:.5,ease:[.16,1,.3,1]}} };
+const fadeUp  = { hidden:{opacity:0,y:18}, show:{opacity:1,y:0,transition:{duration:.5,ease:[.16,1,.3,1] as [number,number,number,number]}} };
 const stagger = { hidden:{}, show:{transition:{staggerChildren:.07}} };
 
 /* ── colour helpers ── */
@@ -184,7 +184,7 @@ export default function Dashboard() {
           </div>
 
           {/* streak */}
-          {ins?.streak > 0 && (
+          {ins && ins.streak > 0 && (
             <div style={{marginBottom:20,padding:"10px 12px",background:"rgba(245,158,11,.07)",
               border:"1px solid rgba(245,158,11,.18)",borderRadius:10}}>
               <div style={{fontSize:10,color:"#F59E0B",letterSpacing:".08em",textTransform:"uppercase",marginBottom:3}}>🔥 Streak</div>
@@ -225,7 +225,7 @@ export default function Dashboard() {
                 <div style={{flex:1}}>
                   <div style={{height:3,background:"rgba(255,255,255,.06)",borderRadius:2,overflow:"hidden"}}>
                     <motion.div initial={{width:0}} animate={{width:`${ins.score}%`}}
-                      transition={{duration:1.2,ease:[.16,1,.3,1]}}
+                      transition={{duration:1.2,ease:[.16,1,.3,1] as [number,number,number,number]}}
                       style={{height:"100%",background:`linear-gradient(90deg,#3B82F6,${scoreColor})`,borderRadius:2}}/>
                   </div>
                   <div style={{fontSize:9,color:"#334155",marginTop:4}}>{ins.score>=75?"Excellent":ins.score>=50?"Good":"Needs attention"}</div>
@@ -418,7 +418,7 @@ export default function Dashboard() {
                       strokeLinecap="round"
                       initial={{strokeDasharray:"0 289"}}
                       animate={{strokeDasharray:`${ins.score*2.89} 289`}}
-                      transition={{duration:1.4,ease:[.16,1,.3,1]}}
+                      transition={{duration:1.4,ease:[.16,1,.3,1] as [number,number,number,number]}}
                       transform="rotate(-90 55 55)"/>
                     <text x={55} y={51} textAnchor="middle" fill="#F1F5F9" fontSize={22} fontWeight={800}
                       fontFamily="Syne,sans-serif">{ins.score}</text>

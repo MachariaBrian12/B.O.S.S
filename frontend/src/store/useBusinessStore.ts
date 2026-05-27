@@ -1,14 +1,14 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-interface User {
+export interface User {
   id: number;
   name: string;
   email: string;
   business: string;
 }
 
-interface TodayEntry {
+export interface TodayEntry {
   sales: number;
   expenses: number;
   profit: number;
@@ -16,7 +16,7 @@ interface TodayEntry {
   date: string;
 }
 
-interface WeekStats {
+export interface WeekStats {
   totalSales: number;
   totalExpenses: number;
   totalProfit: number;
@@ -25,7 +25,33 @@ interface WeekStats {
   daysRecorded: number;
 }
 
-interface Insights {
+export interface FeedItem {
+  id: string;
+  type: string;
+  icon: string;
+  title: string;
+  body: string;
+  time: string;
+  priority: number;
+}
+
+export interface Signal {
+  id: string;
+  confidence: number;
+  direction: string;
+  title: string;
+  body: string;
+  timeframe: string;
+}
+
+export interface Alert {
+  level: string;
+  title: string;
+  body: string;
+  action: string;
+}
+
+export interface Insights {
   hasData: boolean;
   today: TodayEntry | null;
   yesterday: TodayEntry | null;
@@ -37,6 +63,10 @@ interface Insights {
   score: number;
   weekStats: WeekStats | null;
   history: { date: string; sales: number; expenses: number; profit: number }[];
+  feed: FeedItem[];
+  signals: Signal[];
+  alerts: Alert[];
+  streak: number;
 }
 
 interface BusinessStore {
@@ -71,6 +101,6 @@ export const useBusinessStore = create<BusinessStore>()(
     {
       name: "boss-store",
       partialize: (state) => ({ user: state.user, token: state.token }),
-    }
-  )
+    },
+  ),
 );
