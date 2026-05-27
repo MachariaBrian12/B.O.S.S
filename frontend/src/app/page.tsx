@@ -588,8 +588,8 @@ export default function Landing() {
           <div className="pg">
             {[
               {tier:"Starter",    price:"Free",   per:"forever · 1 location",           feat:["1 POS device","Core analytics","500 products","QR & M-Pesa payments"],              btn:"Begin for Free",       cls:"price-card"},
-              {tier:"Growth",     price:"$49",    per:"per month · unlimited locations", feat:["Unlimited POS devices","Real-time analytics","Full AI intelligence suite","Multi-store command centre","Staff & shift management"], btn:"Start 14-Day Trial",   cls:"price-card feat"},
-              {tier:"Professional",price:"$99",   per:"per month · up to 5 locations",  feat:["Everything in Growth","Priority support","Advanced analytics","Custom branding"],                         btn:"Start 14-Day Trial",   cls:"price-card"},
+              {tier:"Growth",     price:"$49",    per:"per month · unlimited locations", feat:["Up to 10 POS devices","Real-time analytics","Full AI intelligence suite","Multi-store command centre","Staff & shift management"], btn:"Start 14-Day Trial",   cls:"price-card feat"},
+              {tier:"Professional",price:"$99",   per:"per month · up to 5 locations",  feat:["Up to 100 POS devices","Up to 100 stores all interconnected","Priority support","Advanced analytics","Custom branding"],                         btn:"Start 14-Day Trial",   cls:"price-card"},
               {tier:"Enterprise", price:"Custom", per:"tailored to your scale",          feat:["Everything in Professional","Dedicated account team","Custom integrations & API","Enterprise SLA guarantees"],btn:"Talk to Sales",        cls:"price-card"},
             ].map(p=>(
               <div key={p.tier} className={p.cls}>
