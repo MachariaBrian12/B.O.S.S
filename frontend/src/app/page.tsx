@@ -328,7 +328,7 @@ export default function Landing() {
         .cta-strip::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(59,130,246,.07) 0%,transparent 65%);pointer-events:none;}
 
         /* ── FOOTER ── */
-        footer{padding:56px 24px;text-align:center;border-top:1px solid rgba(255,255,255,.045);position:relative;z-index:2;}
+        footer{padding:56px 24px;border-top:1px solid rgba(255,255,255,.045);position:relative;z-index:2;}@media(max-width:768px){footer{padding:40px 16px;}}
         .fl{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;background:linear-gradient(135deg,#fff,var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;}
         .ft{font-size:12px;color:var(--t3);font-weight:300;letter-spacing:.02em;margin-bottom:28px;}
         .flinks{display:flex;gap:28px;justify-content:center;list-style:none;}
