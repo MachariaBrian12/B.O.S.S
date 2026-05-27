@@ -640,17 +640,53 @@ export default function Landing() {
 
       {/* ══════════════ FOOTER ══════════════ */}
       <footer>
-        <div className="fl">B.O.S.S</div>
-        <p className="ft">Business Operations &amp; Orchestration Software Systems</p>
-        <ul className="flinks">
-          <li><a href="#">Privacy</a></li>
-          <li><a href="#">Terms</a></li>
-          <li><a href="#">Security</a></li>
-          <li><a href="#">Status</a></li>
-        </ul>
-        <p style={{fontSize:11,color:"#1e293b",marginTop:28,letterSpacing:".06em"}}>
-          Built in Nairobi, Kenya — Africa, for the world. 🇰🇪
-        </p>
+        <div style={{maxWidth:1140,margin:"0 auto",padding:"0 24px"}}>
+          <div style={{display:"flex",flexWrap:"wrap",justifyContent:"space-between",gap:40,marginBottom:48}}>
+            <div style={{minWidth:200}}>
+              <div className="fl" style={{marginBottom:8}}>B.O.S.S</div>
+              <p className="ft" style={{marginBottom:4}}>Business Operations &amp; Orchestration Software Systems</p>
+              <p style={{fontSize:11,color:"#334155",marginTop:8}}>A product of <strong style={{color:"#475569"}}>Guru Software Group</strong></p>
+            </div>
+            <div style={{display:"flex",gap:48,flexWrap:"wrap"}}>
+              <div>
+                <div style={{fontSize:10,color:"#334155",letterSpacing:".1em",textTransform:"uppercase",marginBottom:12,fontWeight:600}}>Product</div>
+                <ul style={{listStyle:"none",display:"flex",flexDirection:"column",gap:8}}>
+                  {[["Platform","#platform"],["Intelligence","#intelligence"],["Pricing","#pricing"],["Sign In","/login"]].map(([l,h])=>(
+                    <li key={l}><a href={h} style={{fontSize:13,color:"#475569",textDecoration:"none"}}>{l}</a></li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <div style={{fontSize:10,color:"#334155",letterSpacing:".1em",textTransform:"uppercase",marginBottom:12,fontWeight:600}}>Company</div>
+                <ul style={{listStyle:"none",display:"flex",flexDirection:"column",gap:8}}>
+                  {[["About","#about"],["Privacy","#"],["Terms","#"],["Status","#"]].map(([l,h])=>(
+                    <li key={l}><a href={h} style={{fontSize:13,color:"#475569",textDecoration:"none"}}>{l}</a></li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <div>
+              <div style={{fontSize:10,color:"#334155",letterSpacing:".1em",textTransform:"uppercase",marginBottom:12,fontWeight:600}}>Follow Us</div>
+              <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                {[
+                  {icon:"𝕏",  label:"@GuruSoftwareGrp",   href:"https://twitter.com/GuruSoftwareGrp"},
+                  {icon:"📸", label:"@gurusoftwaregroup",  href:"https://instagram.com/gurusoftwaregroup"},
+                  {icon:"💼", label:"Guru Software Group", href:"https://linkedin.com/company/guru-software-group"},
+                  {icon:"🎵", label:"@gurusoftwaregroup",  href:"https://tiktok.com/@gurusoftwaregroup"},
+                ].map(s=>(
+                  <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
+                    style={{display:"flex",alignItems:"center",gap:10,fontSize:12,color:"#475569",textDecoration:"none"}}>
+                    <span style={{fontSize:14}}>{s.icon}</span>{s.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div style={{borderTop:"1px solid rgba(255,255,255,.045)",paddingTop:24,display:"flex",flexWrap:"wrap",justifyContent:"space-between",gap:12}}>
+            <p style={{fontSize:11,color:"#1e293b",letterSpacing:".06em"}}>© 2026 Guru Software Group. Built in Nairobi, Kenya 🇰🇪 — Africa, for the world.</p>
+            <p style={{fontSize:11,color:"#1e293b",letterSpacing:".04em"}}>B.O.S.S v0.5 · All rights reserved</p>
+          </div>
+        </div>
       </footer>
     </>
   );
