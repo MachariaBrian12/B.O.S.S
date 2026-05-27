@@ -1,4 +1,4 @@
-const BASE = "http://localhost:4000/api";
+const BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000") + "/api";
 
 const req = async (method: string, path: string, body?: object, token?: string) => {
   const headers: Record<string,string> = { "Content-Type":"application/json" };

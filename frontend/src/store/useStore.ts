@@ -1,53 +1,29 @@
-import { create } from "zustand"
-
-import {
-  getStatus,
-  getInventory,
-  getInsights,
-  getAnalytics,
-} from "../hooks/useApi"
+import { create } from "zustand";
+import { api } from "../lib/api";
 
 interface StoreState {
-  status: any
-  inventory: any
-  insights: any[]
-  analytics: any
-  loading: boolean
-  loadAll: () => Promise<void>
+  status: unknown;
+  insights: unknown;
+  loading: boolean;
+  loadAll: (token: string) => Promise<void>;
 }
 
 export const useStore = create<StoreState>((set) => ({
   status: null,
-  inventory: null,
-  insights: [],
-  analytics: null,
+  insights: null,
   loading: false,
 
-  loadAll: async () => {
-    set({ loading: true })
-
+  loadAll: async (token: string) => {
+    set({ loading: true });
     try {
-      const [status, inventory, insights, analytics] =
-        await Promise.all([
-          getStatus(),
-          getInventory(),
-          getInsights(),
-          getAnalytics(),
-        ])
-
-      set({
-        status,
-        inventory,
-        insights: insights.insights,
-        analytics,
-        loading: false,
-      })
+      const [status, insights] = await Promise.all([
+        api.me(token),
+        api.getInsights(token),
+      ]);
+      set({ status, insights, loading: false });
     } catch (error) {
-      console.error(error)
-
-      set({
-        loading: false,
-      })
+      console.error("[useStore] error:", error);
+      set({ loading: false });
     }
   },
-}))
+}));

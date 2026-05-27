@@ -1,21 +1,17 @@
-import { api } from "../lib/api"
+import { api } from "../lib/api";
 
-export async function getStatus() {
-  const res = await api.get("/api/status")
-  return res.data
+export async function getStatus(token: string) {
+  return api.me(token);
 }
 
-export async function getInventory() {
-  const res = await api.get("/api/inventory")
-  return res.data
+export async function getInsightsData(token: string) {
+  return api.getInsights(token);
 }
 
-export async function getInsights() {
-  const res = await api.get("/api/ai/insights")
-  return res.data
+export async function getHistory(token: string, limit = 30) {
+  return api.getHistory(token, limit);
 }
 
-export async function getAnalytics() {
-  const res = await api.get("/api/analytics")
-  return res.data
+export async function getWeek(token: string) {
+  return api.getWeek(token);
 }

@@ -2,46 +2,57 @@ const express      = require("express");
 const cors         = require("cors");
 const cookieParser = require("cookie-parser");
 
-/* ── boot database immediately ── */
 require("./db/database");
 
-/* ── routes ── */
 const authRoutes     = require("./routes/auth.routes");
 const businessRoutes = require("./routes/business.routes");
 const insightsRoutes = require("./routes/insights.routes");
 
 const app = express();
 
-/* ── middleware ── */
+const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:3000")
+  .split(",")
+  .map(o => o.trim());
+
 app.use(cors({
-  origin:      "http://localhost:3000",
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS: origin ${origin} not allowed`));
+    }
+  },
   credentials: true,
 }));
-app.use(express.json());
-app.use(cookieParser());
 
-/* ── health check ── */
+app.use(express.json({ limit: "10kb" }));
+app.use(cookieParser());
+app.set("trust proxy", 1);
+
 app.get("/api/health", (_, res) => res.json({
   status:  "ok",
   service: "B.O.S.S Engine",
+  env:     process.env.NODE_ENV || "development",
   time:    new Date().toISOString(),
 }));
 
-/* ── mount routes ── */
 app.use("/api/auth",     authRoutes);
 app.use("/api/business", businessRoutes);
 app.use("/api/insights", insightsRoutes);
 
-/* ── 404 handler ── */
 app.use((_, res) => res.status(404).json({ error: "Route not found" }));
 
-/* ── global error handler ── */
 app.use((err, _req, res, _next) => {
   console.error("❌ Server error:", err.message);
-  res.status(500).json({ error: "Internal server error" });
+  res.status(500).json({
+    error: process.env.NODE_ENV === "production"
+      ? "Internal server error"
+      : err.message,
+  });
 });
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-  console.log(`🚀 B.O.S.S Engine running on http://localhost:${PORT}`);
+  console.log(`🚀 B.O.S.S Engine → http://localhost:${PORT}`);
+  console.log(`   Allowed origins: ${allowedOrigins.join(", ")}`);
 });
