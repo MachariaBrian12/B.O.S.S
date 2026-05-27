@@ -276,7 +276,7 @@ export default function Landing() {
         .features{padding:80px 24px;max-width:1140px;margin:0 auto;}
         .sec-tag{font-size:11px;color:var(--blue);font-weight:500;letter-spacing:.15em;text-transform:uppercase;margin-bottom:18px;}
         .sec-h{font-family:'Syne',sans-serif;font-size:clamp(32px,4.2vw,52px);font-weight:700;letter-spacing:-.035em;line-height:1.05;margin-bottom:52px;max-width:560px;}
-        .bento{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+        .bento{display:grid;grid-template-columns:1fr;gap:10px;}@media(min-width:769px){.bento{grid-template-columns:repeat(3,1fr);}}
         .bw{grid-column:span 2;}
         .bc{background:var(--gb);border:1px solid var(--gbr);border-radius:18px;padding:26px;position:relative;overflow:hidden;transition:all .4s cubic-bezier(.16,1,.3,1);cursor:none;}
         .bc::before{content:'';position:absolute;inset:0;border-radius:18px;background:linear-gradient(135deg,rgba(255,255,255,.06),transparent);opacity:0;transition:opacity .3s;}
