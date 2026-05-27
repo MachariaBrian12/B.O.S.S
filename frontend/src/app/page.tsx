@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -12,6 +12,7 @@ export default function Landing() {
   const dotRef    = useRef<HTMLDivElement>(null);
   const ringRef   = useRef<HTMLDivElement>(null);
   const auraRef   = useRef<HTMLDivElement>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(()=>{
     /* ── STARFIELD ── */
@@ -135,6 +136,19 @@ export default function Landing() {
           --t1:#F1F5F9; --t2:#94A3B8; --t3:#475569;
           --gb:rgba(255,255,255,0.022); --gbr:rgba(255,255,255,0.07);
         }
+        
+        /* ── HAMBURGER ── */
+        .ham{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px;background:none;border:none;z-index:200;}
+        .ham span{display:block;width:22px;height:2px;background:var(--t1);border-radius:2px;transition:all .3s ease;}
+        .ham.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+        .ham.open span:nth-child(2){opacity:0;}
+        .ham.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+        .mob-menu{display:none;position:fixed;inset:0;z-index:150;background:rgba(2,2,12,.97);backdrop-filter:blur(40px);flex-direction:column;align-items:center;justify-content:center;gap:32px;}
+        .mob-menu.open{display:flex;}
+        .mob-link{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:var(--t1);text-decoration:none;letter-spacing:-.02em;transition:color .2s;}
+        .mob-link:hover{color:var(--cyan);}
+        .mob-btns{display:flex;flex-direction:column;gap:12px;width:260px;margin-top:16px;}
+        @media(max-width:768px){.ham{display:flex;}.nav-links,.nav-btns{display:none;}}
         html{scroll-behavior:smooth;}@media(max-width:768px){body{cursor:auto;}#cur-dot,#cur-ring,#cur-aura{display:none;}.nav-links,.nav-btns{display:none;}.nav{padding:10px 16px;}.hero{padding:100px 20px 60px;}.hero-title{font-size:clamp(56px,18vw,110px);}.hero-actions{flex-direction:column;width:100%;}.btn-primary,.btn-secondary{width:100%;justify-content:center;}.dash-frame{display:none;}.stats-inner{grid-template-columns:1fr 1fr;}.stat{padding:28px 16px;}.stat-n{font-size:36px;}.about{flex-direction:column;gap:32px;padding:60px 20px;}.about-h{font-size:clamp(28px,8vw,42px);}.pills{flex-direction:column;}.features{padding:60px 20px;}.bento{grid-template-columns:1fr;}.bc.bw{grid-column:span 1;}.ai-sec{flex-direction:column;padding:60px 20px;gap:32px;}.ai-chat{max-width:100%;}.pg{flex-direction:column;align-items:center;}.price-card{width:100%;max-width:360px;}.cta-strip{padding:80px 20px;}.sec-h{font-size:clamp(26px,7vw,40px);}@keyframes aA{to{transform:translate(0,0) scale(1);}}@keyframes aB{to{transform:translate(0,0) scale(1);}}@keyframes aC{to{transform:translate(0,0) scale(1);}}}@media(max-width:768px){body{cursor:auto;}#cur-dot,#cur-ring,#cur-aura{display:none;}.nav-links,.nav-btns{display:none;}.nav{padding:10px 16px;}.hero{padding:100px 20px 60px;}.hero-title{font-size:clamp(56px,18vw,110px);}.hero-actions{flex-direction:column;width:100%;}.btn-primary,.btn-secondary{width:100%;justify-content:center;}.dash-frame{display:none;}.stats-inner{grid-template-columns:1fr 1fr;}.stat{padding:28px 16px;}.stat-n{font-size:36px;}.about{flex-direction:column;gap:32px;padding:60px 20px;}.about-h{font-size:clamp(28px,8vw,42px);}.pills{flex-direction:column;}.features{padding:60px 20px;}.bento{grid-template-columns:1fr;}.bc.bw{grid-column:span 1;}.ai-sec{flex-direction:column;padding:60px 20px;gap:32px;}.ai-chat{max-width:100%;}.pg{flex-direction:column;align-items:center;}.price-card{width:100%;max-width:360px;}.cta-strip{padding:80px 20px;}.sec-h{font-size:clamp(26px,7vw,40px);}@keyframes aA{to{transform:translate(0,0) scale(1);}}@keyframes aB{to{transform:translate(0,0) scale(1);}}@keyframes aC{to{transform:translate(0,0) scale(1);}}}
         body{background:var(--void);color:var(--t1);font-family:'DM Sans',sans-serif;overflow-x:hidden;cursor:none;}
 
@@ -352,7 +366,22 @@ export default function Landing() {
           <Link href="/login"    className="btn-nav-ghost">Sign In</Link>
           <Link href="/register" className="btn-nav-primary">Get Started →</Link>
         </div>
+        <button className={`ham${menuOpen?" open":""}`} onClick={()=>setMenuOpen(!menuOpen)} aria-label="Menu">
+          <span/><span/><span/>
+        </button>
       </nav>
+
+      {/* ── MOBILE MENU ── */}
+      <div className={`mob-menu${menuOpen?" open":""}`} onClick={()=>setMenuOpen(false)}>
+        <a href="#platform"     className="mob-link" onClick={()=>setMenuOpen(false)}>Platform</a>
+        <a href="#intelligence" className="mob-link" onClick={()=>setMenuOpen(false)}>Intelligence</a>
+        <a href="#about"        className="mob-link" onClick={()=>setMenuOpen(false)}>About</a>
+        <a href="#pricing"      className="mob-link" onClick={()=>setMenuOpen(false)}>Pricing</a>
+        <div className="mob-btns">
+          <Link href="/login"    className="btn-nav-ghost" style={{textAlign:"center",justifyContent:"center"}} onClick={()=>setMenuOpen(false)}>Sign In</Link>
+          <Link href="/register" className="btn-nav-primary" style={{textAlign:"center",justifyContent:"center"}} onClick={()=>setMenuOpen(false)}>Get Started →</Link>
+        </div>
+      </div>
 
       <main style={{position:"relative",zIndex:2}}>
 
