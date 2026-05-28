@@ -54,13 +54,13 @@ export default function Dashboard() {
   const [alerts,  setAlerts]  = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab,     setTab]     = useState<"feed"|"signals"|"alerts">("feed");
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   /* ── responsive detection ── */
   useEffect(()=>{
-    const check = () => setIsMobile(window.innerWidth < 768);
+    const check = () => setIsMobile(window.innerWidth < 900);
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
@@ -199,7 +199,7 @@ export default function Dashboard() {
           <div style={{display:"flex",alignItems:"center",gap:8}}>
             <div style={{fontFamily:"'Syne',sans-serif",fontSize:22,fontWeight:800,color:scoreColor}}>{ins.score}</div>
             <div style={{flex:1}}>
-              <div style={{height:3,background:"rgba(255,255,255,.06)",borderRadius:2,overflow:"hidden"}}>
+              <div style={{height:3,background:"rgba(255,255,255,.06)",borderRadius:2,overflow:"hidden",width:"100%",maxWidth:"100vw"}}>
                 <motion.div initial={{width:0}} animate={{width:`${ins.score}%`}}
                   transition={{duration:1.2,ease:[.16,1,.3,1] as [number,number,number,number]}}
                   style={{height:"100%",background:`linear-gradient(90deg,#3B82F6,${scoreColor})`,borderRadius:2}}/>
@@ -234,13 +234,13 @@ export default function Dashboard() {
   );
 
   return (
-    <div style={{minHeight:"100vh",background:"#02020c",position:"relative",overflow:"hidden"}}>
+    <div style={{minHeight:"100vh",background:"#02020c",position:"relative",overflow:"hidden",width:"100%",maxWidth:"100vw"}}>
 
       {/* ── canvas starfield ── */}
       <canvas ref={canvasRef} style={{position:"fixed",inset:0,zIndex:0,pointerEvents:"none"}}/>
 
       {/* ── aurora ── */}
-      <div style={{position:"fixed",inset:0,zIndex:0,pointerEvents:"none",overflow:"hidden"}}>
+      <div style={{position:"fixed",inset:0,zIndex:0,pointerEvents:"none",overflow:"hidden",width:"100%",maxWidth:"100vw"}}>
         {[
           {w:800,h:800,c:"rgba(59,130,246,.09)",t:-250,l:-180,a:"aA"},
           {w:650,h:650,c:"rgba(139,92,246,.07)",t:80,r:-120,a:"aB"},
@@ -255,7 +255,7 @@ export default function Dashboard() {
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
-        @keyframes aA{to{transform:translate(90px,70px) scale(1.12);}}
+        @media (orientation: portrait) { html, body { overflow: hidden; touch-action: none; } } @keyframes aA{to{transform:translate(90px,70px) scale(1.12);}}
         @keyframes aB{to{transform:translate(-70px,110px) scale(.88);}}
         @keyframes aC{to{transform:translate(-90px,-70px) scale(1.10);}}
         *{box-sizing:border-box;margin:0;padding:0;}
@@ -280,7 +280,7 @@ export default function Dashboard() {
       {/* ════════════════════════════════════
           LAYOUT
       ════════════════════════════════════ */}
-      <div style={{position:"relative",zIndex:2,display:"flex",minHeight:"100vh"}}>
+      <div style={{position:"relative",zIndex:2,display:"flex",minHeight:"100vh",width:"100%",overflow:"hidden"}}>
 
         {/* ── SIDEBAR: desktop (sticky) ── */}
         {!isMobile && (
@@ -313,7 +313,7 @@ export default function Dashboard() {
         ════════════════════════════════════ */}
         <main style={{
           flex:1,
-          overflowY:"auto",
+          overflowY:"auto",overflowX:"hidden",
           padding: isMobile ? "20px 16px 60px" : "32px 32px 60px",
           minWidth:0, /* prevent flex blowout */
         }}>
@@ -491,7 +491,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                   {chartData.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={300} width="100%" height={isMobile?120:148}>
+                    <ResponsiveContainer width="100%" height={isMobile ? 120 : 148}>
                       <AreaChart data={chartData} margin={{top:0,right:0,left:isMobile?-20:0,bottom:0}}>
                         <defs>
                           {[["gS","#3B82F6",.22],["gE","#EF4444",.18],["gP","#10B981",.22]].map(([id,c,o])=>(
@@ -687,7 +687,7 @@ export default function Dashboard() {
                                     overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{sig.title}</span>
                                 </div>
                                 <div style={{display:"flex",alignItems:"center",gap:5,flexShrink:0}}>
-                                  <div style={{width:36,height:3,background:"rgba(255,255,255,.06)",borderRadius:2,overflow:"hidden"}}>
+                                  <div style={{width:36,height:3,background:"rgba(255,255,255,.06)",borderRadius:2,overflow:"hidden",width:"100%",maxWidth:"100vw"}}>
                                     <div style={{height:"100%",width:`${sig.confidence}%`,background:c,borderRadius:2}}/>
                                   </div>
                                   <span style={{fontSize:9,color:"#334155"}}>{sig.confidence}%</span>
