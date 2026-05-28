@@ -687,7 +687,7 @@ export default function Dashboard() {
                                     overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{sig.title}</span>
                                 </div>
                                 <div style={{display:"flex",alignItems:"center",gap:5,flexShrink:0}}>
-                                  <div style={{width:36,height:3,background:"rgba(255,255,255,.06)",borderRadius:2,overflow:"hidden",width:"100%",maxWidth:"100vw"}}>
+                                  <div style={{width:36,height:3,background:"rgba(255,255,255,.06)",borderRadius:2,overflow:"hidden"}}>
                                     <div style={{height:"100%",width:`${sig.confidence}%`,background:c,borderRadius:2}}/>
                                   </div>
                                   <span style={{fontSize:9,color:"#334155"}}>{sig.confidence}%</span>
