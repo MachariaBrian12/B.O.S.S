@@ -31,7 +31,7 @@ const ChartTip = ({active,payload,label}:{active?:boolean;payload?:{value:number
   if (!active||!payload?.length) return null;
   const colors:Record<string,string> = {sales:"#3B82F6",expenses:"#EF4444",profit:"#10B981"};
   return (
-    <div style={{background:"rgba(4,4,20,.97)",border:"1px solid rgba(255,255,255,.09)",borderRadius:10,padding:"10px 14px",fontSize:11}}>
+    <div className="overflow-x-hidden"  style={{background:"rgba(4,4,20,.97)",border:"1px solid rgba(255,255,255,.09)",borderRadius:10,padding:"10px 14px",fontSize:11}}>
       <div style={{color:"#64748B",marginBottom:6}}>{label}</div>
       {payload.map((p,i)=>(
         <div key={i} style={{color:colors[p.name]||"#94A3B8",fontWeight:600,marginBottom:2}}>
@@ -491,7 +491,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                   {chartData.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={isMobile?120:148}>
+                    <ResponsiveContainer width="100%" height={300} width="100%" height={isMobile?120:148}>
                       <AreaChart data={chartData} margin={{top:0,right:0,left:isMobile?-20:0,bottom:0}}>
                         <defs>
                           {[["gS","#3B82F6",.22],["gE","#EF4444",.18],["gP","#10B981",.22]].map(([id,c,o])=>(
