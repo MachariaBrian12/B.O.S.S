@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --void:   #02020c;
+  --blue:   #3B82F6;
+  --cyan:   #06B6D4;
+  --purple: #8B5CF6;
+  --green:  #10B981;
+  --amber:  #F59E0B;
+  --red:    #EF4444;
+  --pink:   #EC4899;
+  --t1:     #F1F5F9;
+  --t2:     #94A3B8;
+  --t3:     #475569;
+  --gb:     rgba(255,255,255,0.022);
+  --gbr:    rgba(255,255,255,0.07);
+  --radius: 14px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--void);
+  color: var(--t1);
+  font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ── AURORA BG ── */
+.aurora-bg {
+  position: fixed; inset: 0; z-index: 0;
+  overflow: hidden; pointer-events: none;
+}
+.aurora-1 { position:absolute;width:900px;height:900px;background:radial-gradient(circle,rgba(59,130,246,.14) 0%,transparent 65%);top:-300px;left:-200px;animation:aA 22s ease-in-out infinite alternate; }
+.aurora-2 { position:absolute;width:700px;height:700px;background:radial-gradient(circle,rgba(139,92,246,.12) 0%,transparent 65%);top:80px;right:-150px;animation:aB 28s ease-in-out infinite alternate; }
+.aurora-3 { position:absolute;width:800px;height:800px;background:radial-gradient(circle,rgba(6,182,212,.09) 0%,transparent 65%);bottom:-100px;left:25%;animation:aC 20s ease-in-out infinite alternate; }
+
+@keyframes aA { to { transform: translate(100px,80px) scale(1.15); } }
+@keyframes aB { to { transform: translate(-80px,120px) scale(.9); } }
+@keyframes aC { to { transform: translate(-100px,-80px) scale(1.1); } }
+
+.noise {
+  position:fixed;inset:0;z-index:1;opacity:.018;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── GLASS CARD ── */
+.glass {
+  background: rgba(255,255,255,.022);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: var(--radius);
+  backdrop-filter: blur(20px);
+}
+
+/* ── BUTTONS ── */
+.btn {
+  padding: 12px 24px; border: none; border-radius: 12px;
+  font-family: 'DM Sans', sans-serif; font-size: 14px;
+  font-weight: 500; cursor: pointer; transition: all .25s ease;
+  letter-spacing: .02em; display: inline-flex;
+  align-items: center; gap: 8px;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--blue), var(--purple));
+  color: #fff;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 48px rgba(59,130,246,.4);
+}
+.btn-ghost {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.09);
+  color: var(--t2);
+}
+.btn-ghost:hover { background: rgba(255,255,255,.08); color: var(--t1); }
+.btn-danger {
+  background: rgba(239,68,68,.12);
+  border: 1px solid rgba(239,68,68,.25);
+  color: #EF4444;
+}
+.btn-danger:hover { background: rgba(239,68,68,.2); }
+
+/* ── INPUT ── */
+.input {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 12px;
+  color: var(--t1);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  transition: border-color .2s, box-shadow .2s;
+  outline: none;
+}
+.input:focus {
+  border-color: rgba(59,130,246,.5);
+  box-shadow: 0 0 0 3px rgba(59,130,246,.1);
+}
+.input::placeholder { color: var(--t3); }
+
+/* ── LABEL ── */
+.label {
+  font-size: 12px; color: var(--t3);
+  letter-spacing: .06em; text-transform: uppercase;
+  font-weight: 500; margin-bottom: 8px; display: block;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; }
+  50%     { opacity: .5; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.fade-up  { animation: fadeUp  .6s cubic-bezier(.16,1,.3,1) both; }
+.fade-in  { animation: fadeIn  .4s ease both; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar       { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.2); }

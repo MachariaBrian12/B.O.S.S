@@ -1,0 +1,132 @@
+              <div className="bento-glow" style={{background:'var(--blue)'}}></div>
+            </div>
+            <div className="bento-card">
+              <div className="bento-icon i-cyan">📦</div>
+              <div className="bento-title">Precision Inventory</div>
+              <div className="bento-desc">Auto-reorder triggers, expiry tracking, supplier sync. Stockouts become a memory.</div>
+              <div className="bento-glow" style={{background:'var(--cyan)'}}></div>
+            </div>
+            <div className="bento-card">
+              <div className="bento-icon i-purple">⚡</div>
+              <div className="bento-title">Mobile-First POS</div>
+              <div className="bento-desc">Full point-of-sale on any device. Offline-resilient. Auto-syncs the moment you reconnect.</div>
+              <div className="bento-glow" style={{background:'var(--purple)'}}></div>
+            </div>
+            <div className="bento-card">
+              <div className="bento-icon i-green">🔲</div>
+              <div className="bento-title">Frictionless Payments</div>
+              <div className="bento-desc">QR, NFC, card, M-Pesa, cash — accepted in under two seconds. Zero friction at checkout.</div>
+              <div className="bento-glow" style={{background:'var(--green)'}}></div>
+            </div>
+            <div className="bento-card bento-wide">
+              <div className="bento-icon i-amber">🏢</div>
+              <div className="bento-title">Multi-Store Command Centre</div>
+              <div className="bento-desc">Manage unlimited locations from a single interface. Staff, stock and revenue — unified. Westlands, CBD, Karen, Mombasa Road — all in perfect sync.</div>
+              <div className="bento-glow" style={{background:'var(--amber)'}}></div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════ AI ══════════ */}
+        <section id="intelligence" className="ai-section">
+          <div className="reveal">
+            <div className="section-tag">Intelligence Layer</div>
+            <h2 className="section-title" style={{marginBottom:'16px'}}>Your AI co-pilot. Always on.</h2>
+            <p style={{color:'var(--t2)',fontSize:'16px',lineHeight:'1.72',fontWeight:300,maxWidth:'400px'}}>
+              Ask in plain language. Receive boardroom-grade insights in seconds. No analysts required — just answers.
+            </p>
+            <ul className="ai-list">
+              <li><span className="ai-check">✓</span>Predictive restock recommendations</li>
+              <li><span className="ai-check">✓</span>Anomaly detection &amp; fraud alerts</li>
+              <li><span className="ai-check">✓</span>Demand forecasting across all stores</li>
+              <li><span className="ai-check">✓</span>Personalised offers per customer segment</li>
+            </ul>
+          </div>
+          <div className="ai-chat reveal">
+            <div className="ai-hdr">
+              <div className="ai-av">B</div>
+              <div>
+                <div className="ai-name">B.O.S.S Intelligence</div>
+                <div className="ai-stat">● Online · Analysing your stores</div>
+              </div>
+            </div>
+            <div className="chat-msg u"><div className="bubble user">What were my top products this week?</div></div>
+            <div className="chat-msg">
+              <div className="bubble ai">
+                Top performers this week:<br /><br />
+                1. <span className="hl">Arabica Blend</span> — KES 4,821 (↑ 23%)<br />
+                2. <span className="hl">Cold Brew Kit</span> — KES 3,204 (↑ 11%)<br />
+                3. <span className="hl">Matcha Latte Set</span> — KES 2,102 (↑ 44%)
+              </div>
+            </div>
+            <div className="chat-msg u"><div className="bubble user">Should I restock Matcha?</div></div>
+            <div className="chat-msg">
+              <div className="bubble ai">
+                <span className="hl">✅ Restock immediately.</span> 3 units remaining. At 44% growth trajectory you&apos;ll sell out in ~18 hours. Order 24 units today.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════ PRICING ══════════ */}
+        <section id="pricing" className="pricing">
+          <div className="section-tag reveal">Pricing</div>
+          <h2 className="section-title reveal" style={{maxWidth:'100%',margin:'0 auto 0',textAlign:'center'}}>
+            Invest in scale. Not complexity.
+          </h2>
+          <div className="pricing-grid reveal">
+            <div className="price-card">
+              <div className="p-tier">Starter</div>
+              <div className="p-price">Free</div>
+              <div className="p-per">forever · 1 location</div>
+              <ul className="p-feats">
+                <li><span className="chk">✓</span>1 POS device</li>
+                <li><span className="chk">✓</span>Core analytics</li>
+                <li><span className="chk">✓</span>500 products</li>
+                <li><span className="chk">✓</span>QR &amp; M-Pesa payments</li>
+              </ul>
+              <button className="p-btn">Begin for Free</button>
+            </div>
+            <div className="price-card feat">
+              <div className="p-tier">Growth</div>
+              <div className="p-price">$49</div>
+              <div className="p-per">per month · unlimited locations</div>
+              <ul className="p-feats">
+                <li><span className="chk">✓</span>Unlimited POS devices</li>
+                <li><span className="chk">✓</span>Real-time analytics</li>
+                <li><span className="chk">✓</span>Full AI intelligence suite</li>
+                <li><span className="chk">✓</span>Multi-store command centre</li>
+                <li><span className="chk">✓</span>Staff &amp; shift management</li>
+              </ul>
+              <button className="p-btn">Start 14-Day Trial</button>
+            </div>
+            <div className="price-card">
+              <div className="p-tier">Enterprise</div>
+              <div className="p-price">Custom</div>
+              <div className="p-per">tailored to your scale</div>
+              <ul className="p-feats">
+                <li><span className="chk">✓</span>Everything in Growth</li>
+                <li><span className="chk">✓</span>Dedicated account team</li>
+                <li><span className="chk">✓</span>Custom integrations &amp; API</li>
+                <li><span className="chk">✓</span>Enterprise SLA guarantees</li>
+              </ul>
+              <button className="p-btn">Talk to Sales</button>
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+      <footer>
+        <div className="footer-logo">B.O.S.S</div>
+        <p className="footer-tag">Business Operations &amp; Orchestration Software Systems · Built for Africa. Engineered for the world.</p>
+        <ul className="footer-links">
+          <li><a href="#">Privacy</a></li>
+          <li><a href="#">Terms</a></li>
+          <li><a href="#">Security</a></li>
+          <li><a href="#">Status</a></li>
+        </ul>
+      </footer>
+    </>
+  );
+}
