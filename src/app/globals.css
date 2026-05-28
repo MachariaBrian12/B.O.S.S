@@ -27,10 +27,7 @@ body {
   min-height: 100vh;
 }
 
-.aurora-bg {
-  position: fixed; inset: 0; z-index: 0;
-  overflow: hidden; pointer-events: none;
-}
+.aurora-bg { position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none; }
 .aurora-1 { position:absolute;width:900px;height:900px;background:radial-gradient(circle,rgba(59,130,246,.14) 0%,transparent 65%);top:-300px;left:-200px;animation:aA 22s ease-in-out infinite alternate; }
 .aurora-2 { position:absolute;width:700px;height:700px;background:radial-gradient(circle,rgba(139,92,246,.12) 0%,transparent 65%);top:80px;right:-150px;animation:aB 28s ease-in-out infinite alternate; }
 .aurora-3 { position:absolute;width:800px;height:800px;background:radial-gradient(circle,rgba(6,182,212,.09) 0%,transparent 65%);bottom:-100px;left:25%;animation:aC 20s ease-in-out infinite alternate; }
@@ -38,11 +35,6 @@ body {
 @keyframes aA { to { transform: translate(100px,80px) scale(1.15); } }
 @keyframes aB { to { transform: translate(-80px,120px) scale(.9); } }
 @keyframes aC { to { transform: translate(-100px,-80px) scale(1.1); } }
-
-.noise {
-  position:fixed;inset:0;z-index:1;opacity:.018;pointer-events:none;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
 
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
