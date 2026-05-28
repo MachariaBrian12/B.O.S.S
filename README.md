@@ -1,37 +1,66 @@
-# B.O.S.S
-### Business Operations & Orchestration Software Systems
+# 🧠 B.O.S.S  
+## Business Orchestration Software Service
 
-> An AI-native point of sale SaaS — powered by an AI that sees beyond every
-> transaction, turning each sale into a signal, every pattern into an advantage.
+![AI](https://img.shields.io/badge/AI-Native-blueviolet?style=flat-square)
+![SaaS](https://img.shields.io/badge/SaaS-Platform-blue?style=flat-square)
+![Status](https://img.shields.io/badge/Status-Active-orange?style=flat-square)
 
-**Intelligent by design. Powerful by nature.**
-
-## Stack
-- **Frontend** — Next.js 16, TypeScript, Framer Motion, Recharts
-- **Backend** — Express.js, SQLite, JWT Auth
-- **Intelligence** — Rule-based AI engine with predictive signals
-
-## Features
-- 🧠 AI Intelligence Feed
-- 📊 Real-time Dashboard
-- ⚡ Predictive Signals Engine
-- 🚨 Smart Alert System
-- 🔥 Streak Tracking
-- 📈 7-Day Trend Charts
-- 🔐 JWT Authentication
-
-## Versions
-| Branch | Description |
-|--------|-------------|
-| v0.1   | Auth + Business Engine + Basic Dashboard |
-| v0.2   | Charts + Framer Motion + Sidebar |
-| v0.5   | Intelligence Feed + Alerts + Signals |
-
-## Run Locally
-\`\`\`bash
-npm run dev
-\`\`\`
+> ⚡ AI-native SaaS platform that unifies business operations, intelligence, and automation into one orchestration system.
 
 ---
 
-*Built in Nairobi, Kenya — Africa, for the world.* 🇰🇪
+## 🚀 Overview
+
+B.O.S.S turns fragmented business operations into a single intelligent system powered by AI.
+
+It replaces dashboards and manual reporting with real-time intelligence, automation, and predictive insights.
+
+---
+
+## 🧠 Features
+
+- 🧠 AI Intelligence Feed  
+- 📊 Real-Time Dashboard  
+- ⚡ Predictive Signals Engine  
+- 🚨 Smart Alert System  
+- 📈 Performance Tracking  
+- 🔐 JWT Authentication  
+
+---
+
+## 🧱 Stack
+
+- Next.js 16  
+- TypeScript  
+- Express.js  
+- SQLite  
+- OpenAI GPT-4o  
+- Recharts  
+- Framer Motion  
+
+---
+
+## 📸 Screenshots
+
+### Dashboard
+![Dashboard](https://via.placeholder.com/1200x600?text=Dashboard)
+
+### AI Feed
+![AI Feed](https://via.placeholder.com/1200x600?text=AI+Feed)
+
+### Analytics
+![Analytics](https://via.placeholder.com/1200x600?text=Analytics)
+
+---
+
+## 🌍 Vision
+
+Built for Africa. Engineered for the World.
+
+---
+
+## 🧭 Principle
+
+Every action →Ddata  
+Every data → Intelligence  
+Every intelligence → Action
