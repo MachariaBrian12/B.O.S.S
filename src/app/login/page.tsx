@@ -62,7 +62,8 @@ export default function Login() {
           </div>
           <button className="btn btn-primary" type="submit"
             style={{width:"100%",justifyContent:"center",padding:"14px",fontSize:"15px"}}
-            disabled={loading}>
+            disabled={loading}
+            title={loading ? "Server may be waking up, please wait..." : ""}>
             {loading ? "Signing in..." : "Sign In →"}
           </button>
         </form>
