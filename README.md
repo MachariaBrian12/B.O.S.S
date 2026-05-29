@@ -39,7 +39,7 @@ Built with artificial intelligence at its core, B.O.S.S helps businesses move be
 - Express.js
 - PostgreSQL 
 - SQLite  
-- OpenAI GPT-4o  
+- OpenAI GPT-4o, Claude
 - Recharts  
 - Framer Motion  
 
