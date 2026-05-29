@@ -2,56 +2,56 @@ import { apiClient } from "./apiClient";
 
 export const api = {
   login: (email: string, password: string) =>
-    apiClient("/login", {
+    apiClient("/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
     }),
 
   register: (name: string, email: string, password: string, business: string) =>
-    apiClient("/register", {
+    apiClient("/auth/register", {
       method: "POST",
       body: JSON.stringify({ name, email, password, business }),
     }),
 
   me: (token: string) =>
-    apiClient("/me", {
+    apiClient("/auth/me", {
       headers: { Authorization: `Bearer ${token}` },
     }),
 
   getInsights: (token: string) =>
-    apiClient("/insights", {
+    apiClient("/insights/daily", {
       headers: { Authorization: `Bearer ${token}` },
     }),
 
   getWeek: (token: string) =>
-    apiClient("/week", {
+    apiClient("/business/week", {
       headers: { Authorization: `Bearer ${token}` },
     }),
 
   getSignals: (token: string) =>
-    apiClient("/signals", {
+    apiClient("/insights/signals", {
       headers: { Authorization: `Bearer ${token}` },
     }),
 
   getToday: (token: string) =>
-    apiClient("/today", {
+    apiClient("/business/today", {
       headers: { Authorization: `Bearer ${token}` },
     }),
 
   getHistory: (token: string, limit: number) =>
-    apiClient(`/history?limit=${limit}`, {
+    apiClient(`/business/history?limit=${limit}`, {
       headers: { Authorization: `Bearer ${token}` },
     }),
 
   addEntry: (token: string, data: any) =>
-    apiClient("/entry", {
+    apiClient("/business/entry", {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
       body: JSON.stringify(data),
     }),
 
   logout: (token: string) =>
-    apiClient("/logout", {
+    apiClient("/auth/logout", {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
     }),
