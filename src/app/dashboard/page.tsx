@@ -306,7 +306,7 @@ export default function Dashboard() {
             style={{position:"fixed",left:0,top:0,bottom:0,width:240,zIndex:20,
               background:"rgba(2,2,12,.97)",borderRight:"1px solid rgba(255,255,255,.07)",
               backdropFilter:"blur(40px)",display:"flex",flexDirection:"column",
-              padding:"28px 14px",overflowY:"auto"}}>
+              padding:"28px 14px",overflowY:"auto",pointerEvents:sidebarOpen?"auto":"none"}}>
             <SidebarContent/>
           </motion.aside>
         )}
