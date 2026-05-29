@@ -104,7 +104,14 @@ export default function Dashboard() {
 
   /* ── data ── */
   useEffect(()=>{
-    if(!token||!user){router.push("/login");return;}
+    const timer = setTimeout(()=>{
+      if(!token||!user){router.push("/login");return;}
+    }, 100);
+    return ()=>clearTimeout(timer);
+  },[token,user]);
+
+  useEffect(()=>{
+    if(!token||!user){return;}
     Promise.all([
       api.getInsights(token).then(d=>{
         setInsights(d.insights);
@@ -267,16 +274,12 @@ export default function Dashboard() {
       `}</style>
 
       {/* ── MOBILE: overlay backdrop ── */}
-      <AnimatePresence>
-        {isMobile && sidebarOpen && (
-          <motion.div
-            key="backdrop"
-            initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}
-            onClick={()=>setSidebarOpen(false)} onTransitionEnd={()=>setSidebarOpen(false)}
-            style={{position:"fixed",inset:0,zIndex:10,background:"rgba(0,0,0,.6)"}}
-          />
-        )}
-      </AnimatePresence>
+      {isMobile && sidebarOpen && (
+        <div
+          onClick={()=>setSidebarOpen(false)}
+          style={{position:"fixed",inset:0,zIndex:10,background:"rgba(0,0,0,.5)",cursor:"pointer"}}
+        />
+      )}
 
       {/* ════════════════════════════════════
           LAYOUT
