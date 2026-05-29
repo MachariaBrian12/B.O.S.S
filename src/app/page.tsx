@@ -8,6 +8,7 @@ const fadeUp = { hidden:{opacity:0,y:24}, show:{opacity:1,y:0,transition:{durati
 const stagger = { show:{transition:{staggerChildren:.08}} };
 
 export default function Landing() {
+  useEffect(() => { fetch("/api/ping").catch(() => {}); }, []);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dotRef    = useRef<HTMLDivElement>(null);
   const ringRef   = useRef<HTMLDivElement>(null);
