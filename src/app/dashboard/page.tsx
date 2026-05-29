@@ -104,24 +104,23 @@ export default function Dashboard() {
 
   /* ── data ── */
   useEffect(()=>{
-    const timer = setTimeout(()=>{
-      if(!token||!user){router.push("/login");return;}
-    }, 100);
-    return ()=>clearTimeout(timer);
+    if(token&&user){
+      Promise.all([
+        api.getInsights(token).then(d=>{
+          setInsights(d.insights);
+          setFeed(d.insights.feed||[]);
+          setAlerts(d.insights.alerts||[]);
+        }),
+        api.getWeek(token).then(setWeek),
+        api.getSignals(token).then(d=>setSignals(d.signals||[])),
+      ]).catch(()=>{}).finally(()=>setLoading(false));
+    } else {
+      const timer = setTimeout(()=>{
+        if(!token||!user) router.push("/login");
+      }, 500);
+      return ()=>clearTimeout(timer);
+    }
   },[token,user]);
-
-  useEffect(()=>{
-    if(!token||!user){return;}
-    Promise.all([
-      api.getInsights(token).then(d=>{
-        setInsights(d.insights);
-        setFeed(d.insights.feed||[]);
-        setAlerts(d.insights.alerts||[]);
-      }),
-      api.getWeek(token).then(setWeek),
-      api.getSignals(token).then(d=>setSignals(d.signals||[])),
-    ]).catch(()=>{}).finally(()=>setLoading(false));
-  },[]);
 
   const handleLogout = async ()=>{
     if(token) await api.logout(token).catch(()=>{});
