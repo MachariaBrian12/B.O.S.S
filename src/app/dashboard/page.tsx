@@ -56,6 +56,7 @@ export default function Dashboard() {
   const [tab,     setTab]     = useState<"feed"|"signals"|"alerts">("feed");
   const [isMobile, setIsMobile] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = typeof window !== "undefined" ? window.location.pathname : "";
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   /* ── responsive detection ── */
@@ -152,7 +153,7 @@ export default function Dashboard() {
           </div>
         </div>
         {isMobile && (
-          <button onClick={()=>setSidebarOpen(false)}
+          <button onClick={()=>setSidebarOpen(false)} onTransitionEnd={()=>setSidebarOpen(false)}
             style={{background:"transparent",border:"none",color:"#475569",fontSize:20,cursor:"pointer",padding:4}}>
             ✕
           </button>
@@ -271,7 +272,7 @@ export default function Dashboard() {
           <motion.div
             key="backdrop"
             initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}
-            onClick={()=>setSidebarOpen(false)}
+            onClick={()=>setSidebarOpen(false)} onTransitionEnd={()=>setSidebarOpen(false)}
             style={{position:"fixed",inset:0,zIndex:10,background:"rgba(0,0,0,.6)"}}
           />
         )}
