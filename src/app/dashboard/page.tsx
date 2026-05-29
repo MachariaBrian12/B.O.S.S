@@ -255,7 +255,7 @@ export default function Dashboard() {
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
-        @media (orientation: portrait) { html, body { overflow: hidden; touch-action: none; } } @keyframes aA{to{transform:translate(90px,70px) scale(1.12);}}
+        @keyframes aA{to{transform:translate(90px,70px) scale(1.12);}}
         @keyframes aB{to{transform:translate(-70px,110px) scale(.88);}}
         @keyframes aC{to{transform:translate(-90px,-70px) scale(1.10);}}
         *{box-sizing:border-box;margin:0;padding:0;}
@@ -272,7 +272,7 @@ export default function Dashboard() {
             key="backdrop"
             initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}
             onClick={()=>setSidebarOpen(false)}
-            style={{position:"fixed",inset:0,zIndex:10,background:"rgba(0,0,0,.6)",backdropFilter:"blur(4px)"}}
+            style={{position:"fixed",inset:0,zIndex:10,background:"rgba(0,0,0,.6)"}}
           />
         )}
       </AnimatePresence>
