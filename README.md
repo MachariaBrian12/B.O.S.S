@@ -1,5 +1,5 @@
 # 🧠 B.O.S.S  
-## Business Orchestration Software Service
+## Business Orchestration Software Systems
 
 ![AI](https://img.shields.io/badge/AI-Native-blueviolet?style=flat-square)
 ![SaaS](https://img.shields.io/badge/SaaS-Platform-blue?style=flat-square)
@@ -36,7 +36,8 @@ Built with artificial intelligence at its core, B.O.S.S helps businesses move be
 
 - Next.js 16  
 - TypeScript  
-- Express.js  
+- Express.js
+- PostgreSQL 
 - SQLite  
 - OpenAI GPT-4o  
 - Recharts  
@@ -52,6 +53,6 @@ Built for Africa. Engineered for the World.
 
 ## 🧭 Principle
 
-Every action → data  
-Every data → intelligence  
-Every intelligence → action
+Every action → Data  
+Every data → Intelligence  
+Every intelligence → Action
