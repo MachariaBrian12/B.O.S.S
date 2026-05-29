@@ -69,7 +69,7 @@ export default function Login() {
         </form>
 
         <div style={{textAlign:"center",marginTop:"24px",fontSize:"13px",color:"var(--t3)"}}>
-          No account?{" "}
+          Forgot password?{" "}<Link href="/forgot-password" style={{color:"var(--cyan)",textDecoration:"none",fontWeight:500}}>Reset it</Link><br/><br/>No account?{" "}
           <Link href="/register" style={{color:"var(--cyan)",textDecoration:"none",fontWeight:500}}>
             Create one free
           </Link>
