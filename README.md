@@ -23,16 +23,16 @@ Built with artificial intelligence at its core, B.O.S.S helps businesses move be
 
 ## 🧠 Features
 
-🧠 AI Chat Engine (OpenAI-powered conversational system)
-💬 Multi-message conversation handling
-👤 User-based authentication system (JWT)
-🗄 Persistent AI memory (Prisma + database storage)
-📊 Time-based analytics engine (Daily / Weekly / Monthly / Quarterly / Yearly)
-📈 Business intelligence data structure (usage + activity tracking ready)
-⚡ Admin backend API (stats + system monitoring endpoints)
-🔐 Secure API architecture (middleware + rate limiting foundation)
-💳 M-Pesa payment integration layer (STK Push structure)
-⚙️ Modular backend architecture (scalable service-based design)
+- 🧠 AI Chat Engine (OpenAI-powered conversational system)
+- 💬 Multi-message conversation handling
+- 👤 User-based authentication system (JWT)
+- 🗄 Persistent AI memory (Prisma + database storage)
+- 📊 Time-based analytics engine (Daily / Weekly / Monthly / Quarterly / Yearly)
+- 📈 Business intelligence data structure (usage + activity tracking ready)
+- ⚡ Admin backend API (stats + system monitoring endpoints)
+- 🔐 Secure API architecture (middleware + rate limiting foundation)
+- 💳 M-Pesa payment integration layer (STK Push structure)
+- ⚙️ Modular backend architecture (scalable service-based design)
 
 ---
 
