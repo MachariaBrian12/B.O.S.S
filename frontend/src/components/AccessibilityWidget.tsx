@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import { useAccessibility } from "@/context/AccessibilityContext";
 
 export default function AccessibilityWidget() {
@@ -7,8 +7,7 @@ export default function AccessibilityWidget() {
   const { settings, updateSetting } = useAccessibility();
 
   return (
-    <>
-      {/* Floating trigger button */}
+    <Fragment>
       <button
         onClick={() => setOpen(!open)}
         aria-label="Accessibility settings"
@@ -26,7 +25,6 @@ export default function AccessibilityWidget() {
         ♿
       </button>
 
-      {/* Settings panel */}
       {open && (
         <div
           role="dialog"
@@ -43,7 +41,6 @@ export default function AccessibilityWidget() {
             ♿ Accessibility Settings
           </h2>
 
-          {/* Font Size */}
           <div style={{ marginBottom: 16 }}>
             <label style={{ fontSize: 12, color: "#64748B", display: "block", marginBottom: 8 }}>
               TEXT SIZE
@@ -68,7 +65,6 @@ export default function AccessibilityWidget() {
             </div>
           </div>
 
-          {/* High Contrast */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
             <div>
               <div style={{ fontSize: 13, color: "#F1F5F9" }}>High Contrast</div>
@@ -86,7 +82,6 @@ export default function AccessibilityWidget() {
             />
           </div>
 
-          {/* Reduced Motion */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
             <div>
               <div style={{ fontSize: 13, color: "#F1F5F9" }}>Reduce Motion</div>
@@ -112,6 +107,6 @@ export default function AccessibilityWidget() {
           </a>
         </div>
       )}
-    </>
+    </Fragment>
   );
 }
