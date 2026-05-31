@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import CurrencyDropdown from "@/components/CurrencyDropdown"
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -46,6 +47,11 @@ export default function Navbar() {
             {link}
           </a>
         ))}
+      </div>
+
+      {/* Currency Dropdown */}
+      <div style={{ color: "var(--muted)" }}>
+        <CurrencyDropdown />
       </div>
 
       {/* CTA */}

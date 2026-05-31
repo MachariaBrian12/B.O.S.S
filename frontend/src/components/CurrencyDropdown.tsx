@@ -10,10 +10,19 @@ export default function CurrencyDropdown() {
       value={currency}
       onChange={(e) => setCurrency(e.target.value as CurrencyCode)}
       disabled={loading}
-      className="bg-transparent border border-gray-300 rounded-md px-2 py-1 text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+      style={{
+        background: "rgba(255,255,255,0.06)",
+        border: "1px solid rgba(255,255,255,0.12)",
+        borderRadius: 9,
+        padding: "7px 10px",
+        fontSize: 12,
+        color: "#94A3B8",
+        cursor: "pointer",
+        outline: "none",
+      }}
     >
       {CURRENCIES.map((c) => (
-        <option key={c.code} value={c.code}>
+        <option key={c.code} value={c.code} style={{ background: "#0a0a14" }}>
           {c.flag} {c.code} — {c.name}
         </option>
       ))}
