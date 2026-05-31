@@ -150,7 +150,7 @@ export default function Landing() {
         .mob-link:hover{color:var(--cyan);}
         .mob-btns{display:flex;flex-direction:column;gap:12px;width:260px;margin-top:16px;}
         @media(max-width:768px){.ham{display:flex;}.nav-links{display:none;}.nav-btns{display:none;}.stat{padding:24px 12px;}}
-        html{scroll-behavior:smooth;}@media(max-width:768px){body{cursor:auto;}#cur-dot,#cur-ring,#cur-aura{display:none;}.nav-links,.nav-btns{display:none;}.nav{padding:10px 16px;}.hero{padding:80px 16px 40px;}.hero-title{font-size:clamp(42px,14vw,80px);}.hero-actions{flex-direction:column;width:100%;}.btn-primary,.btn-secondary{width:100%;justify-content:center;}.dash-frame{display:none;}.stats-inner{grid-template-columns:1fr 1fr;}.stat{padding:28px 16px;}.stat-n{font-size:36px;}.about{flex-direction:column;gap:20px;padding:40px 16px;}.about-h{font-size:clamp(28px,8vw,42px);}.pills{flex-direction:column;}.features{padding:40px 16px;}.bento{grid-template-columns:1fr;}.bc.bw{grid-column:span 1;}.ai-sec{flex-direction:column;padding:40px 16px;gap:24px;}.ai-chat{max-width:100%;}.pg{flex-direction:column;align-items:center;}.price-card{width:100%;max-width:360px;}.cta-strip{padding:60px 16px;}.sec-h{font-size:clamp(26px,7vw,40px);}@keyframes aA{to{transform:translate(0,0) scale(1);}}@keyframes aB{to{transform:translate(0,0) scale(1);}}@keyframes aC{to{transform:translate(0,0) scale(1);}}}@media(max-width:768px){body{cursor:auto;}#cur-dot,#cur-ring,#cur-aura{display:none;}.nav-links,.nav-btns{display:none;}.nav{padding:10px 16px;}.hero{padding:80px 16px 40px;}.hero-title{font-size:clamp(42px,14vw,80px);}.hero-actions{flex-direction:column;width:100%;}.btn-primary,.btn-secondary{width:100%;justify-content:center;}.dash-frame{display:none;}.stats-inner{grid-template-columns:1fr 1fr;}.stat{padding:28px 16px;}.stat-n{font-size:36px;}.about{flex-direction:column;gap:20px;padding:40px 16px;}.about-h{font-size:clamp(28px,8vw,42px);}.pills{flex-direction:column;}.features{padding:40px 16px;}.bento{grid-template-columns:1fr;}.bc.bw{grid-column:span 1;}.ai-sec{flex-direction:column;padding:40px 16px;gap:24px;}.ai-chat{max-width:100%;}.pg{flex-direction:column;align-items:center;}.price-card{width:100%;max-width:360px;}.cta-strip{padding:60px 16px;}.sec-h{font-size:clamp(26px,7vw,40px);}@keyframes aA{to{transform:translate(0,0) scale(1);}}@keyframes aB{to{transform:translate(0,0) scale(1);}}@keyframes aC{to{transform:translate(0,0) scale(1);}}}
+        html{scroll-behavior:smooth;}@media(max-width:768px){body{cursor:auto;}#cur-dot,#cur-ring,#cur-aura{display:none;}.nav-links,.nav-btns{display:none;}.nav{padding:10px 16px;}.hero{padding:70px 14px 30px;}.hero-title{font-size:clamp(42px,14vw,80px);}.hero-actions{flex-direction:column;width:100%;}.btn-primary,.btn-secondary{width:100%;justify-content:center;}.dash-frame{display:none;}.stats-inner{grid-template-columns:1fr 1fr;}.stat{padding:28px 16px;}.stat-n{font-size:36px;}.about{flex-direction:column;gap:16px;padding:32px 14px;}.about-h{font-size:clamp(24px,7vw,36px);}.pills{flex-direction:column;}.features{padding:28px 14px;}.bento{grid-template-columns:1fr;}.bc.bw{grid-column:span 1;}.ai-sec{flex-direction:column;padding:28px 14px;gap:20px;}.ai-chat{max-width:100%;}.pg{flex-direction:column;align-items:center;}.price-card{width:100%;max-width:360px;}.cta-strip{padding:48px 14px;}.sec-h{font-size:clamp(24px,6.5vw,36px);}@keyframes aA{to{transform:translate(0,0) scale(1);}}@keyframes aB{to{transform:translate(0,0) scale(1);}}@keyframes aC{to{transform:translate(0,0) scale(1);}}}@media(max-width:768px){body{cursor:auto;}#cur-dot,#cur-ring,#cur-aura{display:none;}.nav-links,.nav-btns{display:none;}.nav{padding:10px 16px;}.hero{padding:70px 14px 30px;}.hero-title{font-size:clamp(42px,14vw,80px);}.hero-actions{flex-direction:column;width:100%;}.btn-primary,.btn-secondary{width:100%;justify-content:center;}.dash-frame{display:none;}.stats-inner{grid-template-columns:1fr 1fr;}.stat{padding:28px 16px;}.stat-n{font-size:36px;}.about{flex-direction:column;gap:16px;padding:32px 14px;}.about-h{font-size:clamp(24px,7vw,36px);}.pills{flex-direction:column;}.features{padding:28px 14px;}.bento{grid-template-columns:1fr;}.bc.bw{grid-column:span 1;}.ai-sec{flex-direction:column;padding:28px 14px;gap:20px;}.ai-chat{max-width:100%;}.pg{flex-direction:column;align-items:center;}.price-card{width:100%;max-width:360px;}.cta-strip{padding:48px 14px;}.sec-h{font-size:clamp(24px,6.5vw,36px);}@keyframes aA{to{transform:translate(0,0) scale(1);}}@keyframes aB{to{transform:translate(0,0) scale(1);}}@keyframes aC{to{transform:translate(0,0) scale(1);}}}
         body{background:var(--void);color:var(--t1);font-family:'DM Sans',sans-serif;overflow-x:hidden;cursor:none;}html,body{max-width:100vw;overflow-x:hidden;}
 
         /* ── CURSOR ── */
@@ -260,7 +260,7 @@ export default function Landing() {
         .about-tag{font-size:11px;color:var(--blue);font-weight:500;letter-spacing:.15em;text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
         .about-tag::before{content:'';display:block;width:24px;height:1px;background:var(--blue);}
         .about-h{font-family:'Syne',sans-serif;font-size:clamp(28px,3.5vw,48px);font-weight:700;letter-spacing:-.04em;line-height:1.05;margin-bottom:24px;}
-        .about-h span{background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+        .about-h span{background:linear-gradient(135deg,var(--cyan),var(--blue),var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 20px rgba(6,182,212,.35));background-size:200% auto;animation:gradShift 4s ease infinite;}
         .about-p{font-size:15px;color:var(--t2);line-height:1.88;font-weight:300;}
         .about-p strong{color:var(--t1);font-weight:500;}
         .pill{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.065);border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:14px;transition:all .3s cubic-bezier(.16,1,.3,1);margin-bottom:10px;cursor:none;}
@@ -277,7 +277,7 @@ export default function Landing() {
         /* ── FEATURES ── */
         .features{padding:80px 24px;max-width:1140px;margin:0 auto;}
         .sec-tag{font-size:11px;color:var(--blue);font-weight:500;letter-spacing:.15em;text-transform:uppercase;margin-bottom:18px;}
-        .sec-h{font-family:'Syne',sans-serif;font-size:clamp(32px,4.2vw,52px);font-weight:700;letter-spacing:-.035em;line-height:1.05;margin-bottom:52px;max-width:560px;}
+        .sec-h{font-family:'Syne',sans-serif;font-size:clamp(32px,4.2vw,52px);font-weight:700;letter-spacing:-.035em;line-height:1.05;margin-bottom:52px;max-width:560px;background:linear-gradient(135deg,#ffffff 0%,rgba(255,255,255,.9) 40%,var(--cyan) 70%,var(--purple) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 30px rgba(6,182,212,.2));}
         .bento{display:grid;grid-template-columns:1fr;gap:10px;}@media(min-width:769px){.bento{grid-template-columns:repeat(3,1fr);}}
         .bw{grid-column:span 2;}
         .bc{background:var(--gb);border:1px solid var(--gbr);border-radius:18px;padding:26px;position:relative;overflow:hidden;transition:all .4s cubic-bezier(.16,1,.3,1);cursor:none;}
@@ -298,14 +298,14 @@ export default function Landing() {
         .ai-chat::before{content:'';position:absolute;inset:-1px;background:linear-gradient(135deg,rgba(139,92,246,.18),transparent 50%,rgba(59,130,246,.18));border-radius:19px;z-index:-1;}
         .ai-hdr{display:flex;align-items:center;gap:9px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.055);}
         .ai-av{width:30px;height:30px;background:linear-gradient(135deg,var(--purple),var(--blue));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:'Syne',sans-serif;color:#fff;}
-        .ai-nm{font-size:12px;font-weight:500;color:var(--t1);}
+        .ai-nm{font-size:12px;font-weight:500;color:var(--t1);text-shadow:0 0 12px rgba(139,92,246,.5);}
         .ai-st{font-size:10px;color:var(--green);margin-top:1px;}
         .cm{margin-bottom:11px;}
         .cu{display:flex;justify-content:flex-end;}
         .cb{max-width:82%;padding:9px 13px;border-radius:13px;font-size:12px;line-height:1.55;}
         .cbu{background:rgba(59,130,246,.17);border:1px solid rgba(59,130,246,.22);border-radius:13px 13px 4px 13px;color:var(--t1);}
         .cba{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);border-radius:13px 13px 13px 4px;color:var(--t2);}
-        .hl{color:var(--cyan);font-weight:500;}
+        .hl{color:var(--cyan);font-weight:500;text-shadow:0 0 16px rgba(6,182,212,.7),0 0 32px rgba(6,182,212,.3);}
 
         /* ── PRICING ── */
         .pricing{padding:80px 24px;max-width:1140px;margin:0 auto;text-align:center;}
@@ -496,10 +496,7 @@ export default function Landing() {
               <span>every transaction.</span>
             </h2>
             <p className="about-p">
-              An AI-native point of sale SaaS — powered by an AI that sees beyond every transaction,
-              turning each sale into a signal, every pattern into an advantage,
-              understanding not just <strong>what happened</strong>, but <strong>why</strong> —
-              and precisely <strong>what comes next</strong>.
+              B.O.S.S is an <strong>AI-native SaaS platform</strong> engineered to function as the central intelligence layer for modern businesses. Where traditional software offers isolated, point-in-time analytics, B.O.S.S delivers a <strong>continuously evolving, AI-powered orchestration system</strong> that ingests business data, generates structured insights, tracks system performance, and surfaces <strong>intelligent recommendations in real time</strong>.
             </p>
           </div>
           <div>
@@ -544,9 +541,9 @@ export default function Landing() {
         <section className="ai-sec" id="intelligence">
           <div>
             <div className="sec-tag">Intelligence Layer</div>
-            <h2 className="sec-h" style={{marginBottom:16}}>Your AI co-pilot. Always on.</h2>
+            <h2 className="sec-h" style={{marginBottom:16}}>The central intelligence layer for your business.</h2>
             <p style={{color:"var(--t2)",fontSize:15,lineHeight:1.75,fontWeight:300,maxWidth:380}}>
-              Ask in plain language. Receive boardroom-grade insights in seconds. No analysts required — just answers.
+              B.O.S.S doesn't just report what happened — it <strong style={{color:"#06B6D4"}}>understands why</strong>, predicts what comes next, and tells you exactly what to do about it. One system. Total orchestration.
             </p>
             <ul className="ai-list">
               {["Predictive restock recommendations","Anomaly detection & fraud alerts",
@@ -690,7 +687,7 @@ export default function Landing() {
           </div>
           <div style={{borderTop:"1px solid rgba(255,255,255,.045)",paddingTop:24,display:"flex",flexWrap:"wrap",justifyContent:"space-between",gap:12}}>
             <p style={{fontSize:11,color:"#1e293b",letterSpacing:".06em"}}>© 2026 Guru Software Group. Built in Nairobi, Kenya 🇰🇪 — Africa, for the world.</p>
-            <p style={{fontSize:11,color:"#1e293b",letterSpacing:".04em"}}>B.O.S.S v0.5 · All rights reserved</p>
+            <p style={{fontSize:11,color:"#1e293b",letterSpacing:".04em"}}>B.O.S.S v2.0 · Guru AI Core</p>
           </div>
         </div>
       </footer>
