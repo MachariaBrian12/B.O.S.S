@@ -1,5 +1,5 @@
 "use client";
-import { useState, Fragment } from "react";
+import React, { useState } from "react";
 import { useAccessibility } from "@/context/AccessibilityContext";
 
 export default function AccessibilityWidget() {
@@ -7,7 +7,7 @@ export default function AccessibilityWidget() {
   const { settings, updateSetting } = useAccessibility();
 
   return (
-    <Fragment>
+    <React.Fragment>
       <button
         onClick={() => setOpen(!open)}
         aria-label="Accessibility settings"
@@ -107,6 +107,6 @@ export default function AccessibilityWidget() {
           </a>
         </div>
       )}
-    </Fragment>
+    </React.Fragment>
   );
 }
