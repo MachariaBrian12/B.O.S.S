@@ -13,6 +13,7 @@ export default function Landing() {
   const dotRef    = useRef<HTMLDivElement>(null);
   const ringRef   = useRef<HTMLDivElement>(null);
   const auraRef   = useRef<HTMLDivElement>(null);
+  const neuralRef  = useRef<HTMLCanvasElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(()=>{
@@ -126,6 +127,66 @@ export default function Landing() {
     };
   },[]);
 
+
+  useEffect(()=>{
+    const canvas = neuralRef.current; if(!canvas) return;
+    const ctx = canvas.getContext("2d")!;
+    const resize = () => { canvas.width=canvas.offsetWidth; canvas.height=canvas.offsetHeight; };
+    resize(); window.addEventListener("resize",resize);
+    const COLS=["rgba(59,130,246,","rgba(6,182,212,","rgba(139,92,246,","rgba(16,185,129,"];
+    const nodes = Array.from({length:45},()=>({
+      x:Math.random()*canvas.width, y:Math.random()*canvas.height,
+      vx:(Math.random()-.5)*.35, vy:(Math.random()-.5)*.35,
+      r:1+Math.random()*2.5, col:COLS[Math.floor(Math.random()*4)],
+      p:Math.random()*Math.PI*2, sp:.011+Math.random()*.018,
+    }));
+    const packets:{from:number;to:number;t:number;sp:number}[]=[];
+    let lastP=0,nid=0;
+    const draw=(ts:number)=>{
+      const W=canvas.width,H=canvas.height;
+      ctx.clearRect(0,0,W,H);
+      if(ts-lastP>1300&&packets.length<10){
+        const a=Math.floor(Math.random()*nodes.length);
+        let b=a;while(b===a)b=Math.floor(Math.random()*nodes.length);
+        packets.push({from:a,to:b,t:0,sp:.006+Math.random()*.01});
+        lastP=ts;
+      }
+      nodes.forEach(n=>{
+        n.x+=n.vx;n.y+=n.vy;n.p+=n.sp;
+        if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1;
+      });
+      nodes.forEach((a,i)=>nodes.forEach((b,j)=>{
+        if(j<=i)return;
+        const dx=b.x-a.x,dy=b.y-a.y,d=Math.sqrt(dx*dx+dy*dy);
+        if(d<135){ctx.strokeStyle=`rgba(59,130,246,${(1-d/135)*.11})`;ctx.lineWidth=.4;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}
+      }));
+      nodes.forEach(n=>{
+        const g=.3+.25*Math.sin(n.p);
+        ctx.shadowBlur=9;ctx.shadowColor=n.col+"0.7)";ctx.fillStyle=n.col+g+")";
+        ctx.beginPath();ctx.arc(n.x,n.y,n.r*(0.85+0.15*Math.sin(n.p)),0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+      });
+      for(let i=packets.length-1;i>=0;i--){
+        const pk=packets[i];pk.t+=pk.sp;if(pk.t>=1){packets.splice(i,1);continue;}
+        const a=nodes[pk.from],b=nodes[pk.to];
+        const x=a.x+(b.x-a.x)*pk.t,y=a.y+(b.y-a.y)*pk.t;
+        const g2=ctx.createRadialGradient(x,y,0,x,y,8);
+        g2.addColorStop(0,"rgba(6,182,212,0.95)");g2.addColorStop(1,"transparent");
+        ctx.fillStyle=g2;ctx.beginPath();ctx.arc(x,y,8,0,Math.PI*2);ctx.fill();
+      }
+      nid=requestAnimationFrame(draw);
+    };
+    nid=requestAnimationFrame(draw);
+    return()=>{cancelAnimationFrame(nid);window.removeEventListener("resize",resize);};
+  },[]);
+
+  useEffect(()=>{
+    const obs=new IntersectionObserver(entries=>{
+      entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("revealed"); } });
+    },{threshold:.08,rootMargin:"0px 0px -20px 0px"});
+    document.querySelectorAll(".reveal").forEach(el=>obs.observe(el));
+    return()=>obs.disconnect();
+  },[]);
+
   return (
     <>
       <style>{`
@@ -150,7 +211,7 @@ export default function Landing() {
         .mob-link:hover{color:var(--cyan);}
         .mob-btns{display:flex;flex-direction:column;gap:12px;width:260px;margin-top:16px;}
         @media(max-width:768px){.ham{display:flex;}.nav-links{display:none;}.nav-btns{display:none;}.stat{padding:24px 12px;}}
-        html{scroll-behavior:smooth;}@media(max-width:768px){body{cursor:auto;}#cur-dot,#cur-ring,#cur-aura{display:none;}.nav-links,.nav-btns{display:none;}.nav{padding:10px 16px;}.hero{padding:70px 14px 30px;}.hero-title{font-size:clamp(42px,14vw,80px);}.hero-actions{flex-direction:column;width:100%;}.btn-primary,.btn-secondary{width:100%;justify-content:center;}.dash-frame{display:none;}.stats-inner{grid-template-columns:1fr 1fr;}.stat{padding:28px 16px;}.stat-n{font-size:36px;}.about{flex-direction:column;gap:16px;padding:32px 14px;}.about-h{font-size:clamp(24px,7vw,36px);}.pills{flex-direction:column;}.features{padding:28px 14px;}.bento{grid-template-columns:1fr;}.bc.bw{grid-column:span 1;}.ai-sec{flex-direction:column;padding:28px 14px;gap:20px;}.ai-chat{max-width:100%;}.pg{flex-direction:column;align-items:center;}.price-card{width:100%;max-width:360px;}.cta-strip{padding:48px 14px;}.sec-h{font-size:clamp(24px,6.5vw,36px);}@keyframes aA{to{transform:translate(0,0) scale(1);}}@keyframes aB{to{transform:translate(0,0) scale(1);}}@keyframes aC{to{transform:translate(0,0) scale(1);}}}@media(max-width:768px){body{cursor:auto;}#cur-dot,#cur-ring,#cur-aura{display:none;}.nav-links,.nav-btns{display:none;}.nav{padding:10px 16px;}.hero{padding:70px 14px 30px;}.hero-title{font-size:clamp(42px,14vw,80px);}.hero-actions{flex-direction:column;width:100%;}.btn-primary,.btn-secondary{width:100%;justify-content:center;}.dash-frame{display:none;}.stats-inner{grid-template-columns:1fr 1fr;}.stat{padding:28px 16px;}.stat-n{font-size:36px;}.about{flex-direction:column;gap:16px;padding:32px 14px;}.about-h{font-size:clamp(24px,7vw,36px);}.pills{flex-direction:column;}.features{padding:28px 14px;}.bento{grid-template-columns:1fr;}.bc.bw{grid-column:span 1;}.ai-sec{flex-direction:column;padding:28px 14px;gap:20px;}.ai-chat{max-width:100%;}.pg{flex-direction:column;align-items:center;}.price-card{width:100%;max-width:360px;}.cta-strip{padding:48px 14px;}.sec-h{font-size:clamp(24px,6.5vw,36px);}@keyframes aA{to{transform:translate(0,0) scale(1);}}@keyframes aB{to{transform:translate(0,0) scale(1);}}@keyframes aC{to{transform:translate(0,0) scale(1);}}}
+        html{scroll-behavior:smooth;}@media(max-width:768px){body{cursor:auto;}#cur-dot,#cur-ring,#cur-aura{display:none;}.nav-links,.nav-btns{display:none;}.nav{padding:10px 16px;}.hero{padding:110px 22px 90px;}.hero-title{font-size:clamp(42px,14vw,80px);}.hero-actions{flex-direction:column;width:100%;}.btn-primary,.btn-secondary{width:100%;justify-content:center;}.dash-frame{display:none;}.stats-inner{grid-template-columns:1fr 1fr;}.stat{padding:28px 16px;}.stat-n{font-size:36px;}.about{flex-direction:column;gap:40px;padding:80px 22px;}.about-h{font-size:clamp(28px,8.5vw,44px);}.pills{flex-direction:column;}.features{padding:80px 22px;}.bento{grid-template-columns:1fr;}.bc.bw{grid-column:span 1;}.ai-sec{flex-direction:column;padding:80px 22px;gap:40px;}.ai-chat{max-width:100%;}.pg{flex-direction:column;align-items:center;}.price-card{width:100%;max-width:360px;}.cta-strip{padding:110px 22px;}.sec-h{font-size:clamp(28px,7.5vw,42px);}@keyframes aA{to{transform:translate(0,0) scale(1);}}@keyframes aB{to{transform:translate(0,0) scale(1);}}@keyframes aC{to{transform:translate(0,0) scale(1);}}}@media(max-width:768px){body{cursor:auto;}#cur-dot,#cur-ring,#cur-aura{display:none;}.nav-links,.nav-btns{display:none;}.nav{padding:10px 16px;}.hero{padding:110px 22px 90px;}.hero-title{font-size:clamp(42px,14vw,80px);}.hero-actions{flex-direction:column;width:100%;}.btn-primary,.btn-secondary{width:100%;justify-content:center;}.dash-frame{display:none;}.stats-inner{grid-template-columns:1fr 1fr;}.stat{padding:28px 16px;}.stat-n{font-size:36px;}.about{flex-direction:column;gap:40px;padding:80px 22px;}.about-h{font-size:clamp(28px,8.5vw,44px);}.pills{flex-direction:column;}.features{padding:80px 22px;}.bento{grid-template-columns:1fr;}.bc.bw{grid-column:span 1;}.ai-sec{flex-direction:column;padding:80px 22px;gap:40px;}.ai-chat{max-width:100%;}.pg{flex-direction:column;align-items:center;}.price-card{width:100%;max-width:360px;}.cta-strip{padding:110px 22px;}.sec-h{font-size:clamp(28px,7.5vw,42px);}@keyframes aA{to{transform:translate(0,0) scale(1);}}@keyframes aB{to{transform:translate(0,0) scale(1);}}@keyframes aC{to{transform:translate(0,0) scale(1);}}}
         body{background:var(--void);color:var(--t1);font-family:'DM Sans',sans-serif;overflow-x:hidden;cursor:none;}html,body{max-width:100vw;overflow-x:hidden;}
 
         /* ── CURSOR ── */
@@ -337,6 +398,56 @@ export default function Landing() {
         .flinks a{font-size:11px;color:var(--t3);text-decoration:none;transition:color .2s;}
         .flinks a:hover{color:var(--t2);}
 
+
+        /* ── SCROLL REVEAL ── */
+        .reveal{opacity:0;transform:translateY(32px);transition:opacity .75s cubic-bezier(.16,1,.3,1),transform .75s cubic-bezier(.16,1,.3,1);}
+        .reveal.revealed{opacity:1;transform:translateY(0);}
+
+        /* ── BREATHING GLOW ── */
+        .glow-breathe{animation:breathe 4s ease-in-out infinite;}
+        @keyframes breathe{
+          0%,100%{filter:drop-shadow(0 0 30px rgba(6,182,212,.25)) drop-shadow(0 0 80px rgba(139,92,246,.12));}
+          50%{filter:drop-shadow(0 0 60px rgba(6,182,212,.45)) drop-shadow(0 0 140px rgba(139,92,246,.25));}
+        }
+
+        /* ── ENHANCED BUTTON GLOW ── */
+        .btn-primary{position:relative;overflow:hidden;}
+        .btn-primary::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:conic-gradient(transparent,rgba(255,255,255,.08),transparent 30%);animation:spin 4s linear infinite;opacity:0;transition:opacity .3s;}
+        .btn-primary:hover::before{opacity:1;}
+        @keyframes spin{to{transform:rotate(360deg);}}
+        .btn-primary:active{transform:scale(.97)!important;}
+        .btn-secondary:active{transform:scale(.97)!important;}
+
+        /* ── PILL HOVER ── */
+        .pill:hover{background:rgba(59,130,246,.055)!important;border-color:rgba(59,130,246,.18)!important;box-shadow:0 0 28px rgba(59,130,246,.07),inset 0 1px 0 rgba(255,255,255,.06);}
+
+        /* ── BENTO CARD GLOW ── */
+        .bc:hover{box-shadow:0 28px 70px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.08),inset 0 1px 0 rgba(255,255,255,.07)!important;}
+
+        /* ── STAT CARD INTERACTION ── */
+        .stat-n{transition:filter .3s ease;}
+        .stat:hover .stat-n{filter:drop-shadow(0 0 16px rgba(6,182,212,.6)) drop-shadow(0 0 40px rgba(139,92,246,.3));}
+
+        /* ── LIGHT BEAM ── */
+        @keyframes beam{0%{opacity:0;transform:translateX(-100%) rotate(-45deg);}50%{opacity:.06;}100%{opacity:0;transform:translateX(100%) rotate(-45deg);}}
+        .hero::after{content:'';position:absolute;top:0;left:0;right:0;height:100%;background:linear-gradient(135deg,transparent 30%,rgba(6,182,212,.04) 50%,transparent 70%);animation:beam 8s ease-in-out infinite;pointer-events:none;}
+
+        /* ── MOBILE SECTION SEPARATORS ── */
+        @media(max-width:768px){
+          .stats,.about,.features,.ai-sec,.pricing,.cta-strip{border-top:1px solid rgba(255,255,255,.03);}
+          .hero-badge{margin-bottom:32px;}
+          .hero-fullname{font-size:10px;letter-spacing:.2em;margin-bottom:28px;}
+          .hero-tagline{font-size:14px;margin-bottom:44px;}
+          .hero-actions{gap:10px;margin-bottom:60px;}
+          .btn-primary{padding:16px 32px;font-size:16px;}
+          .btn-secondary{padding:14px 24px;font-size:14px;}
+          .about-p{font-size:15px;line-height:1.9;}
+          .pill{padding:18px 20px;margin-bottom:12px;}
+          .pill-text{font-size:13px;}
+          .bd{font-size:13.5px;}
+          .ai-list li{font-size:14px;}
+          .pp{font-size:clamp(36px,12vw,52px);}
+        }
         ::-webkit-scrollbar{width:4px;}
         ::-webkit-scrollbar-track{background:transparent;}
         ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px;}
@@ -397,7 +508,7 @@ export default function Landing() {
 
           <motion.div variants={fadeUp} initial="hidden" animate="show"
             style={{animationDelay:".1s"}} className="hero-wordmark">
-            <div className="hero-title">B.O.S.S</div>
+            <div className="hero-title glow-breathe">B.O.S.S</div>
           </motion.div>
 
           <motion.div variants={fadeUp} initial="hidden" animate="show"
@@ -479,7 +590,7 @@ export default function Landing() {
               {n:"99.99%", l:"Uptime SLA"},
               {n:"140+",   l:"Countries"},
             ].map(s=>(
-              <div key={s.l} className="stat">
+              <div key={s.l} className="stat reveal">
                 <span className="stat-n">{s.n}</span>
                 <span className="stat-l">{s.l}</span>
               </div>
@@ -488,8 +599,9 @@ export default function Landing() {
         </section>
 
         {/* ══════════════ ABOUT ══════════════ */}
-        <section className="about" id="about">
-          <div>
+        <section className="about" id="about" style={{position:"relative",overflow:"hidden"}}>
+          <canvas ref={neuralRef} style={{position:"absolute",inset:0,width:"100%",height:"100%",zIndex:0,pointerEvents:"none",opacity:.28}}/>
+          <div style={{position:"relative",zIndex:1}}>
             <div className="about-tag">About B.O.S.S</div>
             <h2 className="about-h">
               The AI that sees beyond<br/>
@@ -499,7 +611,7 @@ export default function Landing() {
               B.O.S.S is an <strong>AI-native SaaS platform</strong> engineered to function as the central intelligence layer for modern businesses. Where traditional software offers isolated, point-in-time analytics, B.O.S.S delivers a <strong>continuously evolving, AI-powered orchestration system</strong> that ingests business data, generates structured insights, tracks system performance, and surfaces <strong>intelligent recommendations in real time</strong>.
             </p>
           </div>
-          <div>
+          <div style={{position:"relative",zIndex:1}}>
             {[
               {icon:"📊",cls:"ib", title:"Sales & Marketing Intelligence",     body:"AI-driven campaigns, customer segmentation and revenue forecasting — automatically."},
               {icon:"📈",cls:"ic", title:"Market Trends & Demand Forecasting",  body:"Know what your customers want before they do."},
@@ -507,7 +619,7 @@ export default function Landing() {
               {icon:"🧠",cls:"ig", title:"Business Intelligence Layer",          body:"Every data point across every store, unified into one living dashboard."},
               {icon:"⚡",cls:"ia", title:"Real-Time Operations Tracking",        body:"Live visibility into every transaction, shift and store — simultaneously."},
             ].map(p=>(
-              <div key={p.title} className="pill">
+              <div key={p.title} className="pill reveal">
                 <div className={`pill-icon ${p.cls}`}>{p.icon}</div>
                 <div className="pill-text"><strong>{p.title}</strong>{p.body}</div>
               </div>
@@ -611,14 +723,14 @@ export default function Landing() {
           <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{once:true}}>
             <motion.div variants={fadeUp}>
               <div style={{fontSize:11,color:"var(--green)",letterSpacing:".14em",textTransform:"uppercase",marginBottom:20}}>
-                Ready to take command?
+                Stop Managing.
               </div>
             </motion.div>
             <motion.h2 variants={fadeUp} style={{fontFamily:"'Syne',sans-serif",fontSize:"clamp(32px,5vw,64px)",
               fontWeight:800,letterSpacing:"-.04em",lineHeight:1.0,marginBottom:24,
               background:"linear-gradient(135deg,#fff 0%,var(--cyan) 50%,var(--purple) 100%)",
               WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>
-              Your business deserves<br/>better intelligence.
+              Start Orchestrating.<br/>Start Winning.
             </motion.h2>
             <motion.p variants={fadeUp} style={{color:"var(--t2)",fontSize:16,lineHeight:1.7,
               fontWeight:300,maxWidth:440,margin:"0 auto 36px"}}>
