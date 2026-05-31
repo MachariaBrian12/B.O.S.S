@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { api } from "@/lib/api";
+import CurrencyDropdown from "@/components/CurrencyDropdown";
 import { useBusinessStore } from "@/store/useBusinessStore";
 
 /* ── types ── */
@@ -334,10 +335,13 @@ export default function Dashboard() {
                 WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>
                 B.O.S.S
               </div>
-              <Link href="/input" style={{
-                padding:"8px 13px",background:"linear-gradient(135deg,#3B82F6,#8B5CF6)",
-                borderRadius:9,color:"#fff",fontSize:12,fontWeight:500,textDecoration:"none",
-              }}>+ Add</Link>
+              <div style={{display:"flex",alignItems:"center",gap:8}}>
+                <CurrencyDropdown />
+                <Link href="/input" style={{
+                  padding:"8px 13px",background:"linear-gradient(135deg,#3B82F6,#8B5CF6)",
+                  borderRadius:9,color:"#fff",fontSize:12,fontWeight:500,textDecoration:"none",
+                }}>+ Add</Link>
+              </div>
             </div>
           )}
 
@@ -363,14 +367,17 @@ export default function Dashboard() {
                     : "Your business command centre is ready."}
                 </p>
               </div>
-              <Link href="/input" style={{
-                display:"inline-flex",alignItems:"center",gap:7,padding:"10px 18px",flexShrink:0,
-                background:"linear-gradient(135deg,#3B82F6,#8B5CF6)",borderRadius:11,
-                color:"#fff",fontSize:13,fontWeight:500,textDecoration:"none",
-                boxShadow:"0 6px 24px rgba(59,130,246,.28)",transition:"all .25s ease",
-              }}>
-                + Add Entry
-              </Link>
+              <div style={{display:"flex",alignItems:"center",gap:10}}>
+                <CurrencyDropdown />
+                <Link href="/input" style={{
+                  display:"inline-flex",alignItems:"center",gap:7,padding:"10px 18px",flexShrink:0,
+                  background:"linear-gradient(135deg,#3B82F6,#8B5CF6)",borderRadius:11,
+                  color:"#fff",fontSize:13,fontWeight:500,textDecoration:"none",
+                  boxShadow:"0 6px 24px rgba(59,130,246,.28)",transition:"all .25s ease",
+                }}>
+                  + Add Entry
+                </Link>
+              </div>
             </motion.div>
           )}
 
