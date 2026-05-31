@@ -11,18 +11,19 @@ export default function CurrencyDropdown() {
       onChange={(e) => setCurrency(e.target.value as CurrencyCode)}
       disabled={loading}
       style={{
-        background: "rgba(255,255,255,0.06)",
-        border: "1px solid rgba(255,255,255,0.12)",
+        background: "rgba(59,130,246,0.15)",
+        border: "1px solid rgba(59,130,246,0.5)",
         borderRadius: 9,
         padding: "7px 10px",
         fontSize: 12,
-        color: "#94A3B8",
+        color: "#F1F5F9",
         cursor: "pointer",
         outline: "none",
+        fontWeight: 500,
       }}
     >
       {CURRENCIES.map((c) => (
-        <option key={c.code} value={c.code} style={{ background: "#0a0a14" }}>
+        <option key={c.code} value={c.code} style={{ background: "#0a0a14", color: "#F1F5F9" }}>
           {c.flag} {c.code} — {c.name}
         </option>
       ))}
