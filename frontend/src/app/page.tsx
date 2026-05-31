@@ -150,7 +150,7 @@ export default function Landing() {
         .mob-link:hover{color:var(--cyan);}
         .mob-btns{display:flex;flex-direction:column;gap:12px;width:260px;margin-top:16px;}
         @media(max-width:768px){.ham{display:flex;}.nav-links{display:none;}.nav-btns{display:none;}.stat{padding:24px 12px;}}
-        html{scroll-behavior:smooth;}@media(max-width:768px){body{cursor:auto;}#cur-dot,#cur-ring,#cur-aura{display:none;}.nav-links,.nav-btns{display:none;}.nav{padding:10px 16px;}.hero{padding:100px 20px 60px;}.hero-title{font-size:clamp(42px,14vw,80px);}.hero-actions{flex-direction:column;width:100%;}.btn-primary,.btn-secondary{width:100%;justify-content:center;}.dash-frame{display:none;}.stats-inner{grid-template-columns:1fr 1fr;}.stat{padding:28px 16px;}.stat-n{font-size:36px;}.about{flex-direction:column;gap:32px;padding:60px 20px;}.about-h{font-size:clamp(28px,8vw,42px);}.pills{flex-direction:column;}.features{padding:60px 20px;}.bento{grid-template-columns:1fr;}.bc.bw{grid-column:span 1;}.ai-sec{flex-direction:column;padding:60px 20px;gap:32px;}.ai-chat{max-width:100%;}.pg{flex-direction:column;align-items:center;}.price-card{width:100%;max-width:360px;}.cta-strip{padding:80px 20px;}.sec-h{font-size:clamp(26px,7vw,40px);}@keyframes aA{to{transform:translate(0,0) scale(1);}}@keyframes aB{to{transform:translate(0,0) scale(1);}}@keyframes aC{to{transform:translate(0,0) scale(1);}}}@media(max-width:768px){body{cursor:auto;}#cur-dot,#cur-ring,#cur-aura{display:none;}.nav-links,.nav-btns{display:none;}.nav{padding:10px 16px;}.hero{padding:100px 20px 60px;}.hero-title{font-size:clamp(42px,14vw,80px);}.hero-actions{flex-direction:column;width:100%;}.btn-primary,.btn-secondary{width:100%;justify-content:center;}.dash-frame{display:none;}.stats-inner{grid-template-columns:1fr 1fr;}.stat{padding:28px 16px;}.stat-n{font-size:36px;}.about{flex-direction:column;gap:32px;padding:60px 20px;}.about-h{font-size:clamp(28px,8vw,42px);}.pills{flex-direction:column;}.features{padding:60px 20px;}.bento{grid-template-columns:1fr;}.bc.bw{grid-column:span 1;}.ai-sec{flex-direction:column;padding:60px 20px;gap:32px;}.ai-chat{max-width:100%;}.pg{flex-direction:column;align-items:center;}.price-card{width:100%;max-width:360px;}.cta-strip{padding:80px 20px;}.sec-h{font-size:clamp(26px,7vw,40px);}@keyframes aA{to{transform:translate(0,0) scale(1);}}@keyframes aB{to{transform:translate(0,0) scale(1);}}@keyframes aC{to{transform:translate(0,0) scale(1);}}}
+        html{scroll-behavior:smooth;}@media(max-width:768px){body{cursor:auto;}#cur-dot,#cur-ring,#cur-aura{display:none;}.nav-links,.nav-btns{display:none;}.nav{padding:10px 16px;}.hero{padding:80px 16px 40px;}.hero-title{font-size:clamp(42px,14vw,80px);}.hero-actions{flex-direction:column;width:100%;}.btn-primary,.btn-secondary{width:100%;justify-content:center;}.dash-frame{display:none;}.stats-inner{grid-template-columns:1fr 1fr;}.stat{padding:28px 16px;}.stat-n{font-size:36px;}.about{flex-direction:column;gap:20px;padding:40px 16px;}.about-h{font-size:clamp(28px,8vw,42px);}.pills{flex-direction:column;}.features{padding:40px 16px;}.bento{grid-template-columns:1fr;}.bc.bw{grid-column:span 1;}.ai-sec{flex-direction:column;padding:40px 16px;gap:24px;}.ai-chat{max-width:100%;}.pg{flex-direction:column;align-items:center;}.price-card{width:100%;max-width:360px;}.cta-strip{padding:60px 16px;}.sec-h{font-size:clamp(26px,7vw,40px);}@keyframes aA{to{transform:translate(0,0) scale(1);}}@keyframes aB{to{transform:translate(0,0) scale(1);}}@keyframes aC{to{transform:translate(0,0) scale(1);}}}@media(max-width:768px){body{cursor:auto;}#cur-dot,#cur-ring,#cur-aura{display:none;}.nav-links,.nav-btns{display:none;}.nav{padding:10px 16px;}.hero{padding:80px 16px 40px;}.hero-title{font-size:clamp(42px,14vw,80px);}.hero-actions{flex-direction:column;width:100%;}.btn-primary,.btn-secondary{width:100%;justify-content:center;}.dash-frame{display:none;}.stats-inner{grid-template-columns:1fr 1fr;}.stat{padding:28px 16px;}.stat-n{font-size:36px;}.about{flex-direction:column;gap:20px;padding:40px 16px;}.about-h{font-size:clamp(28px,8vw,42px);}.pills{flex-direction:column;}.features{padding:40px 16px;}.bento{grid-template-columns:1fr;}.bc.bw{grid-column:span 1;}.ai-sec{flex-direction:column;padding:40px 16px;gap:24px;}.ai-chat{max-width:100%;}.pg{flex-direction:column;align-items:center;}.price-card{width:100%;max-width:360px;}.cta-strip{padding:60px 16px;}.sec-h{font-size:clamp(26px,7vw,40px);}@keyframes aA{to{transform:translate(0,0) scale(1);}}@keyframes aB{to{transform:translate(0,0) scale(1);}}@keyframes aC{to{transform:translate(0,0) scale(1);}}}
         body{background:var(--void);color:var(--t1);font-family:'DM Sans',sans-serif;overflow-x:hidden;cursor:none;}html,body{max-width:100vw;overflow-x:hidden;}
 
         /* ── CURSOR ── */
@@ -248,10 +248,11 @@ export default function Landing() {
 
         /* ── STATS ── */
         .stats{padding:40px 16px;}
-        .stats-inner{max-width:100%;margin:0 auto;display:grid;grid-template-columns:1fr;gap:1px;background:rgba(255,255,255,.055);border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,.055);}@media(min-width:769px){.stats-inner{grid-template-columns:repeat(4,1fr);}}
-        .stat{background:rgba(4,4,16,.92);padding:44px 32px;text-align:center;transition:background .3s;}
-        .stat:hover{background:rgba(255,255,255,.022);}
-        .stat-n{font-family:'Syne',sans-serif;font-size:clamp(28px,8vw,50px);font-weight:800;letter-spacing:-.05em;background:linear-gradient(135deg,var(--t1),var(--t2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:block;margin-bottom:8px;overflow:hidden;}
+        .stats-inner{max-width:100%;margin:0 auto;display:grid;grid-template-columns:1fr;gap:12px;border-radius:24px;overflow:hidden;}@media(min-width:769px){.stats-inner{grid-template-columns:repeat(4,1fr);gap:14px;}}
+        .stat{background:linear-gradient(160deg,rgba(20,22,40,0.97) 0%,rgba(8,8,20,0.99) 100%);border:1px solid rgba(255,255,255,.09);border-top:1px solid rgba(255,255,255,.18);border-bottom:1px solid rgba(0,0,0,.6);box-shadow:0 2px 0 rgba(255,255,255,.06) inset,0 -1px 0 rgba(0,0,0,.5) inset,0 20px 60px rgba(0,0,0,.5),0 4px 16px rgba(0,0,0,.4);padding:44px 32px;text-align:center;transition:all .35s cubic-bezier(.16,1,.3,1);border-radius:18px;position:relative;overflow:hidden;}
+        .stat::before{content:'';position:absolute;inset:0;border-radius:18px;background:linear-gradient(160deg,rgba(255,255,255,.04) 0%,transparent 50%);pointer-events:none;}
+        .stat:hover{transform:translateY(-4px) scale(1.015);border-top-color:rgba(255,255,255,.28);box-shadow:0 2px 0 rgba(255,255,255,.08) inset,0 -1px 0 rgba(0,0,0,.5) inset,0 32px 80px rgba(0,0,0,.6),0 0 60px rgba(59,130,246,.08);}
+        .stat-n{font-family:'Syne',sans-serif;font-size:clamp(28px,8vw,50px);font-weight:800;letter-spacing:-.05em;background:linear-gradient(160deg,#ffffff 0%,rgba(255,255,255,.75) 60%,rgba(180,200,255,.6) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:block;margin-bottom:8px;overflow:hidden;filter:drop-shadow(0 2px 8px rgba(59,130,246,.3)) drop-shadow(0 0 20px rgba(139,92,246,.15));}
         .stat-l{font-size:11px;color:var(--t3);font-weight:300;letter-spacing:.07em;text-transform:uppercase;}
 
         /* ── ABOUT ── */
@@ -401,7 +402,7 @@ export default function Landing() {
 
           <motion.div variants={fadeUp} initial="hidden" animate="show"
             style={{animationDelay:".2s"}} className="hero-fullname">
-            Business Operations &amp; Orchestration Software Systems
+            Business Orchestration Software Systems
           </motion.div>
 
           <motion.div variants={fadeUp} initial="hidden" animate="show"
@@ -645,7 +646,7 @@ export default function Landing() {
           <div style={{display:"flex",flexWrap:"wrap",justifyContent:"space-between",gap:40,marginBottom:48}}>
             <div style={{minWidth:200}}>
               <div className="fl" style={{marginBottom:8}}>B.O.S.S</div>
-              <p className="ft" style={{marginBottom:4}}>Business Operations &amp; Orchestration Software Systems</p>
+              <p className="ft" style={{marginBottom:4}}>Business Orchestration Software Systems</p>
               <p style={{fontSize:11,color:"#334155",marginTop:8}}>A product of <strong style={{color:"#475569"}}>Guru Software Group</strong></p>
             </div>
             <div style={{display:"flex",gap:48,flexWrap:"wrap"}}>
