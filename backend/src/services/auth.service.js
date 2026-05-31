@@ -1,38 +1,36 @@
 const bcrypt = require("bcryptjs");
-const jwt    = require("jsonwebtoken");
-const db     = require("../db/database");
+const jwt = require("jsonwebtoken");
+const { pool } = require("../db/database");
 const { JWT_SECRET } = require("../middleware/auth.middleware");
 
-const register = (name, email, password, business) => {
-  const exists = db.prepare("SELECT id FROM users WHERE email = ?").get(email);
-  if (exists) throw new Error("Email already registered");
-
-  const hashed = bcrypt.hashSync(password, 10);
-  const result = db.prepare(
-    "INSERT INTO users (name, email, password, business) VALUES (?, ?, ?, ?)"
-  ).run(name, email.toLowerCase().trim(), hashed, business || "My Business");
-
-  const user = db.prepare("SELECT id, name, email, business, created_at FROM users WHERE id = ?").get(result.lastInsertRowid);
+const register = async (name, email, password, business) => {
+  const exists = await pool.query("SELECT id FROM users WHERE email = $1", [email.toLowerCase().trim()]);
+  if (exists.rows[0]) throw new Error("Email already registered");
+  const hashed = await bcrypt.hash(password, 10);
+  const { rows } = await pool.query(
+    "INSERT INTO users (name, email, password, business) VALUES ($1, $2, $3, $4) RETURNING id, name, email, business, created_at",
+    [name, email.toLowerCase().trim(), hashed, business || "My Business"]
+  );
+  const user = rows[0];
   const token = jwt.sign({ id: user.id, email: user.email, name: user.name }, JWT_SECRET, { expiresIn: "7d" });
   return { user, token };
 };
 
-const login = (email, password) => {
-  const user = db.prepare("SELECT * FROM users WHERE email = ?").get(email.toLowerCase().trim());
+const login = async (email, password) => {
+  const { rows } = await pool.query("SELECT * FROM users WHERE email = $1", [email.toLowerCase().trim()]);
+  const user = rows[0];
   if (!user) throw new Error("Invalid email or password");
-
-  const valid = bcrypt.compareSync(password, user.password);
+  const valid = await bcrypt.compare(password, user.password);
   if (!valid) throw new Error("Invalid email or password");
-
   const token = jwt.sign({ id: user.id, email: user.email, name: user.name }, JWT_SECRET, { expiresIn: "7d" });
   const { password: _, ...safe } = user;
   return { user: safe, token };
 };
 
-const getMe = (userId) => {
-  const user = db.prepare("SELECT id, name, email, business, created_at FROM users WHERE id = ?").get(userId);
-  if (!user) throw new Error("User not found");
-  return user;
+const getMe = async (userId) => {
+  const { rows } = await pool.query("SELECT id, name, email, business, created_at FROM users WHERE id = $1", [userId]);
+  if (!rows[0]) throw new Error("User not found");
+  return rows[0];
 };
 
 module.exports = { register, login, getMe };

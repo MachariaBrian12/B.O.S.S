@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 
-require("./db/database");
+const { init } = require("./db/database"); init().catch(console.error);
 
 /* ── routes ── */
 const authRoutes = require("./routes/auth.routes");

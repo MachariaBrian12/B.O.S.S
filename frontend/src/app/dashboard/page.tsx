@@ -54,13 +54,14 @@ export default function Dashboard() {
   const [alerts,  setAlerts]  = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab,     setTab]     = useState<"feed"|"signals"|"alerts">("feed");
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = typeof window !== "undefined" ? window.location.pathname : "";
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   /* ── responsive detection ── */
   useEffect(()=>{
-    const check = () => setIsMobile(window.innerWidth < 768);
+    const check = () => setIsMobile(window.innerWidth < 900);
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
@@ -103,17 +104,23 @@ export default function Dashboard() {
 
   /* ── data ── */
   useEffect(()=>{
-    if(!token||!user){router.push("/login");return;}
-    Promise.all([
-      api.getInsights(token).then(d=>{
-        setInsights(d.insights);
-        setFeed(d.insights.feed||[]);
-        setAlerts(d.insights.alerts||[]);
-      }),
-      api.getWeek(token).then(setWeek),
-      api.getSignals(token).then(d=>setSignals(d.signals||[])),
-    ]).catch(()=>{}).finally(()=>setLoading(false));
-  },[]);
+    if(token&&user){
+      Promise.all([
+        api.getInsights(token).then(d=>{
+          setInsights(d.insights);
+          setFeed(d.insights.feed||[]);
+          setAlerts(d.insights.alerts||[]);
+        }),
+        api.getWeek(token).then(setWeek),
+        api.getSignals(token).then(d=>setSignals(d.signals||[])),
+      ]).catch(()=>{}).finally(()=>setLoading(false));
+    } else {
+      const timer = setTimeout(()=>{
+        if(!token||!user) router.push("/login");
+      }, 500);
+      return ()=>clearTimeout(timer);
+    }
+  },[token,user]);
 
   const handleLogout = async ()=>{
     if(token) await api.logout(token).catch(()=>{});
@@ -152,7 +159,7 @@ export default function Dashboard() {
           </div>
         </div>
         {isMobile && (
-          <button onClick={()=>setSidebarOpen(false)}
+          <button onClick={()=>setSidebarOpen(false)} onTransitionEnd={()=>setSidebarOpen(false)}
             style={{background:"transparent",border:"none",color:"#475569",fontSize:20,cursor:"pointer",padding:4}}>
             ✕
           </button>
@@ -199,7 +206,7 @@ export default function Dashboard() {
           <div style={{display:"flex",alignItems:"center",gap:8}}>
             <div style={{fontFamily:"'Syne',sans-serif",fontSize:22,fontWeight:800,color:scoreColor}}>{ins.score}</div>
             <div style={{flex:1}}>
-              <div style={{height:3,background:"rgba(255,255,255,.06)",borderRadius:2,overflow:"hidden"}}>
+              <div style={{height:3,background:"rgba(255,255,255,.06)",borderRadius:2,overflow:"hidden",width:"100%",maxWidth:"100vw"}}>
                 <motion.div initial={{width:0}} animate={{width:`${ins.score}%`}}
                   transition={{duration:1.2,ease:[.16,1,.3,1] as [number,number,number,number]}}
                   style={{height:"100%",background:`linear-gradient(90deg,#3B82F6,${scoreColor})`,borderRadius:2}}/>
@@ -234,13 +241,13 @@ export default function Dashboard() {
   );
 
   return (
-    <div style={{minHeight:"100vh",background:"#02020c",position:"relative",overflow:"hidden"}}>
+    <div style={{minHeight:"100vh",background:"#02020c",position:"relative",overflow:"hidden",width:"100%",maxWidth:"100vw"}}>
 
       {/* ── canvas starfield ── */}
       <canvas ref={canvasRef} style={{position:"fixed",inset:0,zIndex:0,pointerEvents:"none"}}/>
 
       {/* ── aurora ── */}
-      <div style={{position:"fixed",inset:0,zIndex:0,pointerEvents:"none",overflow:"hidden"}}>
+      <div style={{position:"fixed",inset:0,zIndex:0,pointerEvents:"none",overflow:"hidden",width:"100%",maxWidth:"100vw"}}>
         {[
           {w:800,h:800,c:"rgba(59,130,246,.09)",t:-250,l:-180,a:"aA"},
           {w:650,h:650,c:"rgba(139,92,246,.07)",t:80,r:-120,a:"aB"},
@@ -266,21 +273,17 @@ export default function Dashboard() {
       `}</style>
 
       {/* ── MOBILE: overlay backdrop ── */}
-      <AnimatePresence>
-        {isMobile && sidebarOpen && (
-          <motion.div
-            key="backdrop"
-            initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}
-            onClick={()=>setSidebarOpen(false)}
-            style={{position:"fixed",inset:0,zIndex:10,background:"rgba(0,0,0,.6)",backdropFilter:"blur(4px)"}}
-          />
-        )}
-      </AnimatePresence>
+      {isMobile && sidebarOpen && (
+        <div
+          onClick={()=>setSidebarOpen(false)}
+          style={{position:"fixed",left:240,top:0,right:0,bottom:0,zIndex:15,background:"rgba(0,0,0,.5)",cursor:"pointer"}}
+        />
+      )}
 
       {/* ════════════════════════════════════
           LAYOUT
       ════════════════════════════════════ */}
-      <div style={{position:"relative",zIndex:2,display:"flex",minHeight:"100vh"}}>
+      <div style={{position:"relative",zIndex:2,display:"flex",minHeight:"100vh",width:"100%",overflow:"hidden"}}>
 
         {/* ── SIDEBAR: desktop (sticky) ── */}
         {!isMobile && (
@@ -303,7 +306,7 @@ export default function Dashboard() {
             style={{position:"fixed",left:0,top:0,bottom:0,width:240,zIndex:20,
               background:"rgba(2,2,12,.97)",borderRight:"1px solid rgba(255,255,255,.07)",
               backdropFilter:"blur(40px)",display:"flex",flexDirection:"column",
-              padding:"28px 14px",overflowY:"auto"}}>
+              padding:"28px 14px",overflowY:"auto",pointerEvents:sidebarOpen?"auto":"none"}}>
             <SidebarContent/>
           </motion.aside>
         )}
@@ -313,7 +316,7 @@ export default function Dashboard() {
         ════════════════════════════════════ */}
         <main style={{
           flex:1,
-          overflowY:"auto",
+          overflowY:"auto",overflowX:"hidden",
           padding: isMobile ? "20px 16px 60px" : "32px 32px 60px",
           minWidth:0, /* prevent flex blowout */
         }}>
@@ -491,7 +494,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                   {chartData.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={300} width="100%" height={isMobile?120:148}>
+                    <ResponsiveContainer width="100%" height={isMobile ? 120 : 148}>
                       <AreaChart data={chartData} margin={{top:0,right:0,left:isMobile?-20:0,bottom:0}}>
                         <defs>
                           {[["gS","#3B82F6",.22],["gE","#EF4444",.18],["gP","#10B981",.22]].map(([id,c,o])=>(

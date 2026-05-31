@@ -62,13 +62,14 @@ export default function Login() {
           </div>
           <button className="btn btn-primary" type="submit"
             style={{width:"100%",justifyContent:"center",padding:"14px",fontSize:"15px"}}
-            disabled={loading}>
+            disabled={loading}
+            title={loading ? "Server may be waking up, please wait..." : ""}>
             {loading ? "Signing in..." : "Sign In →"}
           </button>
         </form>
 
         <div style={{textAlign:"center",marginTop:"24px",fontSize:"13px",color:"var(--t3)"}}>
-          No account?{" "}
+          Forgot password?{" "}<Link href="/forgot-password" style={{color:"var(--cyan)",textDecoration:"none",fontWeight:500}}>Reset it</Link><br/><br/>No account?{" "}
           <Link href="/register" style={{color:"var(--cyan)",textDecoration:"none",fontWeight:500}}>
             Create one free
           </Link>

@@ -1,58 +1,20 @@
-import { apiClient } from "./apiClient";
+import axios from 'axios';
 
-export const api = {
-  login: (email: string, password: string) =>
-    apiClient("/login", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-    }),
+const API = axios.create({
+  baseURL: 'http://localhost:4000/api/v1',
+});
 
-  register: (name: string, email: string, password: string, business: string) =>
-    apiClient("/register", {
-      method: "POST",
-      body: JSON.stringify({ name, email, password, business }),
-    }),
+/**
+ * Attach token automatically
+ */
+API.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
 
-  me: (token: string) =>
-    apiClient("/me", {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
 
-  getInsights: (token: string) =>
-    apiClient("/insights", {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
+  return config;
+});
 
-  getWeek: (token: string) =>
-    apiClient("/week", {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-
-  getSignals: (token: string) =>
-    apiClient("/signals", {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-
-  getToday: (token: string) =>
-    apiClient("/today", {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-
-  getHistory: (token: string, limit: number) =>
-    apiClient(`/history?limit=${limit}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-
-  addEntry: (token: string, data: any) =>
-    apiClient("/entry", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify(data),
-    }),
-
-  logout: (token: string) =>
-    apiClient("/logout", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-};
+export default API;
