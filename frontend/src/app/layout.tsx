@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { CurrencyProvider } from '@/context/CurrencyContext';
+import CookieBanner from '@/components/CookieBanner';
 
 export const metadata: Metadata = {
   icons: {
@@ -21,6 +22,7 @@ export default function RootLayout({
       <body suppressHydrationWarning>
         <CurrencyProvider>
           {children}
+          <CookieBanner />
         </CurrencyProvider>
       </body>
     </html>
