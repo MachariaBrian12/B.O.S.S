@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { CurrencyProvider } from '@/context/CurrencyContext';
 import CookieBanner from '@/components/CookieBanner';
+import AccessibilityWidget from '@/components/AccessibilityWidget';
+import { AccessibilityProvider } from '@/context/AccessibilityContext';
 
 export const metadata: Metadata = {
   icons: {
@@ -20,10 +22,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
+        <a href="#main-content" className="skip-link">Skip to main content</a>
+        <AccessibilityProvider>
         <CurrencyProvider>
           {children}
           <CookieBanner />
+          <AccessibilityWidget />
         </CurrencyProvider>
+        </AccessibilityProvider>
       </body>
     </html>
   );
