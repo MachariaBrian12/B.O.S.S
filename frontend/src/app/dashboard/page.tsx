@@ -324,23 +324,25 @@ export default function Dashboard() {
 
           {/* ── MOBILE TOPBAR ── */}
           {isMobile && (
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20}}>
-              <button onClick={()=>setSidebarOpen(true)}
-                style={{background:"rgba(255,255,255,.06)",border:"1px solid rgba(255,255,255,.09)",
-                  borderRadius:9,padding:"8px 11px",color:"#94A3B8",fontSize:16,cursor:"pointer",lineHeight:1}}>
-                ☰
-              </button>
-              <div style={{fontFamily:"'Syne',sans-serif",fontWeight:800,fontSize:17,
-                background:"linear-gradient(135deg,#fff,#06B6D4)",
-                WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>
-                B.O.S.S
-              </div>
-              <div style={{display:"flex",alignItems:"center",gap:8}}>
-                <CurrencyDropdown />
+            <div style={{marginBottom:20}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
+                <button onClick={()=>setSidebarOpen(true)}
+                  style={{background:"rgba(255,255,255,.06)",border:"1px solid rgba(255,255,255,.09)",
+                    borderRadius:9,padding:"8px 11px",color:"#94A3B8",fontSize:16,cursor:"pointer",lineHeight:1}}>
+                  ☰
+                </button>
+                <div style={{fontFamily:"'Syne',sans-serif",fontWeight:800,fontSize:17,
+                  background:"linear-gradient(135deg,#fff,#06B6D4)",
+                  WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>
+                  B.O.S.S
+                </div>
                 <Link href="/input" style={{
                   padding:"8px 13px",background:"linear-gradient(135deg,#3B82F6,#8B5CF6)",
                   borderRadius:9,color:"#fff",fontSize:12,fontWeight:500,textDecoration:"none",
                 }}>+ Add</Link>
+              </div>
+              <div style={{display:"flex",justifyContent:"flex-end"}}>
+                <CurrencyDropdown />
               </div>
             </div>
           )}
