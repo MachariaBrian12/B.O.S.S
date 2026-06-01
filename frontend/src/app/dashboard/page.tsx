@@ -57,6 +57,9 @@ export default function Dashboard() {
   const [tab,     setTab]     = useState<"feed"|"signals"|"alerts">("feed");
   const [isMobile, setIsMobile] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [seedingDemo, setSeedingDemo] = useState(false);
+  const [demoSeeded, setDemoSeeded] = useState(false);
   const pathname = typeof window !== "undefined" ? window.location.pathname : "";
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -122,6 +125,41 @@ export default function Dashboard() {
       return ()=>clearTimeout(timer);
     }
   },[token,user]);
+
+
+  /* ── insight toast: show after 3s if no data ── */
+  useEffect(()=>{
+    if(!ins) return;
+    if(!ins.hasData){
+      const t = setTimeout(()=>setShowToast(true), 3000);
+      return ()=>clearTimeout(t);
+    }
+  },[ins]);
+
+  /* ── seed demo data ── */
+  const seedDemoData = async () => {
+    if(!token || seedingDemo) return;
+    setSeedingDemo(true);
+    const entries = [
+      {sales:42000, expenses:18500, notes:"Demo: Monday"},
+      {sales:38500, expenses:16200, notes:"Demo: Tuesday"},
+      {sales:51000, expenses:21000, notes:"Demo: Wednesday"},
+      {sales:47500, expenses:19800, notes:"Demo: Thursday"},
+      {sales:63000, expenses:24500, notes:"Demo: Friday"},
+      {sales:29000, expenses:12000, notes:"Demo: Saturday"},
+      {sales:35500, expenses:14800, notes:"Demo: Sunday"},
+    ];
+    try {
+      for(const entry of entries){
+        await api.addEntry(token, entry).catch(()=>{});
+        await new Promise(r=>setTimeout(r,120));
+      }
+      setDemoSeeded(true);
+      window.location.reload();
+    } catch {
+      setSeedingDemo(false);
+    }
+  };
 
   const handleLogout = async ()=>{
     if(token) await api.logout(token).catch(()=>{});
@@ -405,24 +443,160 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* ── NO DATA ── */}
+          {/* ── NO DATA — ONBOARDING ── */}
           <AnimatePresence>
           {!ins?.hasData && (
             <motion.div variants={fadeUp} initial="hidden" animate="show" exit={{opacity:0}}
-              style={{background:"rgba(255,255,255,.02)",border:"1px solid rgba(255,255,255,.06)",
-                borderRadius:18,padding: isMobile ? "40px 24px" : "56px 40px",
-                textAlign:"center",marginBottom:28}}>
-              <div style={{fontSize:44,marginBottom:14}}>📊</div>
-              <h2 style={{fontFamily:"'Syne',sans-serif",fontSize:isMobile?17:20,fontWeight:700,marginBottom:10,color:"#F1F5F9"}}>
-                No data yet for today
-              </h2>
-              <p style={{color:"#94A3B8",fontSize:13,marginBottom:26,fontWeight:300,maxWidth:340,margin:"0 auto 26px"}}>
-                Add your first entry and B.O.S.S will immediately begin building your intelligence profile.
-              </p>
-              <Link href="/input" style={{display:"inline-flex",alignItems:"center",gap:8,padding:"13px 26px",
-                background:"linear-gradient(135deg,#3B82F6,#8B5CF6)",borderRadius:11,
-                color:"#fff",fontSize:14,fontWeight:500,textDecoration:"none"}}>
-                Enter Today&apos;s Data →
+              style={{marginBottom:28}}>
+
+              {/* DEMO PREVIEW — blurred KPIs */}
+              <div style={{
+                background:"rgba(255,255,255,.015)",border:"1px solid rgba(255,255,255,.055)",
+                borderRadius:16,padding:isMobile?"16px":"20px",marginBottom:16,
+                position:"relative",overflow:"hidden",
+              }}>
+                <div style={{position:"absolute",inset:0,backdropFilter:"blur(6px)",zIndex:2,
+                  background:"rgba(2,2,12,.55)",display:"flex",flexDirection:"column",
+                  alignItems:"center",justifyContent:"center",gap:8,borderRadius:16}}>
+                  <div style={{fontSize:11,color:"#06B6D4",letterSpacing:".12em",textTransform:"uppercase",fontWeight:600}}>
+                    🔒 Your Intelligence Preview
+                  </div>
+                  <div style={{fontSize:12,color:"#475569",textAlign:"center",maxWidth:260,lineHeight:1.6}}>
+                    Add your first entry to unlock real insights
+                  </div>
+                </div>
+                <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,filter:"blur(3px)"}}>
+                  {[
+                    {l:"Revenue",v:"KES 48,250",c:"#3B82F6"},
+                    {l:"Expenses",v:"KES 21,000",c:"#EF4444"},
+                    {l:"Net Profit",v:"KES 27,250",c:"#10B981"},
+                    {l:"Score",v:"78/100",c:"#F59E0B"},
+                  ].map(c=>(
+                    <div key={c.l} style={{background:"rgba(255,255,255,.03)",border:"1px solid rgba(255,255,255,.06)",borderRadius:12,padding:"14px 12px"}}>
+                      <div style={{fontSize:9,color:"#334155",textTransform:"uppercase",letterSpacing:".08em",marginBottom:5}}>{c.l}</div>
+                      <div style={{fontFamily:"'Syne',sans-serif",fontSize:16,fontWeight:700,color:c.c}}>{c.v}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* PROGRESS STEPS */}
+              <div style={{
+                background:"rgba(255,255,255,.02)",border:"1px solid rgba(255,255,255,.06)",
+                borderRadius:16,padding:isMobile?"20px 18px":"28px 28px",marginBottom:16,
+              }}>
+                <div style={{fontSize:isMobile?15:17,fontWeight:700,color:"#F1F5F9",fontFamily:"'Syne',sans-serif",marginBottom:6}}>
+                  You&apos;re 3 steps from total business intelligence.
+                </div>
+                <div style={{fontSize:12,color:"#475569",marginBottom:24,fontWeight:300}}>
+                  Each step unlocks more of the B.O.S.S intelligence layer.
+                </div>
+                {[
+                  {step:1,label:"Add today&apos;s numbers",sub:"Revenue + expenses. Takes 30 seconds.",done:false,active:true,color:"#3B82F6"},
+                  {step:2,label:"Get your first AI insight",sub:"B.O.S.S analyses your data instantly.",done:false,active:false,color:"#06B6D4"},
+                  {step:3,label:"Unlock weekly intelligence",sub:"Trends, signals, profit forecasts.",done:false,active:false,color:"#8B5CF6"},
+                ].map(s=>(
+                  <div key={s.step} style={{display:"flex",gap:12,alignItems:"flex-start",marginBottom:14,opacity:s.active?1:0.4}}>
+                    <div style={{
+                      width:28,height:28,borderRadius:"50%",flexShrink:0,
+                      background:s.active?`rgba(${s.color==="#3B82F6"?"59,130,246":s.color==="#06B6D4"?"6,182,212":"139,92,246"},.15)`:"rgba(255,255,255,.04)",
+                      border:`1px solid ${s.active?s.color:"rgba(255,255,255,.08)"}`,
+                      display:"flex",alignItems:"center",justifyContent:"center",
+                      fontSize:11,fontWeight:700,color:s.active?s.color:"#334155",
+                    }}>{s.step}</div>
+                    <div>
+                      <div style={{fontSize:13,color:s.active?"#F1F5F9":"#475569",fontWeight:500,marginBottom:2}}
+                        dangerouslySetInnerHTML={{__html:s.label}}/>
+                      <div style={{fontSize:11,color:"#334155"}}>{s.sub}</div>
+                    </div>
+                    {!s.active && <div style={{marginLeft:"auto",fontSize:10,color:"#1e293b",background:"rgba(255,255,255,.03)",border:"1px solid rgba(255,255,255,.05)",borderRadius:6,padding:"2px 8px",flexShrink:0}}>LOCKED</div>}
+                  </div>
+                ))}
+
+                {/* PRIMARY CTA */}
+                <Link href="/input" style={{
+                  display:"flex",alignItems:"center",justifyContent:"center",gap:8,
+                  padding:"14px 24px",marginTop:8,
+                  background:"linear-gradient(135deg,#3B82F6,#8B5CF6)",
+                  borderRadius:12,color:"#fff",fontSize:14,fontWeight:600,
+                  textDecoration:"none",
+                  boxShadow:"0 8px 32px rgba(59,130,246,.35)",
+                  transition:"all .2s ease",
+                }}>
+                  ⚡ Add Today&apos;s Numbers — Takes 30 Seconds
+                </Link>
+              </div>
+
+              {/* DEMO SEED OPTION */}
+              <div style={{
+                background:"rgba(6,182,212,.04)",border:"1px solid rgba(6,182,212,.12)",
+                borderRadius:14,padding:"16px 20px",display:"flex",
+                alignItems:"center",justifyContent:"space-between",gap:12,flexWrap:"wrap",
+              }}>
+                <div>
+                  <div style={{fontSize:12,color:"#06B6D4",fontWeight:600,marginBottom:2}}>
+                    🧪 Want to see the full experience first?
+                  </div>
+                  <div style={{fontSize:11,color:"#334155"}}>
+                    Load a demo week of data — see exactly what B.O.S.S can do.
+                  </div>
+                </div>
+                <button onClick={seedDemoData} disabled={seedingDemo} style={{
+                  padding:"8px 16px",borderRadius:9,border:"1px solid rgba(6,182,212,.3)",
+                  background:"rgba(6,182,212,.08)",color:"#06B6D4",fontSize:12,
+                  fontWeight:500,cursor:"pointer",flexShrink:0,whiteSpace:"nowrap",
+                }}>
+                  {seedingDemo ? "Loading..." : "Load Demo Data →"}
+                </button>
+              </div>
+
+            </motion.div>
+          )}
+          </AnimatePresence>
+
+          {/* ── INSIGHT TOAST ── */}
+          <AnimatePresence>
+          {showToast && !ins?.hasData && (
+            <motion.div
+              initial={{opacity:0,y:80,scale:.95}}
+              animate={{opacity:1,y:0,scale:1}}
+              exit={{opacity:0,y:80,scale:.95}}
+              transition={{type:"spring",stiffness:320,damping:28}}
+              style={{
+                position:"fixed",bottom:24,left:"50%",transform:"translateX(-50%)",
+                zIndex:1000,width:"calc(100% - 40px)",maxWidth:440,
+                background:"rgba(5,5,15,0.97)",
+                border:"1px solid rgba(6,182,212,.25)",
+                borderRadius:16,padding:"16px 18px",
+                boxShadow:"0 20px 60px rgba(0,0,0,.6),0 0 40px rgba(6,182,212,.08)",
+                backdropFilter:"blur(24px)",
+              }}>
+              <div style={{display:"flex",gap:12,alignItems:"flex-start"}}>
+                <div style={{
+                  width:36,height:36,borderRadius:10,flexShrink:0,
+                  background:"rgba(6,182,212,.12)",border:"1px solid rgba(6,182,212,.2)",
+                  display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,
+                }}>💡</div>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:13,color:"#F1F5F9",fontWeight:600,marginBottom:4,lineHeight:1.4}}>
+                    Businesses tracking daily see 23% higher profits.
+                  </div>
+                  <div style={{fontSize:11,color:"#475569",lineHeight:1.5}}>
+                    You&apos;re one 30-second entry away from your first AI insight.
+                  </div>
+                </div>
+                <button onClick={()=>setShowToast(false)} style={{
+                  background:"transparent",border:"none",color:"#334155",
+                  fontSize:16,cursor:"pointer",padding:2,flexShrink:0,lineHeight:1,
+                }}>✕</button>
+              </div>
+              <Link href="/input" style={{
+                display:"flex",alignItems:"center",justifyContent:"center",
+                marginTop:12,padding:"10px",borderRadius:10,
+                background:"linear-gradient(135deg,#3B82F6,#06B6D4)",
+                color:"#fff",fontSize:12,fontWeight:600,textDecoration:"none",
+              }}>
+                Add My Numbers Now →
               </Link>
             </motion.div>
           )}
