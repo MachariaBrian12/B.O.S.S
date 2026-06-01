@@ -11,7 +11,7 @@
 
 ## 🚀 Overview
 
-Business Orchestration Software Systems
+Business Orchestration Software Systems.
 
 AI-native, AI-powered Software-as-a-Service (SaaS) and Business Intelligence platform built to help businesses operate smarter through real-time intelligence, orchestration, automation, analytics, and predictive insights.
 
