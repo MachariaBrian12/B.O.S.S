@@ -31,7 +31,7 @@ Built with artificial intelligence at its core, B.O.S.S helps businesses move be
 - 📈 Business intelligence data structure (usage + activity tracking ready)
 - ⚡ Admin backend API (stats + system monitoring endpoints)
 - 🔐 Secure API architecture (middleware + rate limiting foundation)
-- 💳 M-Pesa payment integration layer (STK Push structure)
+- 💳 M-Pesa payment integration layer (STK Push structure), Strip Integrated
 - ⚙️ Modular backend architecture (scalable service-based design)
 
 ---
