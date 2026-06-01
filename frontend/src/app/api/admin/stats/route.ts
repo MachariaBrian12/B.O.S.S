@@ -1,19 +1,14 @@
 export async function GET(req: Request) {
-  const auth = req.headers.get("x-admin-secret");
+  const secret = req.headers.get("x-admin-secret");
 
-  if (!auth || auth !== process.env.BOSS_ADMIN_SECRET) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-    });
+  if (!secret || secret !== process.env.BOSS_ADMIN_SECRET) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
-  // MOCK DATA (replace later with DB)
   return new Response(JSON.stringify({
-    totalUsers: 124,
+    status: "ok",
     revenue: 5400,
-    activeOrgs: 18,
-    aiActions: 320
-  }), {
-    status: 200,
-  });
+    users: 124,
+    ai_actions: 320
+  }), { status: 200 });
 }
