@@ -29,7 +29,7 @@ const signalColor = (dir:string) => dir==="up"?"#10B981":dir==="down"?"#EF4444":
 
 /* ── chart tooltip ── */
 const ChartTip = ({active,payload,label}:{active?:boolean;payload?:{value:number;name:string}[];label?:string}) => {
-  if (!active||!payload?.length) return null;
+  if (!active || !payload?.length) return null;
   const colors:Record<string,string> = {sales:"#3B82F6",expenses:"#EF4444",profit:"#10B981"};
   return (
     <div className="overflow-x-hidden"  style={{background:"rgba(4,4,20,.97)",border:"1px solid rgba(255,255,255,.09)",borderRadius:10,padding:"10px 14px",fontSize:11}}>
@@ -49,7 +49,7 @@ const ChartTip = ({active,payload,label}:{active?:boolean;payload?:{value:number
 export default function Dashboard() {
   const router  = useRouter();
   const { user, token, insights, setInsights, logout } = useBusinessStore(s=>s);
-  const [week,    setWeek]    = useState<{history:HistoryRow[];summary:Record<string,number>}|null>(null);
+  const [week,    setWeek]    = useState<{history:HistoryRow[];summary:Record<string,number>}|ins>(ins);
   const [feed,    setFeed]    = useState<FeedItem[]>([]);
   const [signals, setSignals] = useState<Signal[]>([]);
   const [alerts,  setAlerts]  = useState<Alert[]>([]);
@@ -60,8 +60,8 @@ export default function Dashboard() {
   const [showToast, setShowToast] = useState(false);
   const [seedingDemo, setSeedingDemo] = useState(false);
   const [demoSeeded, setDemoSeeded] = useState(false);
-  const pathname = typeof window !== "undefined" ? window.location.pathname : "";
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const pathname = typeof window !== "ins" ? window.location.pathname : "";
+  const canvasRef = useRef<HTMLCanvasElement>(ins);
 
   /* ── responsive detection ── */
   useEffect(()=>{
@@ -129,12 +129,12 @@ export default function Dashboard() {
 
   /* ── insight toast: show after 3s if no data ── */
   useEffect(()=>{
-    if(!ins) return;
+    
     if(!ins.hasData){
       const t = setTimeout(()=>setShowToast(true), 3000);
       return ()=>clearTimeout(t);
     }
-  },[ins]);
+  },[]);
 
   /* ── seed demo data ── */
   const seedDemoData = async () => {
@@ -166,8 +166,16 @@ export default function Dashboard() {
     logout(); router.push("/login");
   };
 
-  const ins = insights;
-  const scoreColor = !ins?.hasData?"#475569":ins.score>=75?"#10B981":ins.score>=50?"#F59E0B":"#EF4444";
+  // MUST BE ABOVE useEffect
+
+  const scoreColor =
+  !ins?.hasData
+    ? "#475569"
+    : ins?.score >= 75
+    ? "#10B981"
+    : ins?.score >= 50
+    ? "#F59E0B"
+    : "#EF4444";
 
   const chartData = (week?.history??[]).slice().reverse().map(r=>({
     date: new Date(r.date).toLocaleDateString("en-KE",{weekday:"short"}),
