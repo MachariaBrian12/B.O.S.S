@@ -20,15 +20,16 @@ model User {
 
 model Message {
   id        String   @id @default(cuid())
+  role      String   @default("user")
   content   String
   createdAt DateTime @default(now())
 
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
-  dayKey     String
-  weekKey    String
-  monthKey   String
-  quarterKey String
-  yearKey    String
+  dayKey     String   @default("")
+  weekKey    String   @default("")
+  monthKey   String   @default("")
+  quarterKey String   @default("")
+  yearKey    String   @default("")
 }
