@@ -1,15 +1,18 @@
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 generator client {
   provider = "prisma-client-js"
 }
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
   password  String
+  name      String   @default("")
+  role      String   @default("user")
   createdAt DateTime @default(now())
 
   messages Message[]
