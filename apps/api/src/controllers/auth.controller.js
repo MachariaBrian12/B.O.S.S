@@ -1,3 +1,4 @@
+const db = require("../db/database");
 const authService = require('../services/auth.service');
 const bcrypt = require('bcryptjs');
 
