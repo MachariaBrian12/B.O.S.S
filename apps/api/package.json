@@ -5,7 +5,7 @@
   "main": "dist/server/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server/index.ts",
-    "build": "tsc --noEmitOnError false || true",
+    "build": "tsc --noEmitOnError false || true && find src -name \"*.js\" -exec cp --parents {} dist/ ; 2>/dev/null || true",
     "start": "node dist/server/index.js",
     "prisma": "prisma generate"
   },
