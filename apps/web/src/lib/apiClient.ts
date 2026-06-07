@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
 
 export async function apiClient(url: string, options: RequestInit = {}) {
   const requestId =
@@ -24,15 +24,12 @@ export async function apiClient(url: string, options: RequestInit = {}) {
     const data = await res.json();
 
     if (!res.ok) {
-      throw new Error(data.error || data.message || "Request failed");
+      throw new Error(data?.error || "Request failed");
     }
 
     return data;
   } catch (err: any) {
     clearTimeout(timeout);
-    if (err.name === "AbortError") {
-      throw new Error("Server is waking up, please try again in a moment.");
-    }
-    throw err;
+    throw new Error(err.message || "Network error");
   }
 }
