@@ -1,10 +1,27 @@
 {
+  "name": "boss",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "concurrently \"npm run dev --prefix frontend\" \"npm run dev --prefix backend\"",
-    "clean:ports": "npx kill-port 3000 3001 4000",
-    "build": "npm run build --prefix frontend"
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean",
+    "dev:web": "turbo run dev --filter=web",
+    "dev:api": "turbo run dev --filter=api",
+    "dev:admin": "turbo run dev --filter=admin",
+    "clean:ports": "npx kill-port 3000 3001 4000"
   },
   "devDependencies": {
+    "turbo": "^2.0.0",
     "concurrently": "^10.0.3"
-  }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "npm@10.0.0"
 }
