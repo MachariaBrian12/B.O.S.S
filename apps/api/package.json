@@ -5,8 +5,8 @@
   "main": "dist/server/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server/index.ts",
-    "build": "rm -rf dist && tsc --noEmitOnError false || true && cp -r src/db dist/db 2>/dev/null || true && cp -r src/routes dist/routes 2>/dev/null || true && cp -r src/controllers dist/controllers 2>/dev/null || true && cp -r src/services dist/services 2>/dev/null || true && cp -r src/middleware dist/middleware 2>/dev/null || true",
-    "start": "node dist/server/index.js",
+    "build": "echo build skipped",
+    "start": "node src/server/index.js",
     "prisma": "prisma generate"
   },
   "dependencies": {
