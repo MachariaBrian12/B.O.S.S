@@ -9,7 +9,7 @@ router.get('/stats', async (req, res) => {
     return res.status(401).json({ error: 'Unauthorized' });
   }
   try {
-    const { rows: users } = await pool.query(
+    const { rows: users } = await (pool as any).query(
       'SELECT id, name, email, business, created_at FROM users ORDER BY created_at DESC'
     );
     const now = new Date();
@@ -17,8 +17,8 @@ router.get('/stats', async (req, res) => {
     const weekStart = new Date(now);
     weekStart.setDate(weekStart.getDate() - 7);
 
-    const newToday = users.filter(u => new Date(u.created_at) >= todayStart).length;
-    const newThisWeek = users.filter(u => new Date(u.created_at) >= weekStart).length;
+    const newToday = users.filter((u: any) => new Date(u.created_at) >= todayStart).length;
+    const newThisWeek = users.filter((u: any) => new Date(u.created_at) >= weekStart).length;
 
     res.json({
       totalOrgs: users.length,
@@ -30,7 +30,7 @@ router.get('/stats', async (req, res) => {
       newOrgsToday: newToday,
       newOrgsThisWeek: newThisWeek,
       conversionRate: "0",
-      recentUsers: users.map(u => ({
+      recentUsers: users.map((u: any) => ({
         id: String(u.id),
         name: u.name,
         email: u.email,
