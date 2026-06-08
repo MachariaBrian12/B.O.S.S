@@ -1,6 +1,4 @@
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  "https://boss-production-75ce.up.railway.app/api/v1";
+const BASE_URL = "https://boss-production-75ce.up.railway.app/api/v1";
 
 export async function apiClient(url: string, options: RequestInit = {}) {
   const requestId =
