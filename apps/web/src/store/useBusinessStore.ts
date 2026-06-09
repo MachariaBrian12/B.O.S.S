@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import * as Sentry from "@sentry/nextjs";
 
 export interface User {
   id: number;
@@ -92,11 +93,28 @@ export const useBusinessStore = create<BusinessStore>()(
       loading:  false,
       error:    null,
 
-      setUser:     (user, token) => set({ user, token, error: null }),
-      setInsights: (insights)   => set({ insights }),
-      setLoading:  (loading)    => set({ loading }),
-      setError:    (error)      => set({ error }),
-      logout:      ()           => set({ user: null, token: null, insights: null }),
+      setUser: (user, token) => {
+        // Tell Sentry exactly who is logged in.
+        // Like showing the security camera the guest register.
+        Sentry.setUser({
+          id:       String(user.id),
+          email:    user.email,
+          username: user.name,
+          business: user.business,
+        });
+        set({ user, token, error: null });
+      },
+
+      setInsights: (insights) => set({ insights }),
+      setLoading:  (loading)  => set({ loading }),
+      setError:    (error)    => set({ error }),
+
+      logout: () => {
+        // Clear Sentry user — guest has checked out.
+        // Without this, errors after logout get wrongly attributed.
+        Sentry.setUser(null);
+        set({ user: null, token: null, insights: null });
+      },
     }),
     {
       name: "boss-store",

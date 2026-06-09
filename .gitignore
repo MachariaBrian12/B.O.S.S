@@ -37,3 +37,6 @@ npm-debug.log*
 next-env.d.ts
 .vercel
 .env*
+Vercel-Recovery-Codes.txt
+*Recovery-Codes*
+*recovery-codes*
