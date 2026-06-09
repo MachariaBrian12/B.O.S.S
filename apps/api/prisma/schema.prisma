@@ -1,5 +1,14 @@
 datasource db {
-  provider = "sqlite"
+  /**
+   * Production: Neon Postgres (via DATABASE_URL)
+   * The schema was previously set to sqlite but the actual
+   * DATABASE_URL points to Postgres. Fixed here.
+   *
+   * Analogy: the blueprint said "build with wood" but the
+   * actual building was always concrete. Now the blueprint
+   * matches reality.
+   */
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -15,7 +24,8 @@ model User {
   role      String   @default("user")
   createdAt DateTime @default(now())
 
-  messages Message[]
+  messages  Message[]
+  auditLogs AuditLog[]
 }
 
 model Message {
@@ -27,9 +37,38 @@ model Message {
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
-  dayKey     String   @default("")
-  weekKey    String   @default("")
-  monthKey   String   @default("")
-  quarterKey String   @default("")
-  yearKey    String   @default("")
+  dayKey     String @default("")
+  weekKey    String @default("")
+  monthKey   String @default("")
+  quarterKey String @default("")
+  yearKey    String @default("")
+}
+
+model AuditLog {
+  /**
+   * AuditLog — the paper trail for every write operation.
+   *
+   * Analogy: a notary who witnesses and records every
+   * significant action in your business. When a customer
+   * calls asking "who deleted my entry on Tuesday?",
+   * you open this ledger and show them exactly who,
+   * when, from which IP, and what changed.
+   *
+   * This is table stakes for enterprise sales — security
+   * teams will ask for this in procurement reviews.
+   */
+  id           String   @id @default(cuid())
+  actorId      String
+  actor        User     @relation(fields: [actorId], references: [id])
+  action       String   // e.g. 'entry.created', 'entry.updated', 'entry.deleted'
+  resourceType String   // e.g. 'BusinessEntry'
+  resourceId   String?  // the ID of the affected record if available
+  metadata     Json?    // before/after state, request body, etc.
+  ip           String?  // client IP address
+  userAgent    String?  // browser/client info
+  createdAt    DateTime @default(now())
+
+  @@index([actorId])
+  @@index([createdAt])
+  @@index([action])
 }
