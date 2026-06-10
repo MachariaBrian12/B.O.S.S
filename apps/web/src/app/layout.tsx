@@ -5,6 +5,7 @@ import CookieBanner from '@/components/CookieBanner';
 import AccessibilityWidget from '@/components/AccessibilityWidget';
 import { AccessibilityProvider } from '@/context/AccessibilityContext';
 import { SentryUserSync } from '@/components/SentryUserSync';
+import { PostHogProvider } from '@/components/PostHogProvider';
 
 export const metadata: Metadata = {
   icons: {
@@ -24,6 +25,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
         <a href="#main-content" className="skip-link">Skip to main content</a>
+        <PostHogProvider>
         <AccessibilityProvider>
         <SentryUserSync />
         <CurrencyProvider>
@@ -32,6 +34,7 @@ export default function RootLayout({
           <AccessibilityWidget />
         </CurrencyProvider>
         </AccessibilityProvider>
+        </PostHogProvider>
       </body>
     </html>
   );

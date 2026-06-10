@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
+import { analytics } from "@/lib/analytics";
 import { useBusinessStore } from "@/store/useBusinessStore";
 
 export default function InputPage() {
@@ -39,6 +40,7 @@ export default function InputPage() {
       const fn = existing ? api.updateEntry : api.addEntry;
       const data = await fn(token,{ sales:parseFloat(form.sales), expenses:parseFloat(form.expenses), notes:form.notes });
       if(data.insights) setInsights(data.insights);
+      if(existing) { analytics.entryUpdated({ sales: parseFloat(form.sales), expenses: parseFloat(form.expenses) }); } else { analytics.entryCreated({ sales: parseFloat(form.sales), expenses: parseFloat(form.expenses) }); }
       setSuccess(true);
       setTimeout(()=>router.push("/dashboard"),1200);
     } catch(err:any) {
@@ -51,6 +53,7 @@ export default function InputPage() {
     setDeleting(true);
     try {
       await api.deleteEntry(token);
+      analytics.entryDeleted();
       router.push("/dashboard");
     } catch(err:any) {
       setError(err.message||"Failed to delete entry.");

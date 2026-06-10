@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
+import { analytics } from "@/lib/analytics";
 import { useBusinessStore } from "@/store/useBusinessStore";
 
 export default function Login() {
@@ -19,6 +20,7 @@ export default function Login() {
     try {
       const { user, token } = await api.login(email, password);
       setUser(user, token);
+      analytics.login();
       router.push("/dashboard");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Login failed");
