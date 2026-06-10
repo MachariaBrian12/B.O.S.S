@@ -25,6 +25,7 @@ model User {
   createdAt DateTime @default(now())
 
   messages  Message[]
+  aiUsage   AiUsage[]
   auditLogs AuditLog[]
 }
 
@@ -71,4 +72,23 @@ model AuditLog {
   @@index([actorId])
   @@index([createdAt])
   @@index([action])
+}
+
+model AiUsage {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  feature          String   @default("chat")
+  model            String
+  promptTokens     Int      @default(0)
+  completionTokens Int      @default(0)
+  totalTokens      Int      @default(0)
+  costUsd          Decimal  @default(0) @db.Decimal(10, 6)
+  latencyMs        Int      @default(0)
+  success          Boolean  @default(true)
+  createdAt        DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([feature])
 }
