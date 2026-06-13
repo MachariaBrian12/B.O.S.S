@@ -1,6 +1,5 @@
 [build]
-builder = "nixpacks"
-buildCommand = "npm install"
+buildCommand = "npm install --production=false"
 
 [deploy]
 startCommand = "npx ts-node src/server/index.ts"
