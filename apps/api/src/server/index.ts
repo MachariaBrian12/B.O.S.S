@@ -8,6 +8,9 @@ import dotenv from 'dotenv';
 
 import aiRoutes from '../routes/ai.route';
 import adminRoutes from '../routes/admin.route';
+import authRoutes from '../routes/auth.routes';
+import businessRoutes from '../routes/business.routes';
+import insightsRoutes from '../routes/insights.routes';
 
 dotenv.config();
 
@@ -15,10 +18,12 @@ const { init } = require('../db/database');
 
 const app = express();
 
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true,
+  }),
+);
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -31,18 +36,19 @@ app.get('/', (_req, res) => {
 // ROUTES
 app.use('/api/v1/ai', aiRoutes);
 app.use('/api/v1/admin', adminRoutes);
-app.use('/api/v1/auth', require('../routes/auth.routes'));
-app.use('/api/v1/business', require('../routes/business.routes'));
-app.use('/api/v1/insights', require('../routes/insights.routes'));
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/business', businessRoutes);
+app.use('/api/v1/insights', insightsRoutes);
 
 // In Sentry v8+, Express is instrumented via expressIntegration()
 // in sentry.ts — no middleware needed here. Errors are captured
 // automatically. Your own error handler stays exactly as it was.
 app.use((err: any, _req: any, res: any, _next: any) => {
-  // Manually capture unexpected errors so Sentry sees them
   Sentry.captureException(err);
   console.error('SERVER ERROR:', err);
-  res.status(500).json({ success: false, message: err.message || 'Internal Server Error' });
+  res
+    .status(500)
+    .json({ success: false, message: err.message || 'Internal Server Error' });
 });
 
 const PORT = process.env.PORT || 4000;
