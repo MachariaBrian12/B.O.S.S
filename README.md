@@ -75,44 +75,6 @@ Built with artificial intelligence at its core, B.O.S.S helps businesses move be
 
 ---
 
-## Features
-
-### 🧠 Core Intelligence
-
-- **AI Chat Engine** — GPT-4o powered business advisor with persistent memory across sessions
-- **Daily Business Intelligence** — revenue, expenses, profit margin, and trend analysis in real time
-- **Weekly & Historical Analytics** — 7-day, 30-day, and quarterly performance summaries
-- **AI Signals** — confidence-weighted directional indicators for business decisions
-- **Smart Alerts** — proactive warnings when metrics deviate from healthy ranges
-- **Streak Tracking** — consecutive days of data entry to build operational discipline
-
-### ⚡ Operations
-
-- **Daily Entry System** — structured revenue and expense logging with instant AI insights
-- **Business Feed** — ranked, prioritised activity stream of what matters most right now
-- **Profile & Business Management** — multi-user ready architecture
-- **M-Pesa STK Push** — native East African payment infrastructure
-- **Stripe** — global payment processing
-
-### 🔐 Platform
-
-- JWT authentication with secure middleware and role-based access control
-- Rate limiting and request validation on every endpoint
-- Admin backend with system monitoring and stats endpoints
-- Modular Turborepo monorepo — web, API, admin, shared packages
-
-### 📡 Observability (v3.1.0)
-
-- **Sentry** — full user identity on every error, crash-free users tracked per session
-- **Distributed tracing** — every API route, DB query, and AI call has a performance span
-- **Audit logs** — immutable write-once ledger of every data change (enterprise-ready)
-- **PostHog** — session recordings, funnels, retention cohorts, feature adoption
-- **AI telemetry** — token cost, latency, and success rate tracked per user per feature
-- **Deep health checks** — DB connectivity verified on every uptime monitor ping
-- **Sentry alerts** — new issues and error rate spikes trigger immediate team notifications
-
----
-
 ## Stack
 
 **Frontend**
