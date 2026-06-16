@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '@/lib/api';
 import { useBusinessStore } from '@/store/useBusinessStore';
+import { useCurrency } from '@/context/CurrencyContext';
 import type { Insights } from '@/store/useBusinessStore';
 
 const fadeUp = {
@@ -142,6 +143,7 @@ function getPillarScore(ins: Insights, key: string): number {
 export default function InsightsPage() {
   const router = useRouter();
   const { user, token, insights, setInsights } = useBusinessStore((s) => s);
+  const { convert, symbol } = useCurrency();
   const ins = insights as Insights | null;
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'score' | 'insights' | 'week'>(
@@ -209,10 +211,8 @@ export default function InsightsPage() {
         <div className="aurora-3" />
       </div>
       <div className="noise" />
-
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
-        @keyframes spin{to{transform:rotate(360deg);}}
         .pillar-bar{transition:width 1.4s cubic-bezier(.16,1,.3,1);}
         .score-ring{transition:stroke-dashoffset 1.6s cubic-bezier(.16,1,.3,1);}
       `}</style>
@@ -226,7 +226,6 @@ export default function InsightsPage() {
           padding: '24px 20px 80px',
         }}
       >
-        {/* back */}
         <Link
           href="/dashboard"
           style={{
@@ -237,7 +236,6 @@ export default function InsightsPage() {
             fontSize: 13,
             textDecoration: 'none',
             marginBottom: 28,
-            transition: 'color .2s',
           }}
           onMouseEnter={(e) => (e.currentTarget.style.color = '#F1F5F9')}
           onMouseLeave={(e) => (e.currentTarget.style.color = '#475569')}
@@ -245,7 +243,6 @@ export default function InsightsPage() {
           ← Back to Dashboard
         </Link>
 
-        {/* header */}
         <motion.div
           variants={stagger}
           initial="hidden"
@@ -287,7 +284,6 @@ export default function InsightsPage() {
           </motion.div>
         </motion.div>
 
-        {/* tabs */}
         <div
           style={{
             display: 'flex',
@@ -329,7 +325,6 @@ export default function InsightsPage() {
         </div>
 
         <AnimatePresence mode="wait">
-          {/* ── HEALTH SCORE TAB ── */}
           {activeTab === 'score' && (
             <motion.div
               key="score"
@@ -390,7 +385,6 @@ export default function InsightsPage() {
                 </div>
               ) : (
                 <motion.div variants={stagger} initial="hidden" animate="show">
-                  {/* score hero */}
                   <motion.div
                     variants={fadeUp}
                     style={{
@@ -405,7 +399,6 @@ export default function InsightsPage() {
                       flexWrap: 'wrap',
                     }}
                   >
-                    {/* ring */}
                     <div style={{ position: 'relative', flexShrink: 0 }}>
                       <svg width={140} height={140} viewBox="0 0 120 120">
                         <circle
@@ -454,8 +447,6 @@ export default function InsightsPage() {
                         </text>
                       </svg>
                     </div>
-
-                    {/* band info */}
                     <div style={{ flex: 1, minWidth: 200 }}>
                       <div
                         style={{
@@ -538,7 +529,6 @@ export default function InsightsPage() {
                     </div>
                   </motion.div>
 
-                  {/* pillars */}
                   <motion.div
                     variants={fadeUp}
                     style={{
@@ -658,7 +648,6 @@ export default function InsightsPage() {
                     </div>
                   </motion.div>
 
-                  {/* score bands legend */}
                   <motion.div
                     variants={fadeUp}
                     style={{
@@ -751,7 +740,6 @@ export default function InsightsPage() {
             </motion.div>
           )}
 
-          {/* ── AI INSIGHTS TAB ── */}
           {activeTab === 'insights' && (
             <motion.div
               key="insights"
@@ -817,7 +805,6 @@ export default function InsightsPage() {
                   animate="show"
                   style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
                 >
-                  {/* summary */}
                   <motion.div
                     variants={fadeUp}
                     style={{
@@ -850,7 +837,6 @@ export default function InsightsPage() {
                     </p>
                   </motion.div>
 
-                  {/* trend + score */}
                   <motion.div
                     variants={fadeUp}
                     style={{
@@ -943,7 +929,6 @@ export default function InsightsPage() {
                     </div>
                   </motion.div>
 
-                  {/* warning */}
                   {ins.warning && (
                     <motion.div
                       variants={fadeUp}
@@ -977,7 +962,6 @@ export default function InsightsPage() {
                     </motion.div>
                   )}
 
-                  {/* recommendation */}
                   <motion.div
                     variants={fadeUp}
                     style={{
@@ -1010,7 +994,6 @@ export default function InsightsPage() {
                     </p>
                   </motion.div>
 
-                  {/* top product */}
                   {ins.topProduct && (
                     <motion.div
                       variants={fadeUp}
@@ -1051,7 +1034,6 @@ export default function InsightsPage() {
                     </motion.div>
                   )}
 
-                  {/* CTAs */}
                   <motion.div
                     variants={fadeUp}
                     style={{ display: 'flex', gap: 12 }}
@@ -1099,7 +1081,6 @@ export default function InsightsPage() {
             </motion.div>
           )}
 
-          {/* ── WEEKLY REPORT TAB ── */}
           {activeTab === 'week' && (
             <motion.div
               key="week"
@@ -1165,7 +1146,7 @@ export default function InsightsPage() {
                   animate="show"
                   style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
                 >
-                  {/* week headline */}
+                  {/* Week headline — all converted */}
                   <motion.div
                     variants={fadeUp}
                     style={{
@@ -1197,27 +1178,27 @@ export default function InsightsPage() {
                       {[
                         {
                           label: 'Total Sales',
-                          value: `KES ${ins.weekStats.totalSales.toLocaleString()}`,
+                          value: `${symbol} ${convert(ins.weekStats.totalSales)}`,
                           color: '#3B82F6',
                         },
                         {
                           label: 'Total Expenses',
-                          value: `KES ${ins.weekStats.totalExpenses.toLocaleString()}`,
+                          value: `${symbol} ${convert(ins.weekStats.totalExpenses)}`,
                           color: '#EF4444',
                         },
                         {
                           label: 'Total Profit',
-                          value: `KES ${ins.weekStats.totalProfit.toLocaleString()}`,
+                          value: `${symbol} ${convert(ins.weekStats.totalProfit)}`,
                           color: '#10B981',
                         },
                         {
                           label: 'Avg Daily',
-                          value: `KES ${ins.weekStats.avgDailySales.toLocaleString()}`,
+                          value: `${symbol} ${convert(ins.weekStats.avgDailySales)}`,
                           color: '#06B6D4',
                         },
                         {
                           label: 'Best Day',
-                          value: `KES ${ins.weekStats.bestDaySales.toLocaleString()}`,
+                          value: `${symbol} ${convert(ins.weekStats.bestDaySales)}`,
                           color: '#F59E0B',
                         },
                         {
@@ -1253,7 +1234,7 @@ export default function InsightsPage() {
                     </div>
                   </motion.div>
 
-                  {/* profit margin bar */}
+                  {/* Profit margin */}
                   <motion.div
                     variants={fadeUp}
                     style={{
@@ -1355,7 +1336,7 @@ export default function InsightsPage() {
                     })()}
                   </motion.div>
 
-                  {/* days tracking */}
+                  {/* Days tracking */}
                   <motion.div
                     variants={fadeUp}
                     style={{
