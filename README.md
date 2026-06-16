@@ -41,7 +41,8 @@ Built with artificial intelligence at its core, B.O.S.S helps businesses move be
 
 ### 🧠 Core Intelligence
 
-- **AI Chat Engine** — GPT-4o-mini powered business advisor with persistent memory across sessions
+- **GuruAI Core** - The proprietary AI intelligence engine powering B.O.S.S., combining advanced AI orchestration, large language models, business intelligence, automation, analytics, and decision systems into a unified cognitive layer that transforms data into action, delivers real-time intelligence, and drives autonomous, enterprise-scale business operations.
+- **AI Chat Engine** — GPT-4 powered business advisor with persistent memory across sessions
 - **Daily Business Intelligence** — revenue, expenses, profit margin, and trend analysis in real time
 - **Weekly & Historical Analytics** — 7-day, 30-day, and quarterly performance summaries
 - **AI Signals** — confidence-weighted directional indicators for business decisions
@@ -203,4 +204,4 @@ Every intelligence → Action
 | **API**         | [boss-production-75ce.up.railway.app](https://boss-production-75ce.up.railway.app) |
 | **Version**     | v3.1.0                                                                             |
 | **Uptime**      | 99.52% crash-free sessions                                                         |
-| **Deployments** | 182+                                                                               |
+| **Deployments** | 235 +                                                                              |
