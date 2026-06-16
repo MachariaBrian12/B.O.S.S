@@ -16,9 +16,9 @@ import {
 import { api } from '@/lib/api';
 import CurrencyDropdown from '@/components/CurrencyDropdown';
 import { useBusinessStore } from '@/store/useBusinessStore';
+import { useCurrency } from '@/context/CurrencyContext';
 import type { Insights } from '@/store/useBusinessStore';
 
-/* ── types ── */
 interface FeedItem {
   id: string;
   type: string;
@@ -53,7 +53,6 @@ interface WeekData {
   summary: Record<string, number>;
 }
 
-/* ── motion variants ── */
 const fadeUp = {
   hidden: { opacity: 0, y: 18 },
   show: {
@@ -67,7 +66,6 @@ const fadeUp = {
 };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
 
-/* ── colour helpers ── */
 const alertColor = (level: string) =>
   ({
     critical: '#EF4444',
@@ -79,58 +77,12 @@ const alertColor = (level: string) =>
 const signalColor = (dir: string) =>
   dir === 'up' ? '#10B981' : dir === 'down' ? '#EF4444' : '#94A3B8';
 
-/* ── chart tooltip ── */
-const ChartTip = ({
-  active,
-  payload,
-  label,
-}: {
-  active?: boolean;
-  payload?: { value: number; name: string }[];
-  label?: string;
-}) => {
-  if (!active || !payload?.length) return null;
-  const colors: Record<string, string> = {
-    sales: '#3B82F6',
-    expenses: '#EF4444',
-    profit: '#10B981',
-  };
-  return (
-    <div
-      style={{
-        background: 'rgba(4,4,20,.97)',
-        border: '1px solid rgba(255,255,255,.09)',
-        borderRadius: 10,
-        padding: '10px 14px',
-        fontSize: 11,
-      }}
-    >
-      <div style={{ color: '#64748B', marginBottom: 6 }}>{label}</div>
-      {payload.map((p, i) => (
-        <div
-          key={i}
-          style={{
-            color: colors[p.name] || '#94A3B8',
-            fontWeight: 600,
-            marginBottom: 2,
-          }}
-        >
-          {p.name.charAt(0).toUpperCase() + p.name.slice(1)}: KES{' '}
-          {p.value?.toLocaleString()}
-        </div>
-      ))}
-    </div>
-  );
-};
-
-/* ════════════════════════════════════════════
-   MAIN COMPONENT
-════════════════════════════════════════════ */
 export default function Dashboard() {
   const router = useRouter();
   const { user, token, insights, setInsights, logout } = useBusinessStore(
     (s) => s,
   );
+  const { convert, symbol } = useCurrency();
   const ins = insights as Insights | null;
   const [week, setWeek] = useState<WeekData | null>(null);
   const [feed, setFeed] = useState<FeedItem[]>([]);
@@ -144,7 +96,6 @@ export default function Dashboard() {
   const [seedingDemo, setSeedingDemo] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  /* ── responsive detection ── */
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 900);
     check();
@@ -156,7 +107,6 @@ export default function Dashboard() {
     if (!isMobile) setSidebarOpen(false);
   }, [isMobile]);
 
-  /* ── starfield ── */
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -204,7 +154,6 @@ export default function Dashboard() {
     };
   }, []);
 
-  /* ── data ── */
   useEffect(() => {
     if (token && user) {
       Promise.all([
@@ -226,7 +175,6 @@ export default function Dashboard() {
     }
   }, [token, user]);
 
-  /* ── toast: show after 3s if no data ── */
   useEffect(() => {
     if (!ins?.hasData) {
       const t = setTimeout(() => setShowToast(true), 3000);
@@ -234,7 +182,6 @@ export default function Dashboard() {
     }
   }, [ins?.hasData]);
 
-  /* ── seed demo data ── */
   const seedDemoData = async () => {
     if (!token || seedingDemo) return;
     setSeedingDemo(true);
@@ -282,7 +229,50 @@ export default function Dashboard() {
       profit: r.profit,
     }));
 
-  /* ── loading ── */
+  // Chart tooltip with currency conversion
+  const ChartTip = ({
+    active,
+    payload,
+    label,
+  }: {
+    active?: boolean;
+    payload?: { value: number; name: string }[];
+    label?: string;
+  }) => {
+    if (!active || !payload?.length) return null;
+    const colors: Record<string, string> = {
+      sales: '#3B82F6',
+      expenses: '#EF4444',
+      profit: '#10B981',
+    };
+    return (
+      <div
+        style={{
+          background: 'rgba(4,4,20,.97)',
+          border: '1px solid rgba(255,255,255,.09)',
+          borderRadius: 10,
+          padding: '10px 14px',
+          fontSize: 11,
+        }}
+      >
+        <div style={{ color: '#64748B', marginBottom: 6 }}>{label}</div>
+        {payload.map((p, i) => (
+          <div
+            key={i}
+            style={{
+              color: colors[p.name] || '#94A3B8',
+              fontWeight: 600,
+              marginBottom: 2,
+            }}
+          >
+            {p.name.charAt(0).toUpperCase() + p.name.slice(1)}: {symbol}{' '}
+            {convert(p.value)}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   if (loading)
     return (
       <div
@@ -308,7 +298,6 @@ export default function Dashboard() {
       </div>
     );
 
-  /* ── sidebar ── */
   const SidebarContent = () => (
     <>
       <div
@@ -694,7 +683,6 @@ export default function Dashboard() {
           overflow: 'hidden',
         }}
       >
-        {/* desktop sidebar */}
         {!isMobile && (
           <motion.aside
             initial={{ x: -220 }}
@@ -719,7 +707,6 @@ export default function Dashboard() {
           </motion.aside>
         )}
 
-        {/* mobile sidebar */}
         {isMobile && (
           <motion.aside
             initial={false}
@@ -755,7 +742,6 @@ export default function Dashboard() {
             minWidth: 0,
           }}
         >
-          {/* mobile topbar */}
           {isMobile && (
             <div style={{ marginBottom: 20 }}>
               <div
@@ -814,7 +800,6 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* desktop topbar */}
           {!isMobile && (
             <motion.div
               variants={fadeUp}
@@ -911,7 +896,6 @@ export default function Dashboard() {
             </motion.div>
           )}
 
-          {/* mobile greeting */}
           {isMobile && (
             <div style={{ marginBottom: 20 }}>
               <div
@@ -956,25 +940,9 @@ export default function Dashboard() {
                   {user?.name?.split(' ')[0]}.
                 </span>
               </h1>
-              {ins?.hasData &&
-                ins.profitTrend !== 'neutral' &&
-                ins.profitTrend !== '0%' && (
-                  <p
-                    style={{
-                      fontSize: 11,
-                      color: '#334155',
-                      marginTop: 4,
-                      fontWeight: 300,
-                    }}
-                  >
-                    Profit {ins.profitTrend.startsWith('+') ? 'up' : 'down'}{' '}
-                    {ins.profitTrend} from yesterday.
-                  </p>
-                )}
             </div>
           )}
 
-          {/* no data onboarding */}
           <AnimatePresence>
             {!ins?.hasData && (
               <motion.div
@@ -1042,9 +1010,21 @@ export default function Dashboard() {
                     }}
                   >
                     {[
-                      { l: 'Revenue', v: 'KES 48,250', c: '#3B82F6' },
-                      { l: 'Expenses', v: 'KES 21,000', c: '#EF4444' },
-                      { l: 'Net Profit', v: 'KES 27,250', c: '#10B981' },
+                      {
+                        l: 'Revenue',
+                        v: `${symbol} ${convert(48250)}`,
+                        c: '#3B82F6',
+                      },
+                      {
+                        l: 'Expenses',
+                        v: `${symbol} ${convert(21000)}`,
+                        c: '#EF4444',
+                      },
+                      {
+                        l: 'Net Profit',
+                        v: `${symbol} ${convert(27250)}`,
+                        c: '#10B981',
+                      },
                       { l: 'Score', v: '78/100', c: '#F59E0B' },
                     ].map((c) => (
                       <div
@@ -1272,7 +1252,6 @@ export default function Dashboard() {
             )}
           </AnimatePresence>
 
-          {/* insight toast */}
           <AnimatePresence>
             {showToast && !ins?.hasData && (
               <motion.div
@@ -1376,10 +1355,9 @@ export default function Dashboard() {
             )}
           </AnimatePresence>
 
-          {/* main dashboard — has data */}
           {ins?.hasData && (
             <motion.div variants={stagger} initial="hidden" animate="show">
-              {/* KPI row */}
+              {/* KPI row — all values now converted */}
               <motion.div
                 variants={stagger}
                 style={{
@@ -1394,7 +1372,7 @@ export default function Dashboard() {
                 {[
                   {
                     label: 'Revenue',
-                    value: `KES ${ins.today?.sales.toLocaleString()}`,
+                    value: `${symbol} ${convert(ins.today?.sales ?? 0)}`,
                     color: '#3B82F6',
                     sub:
                       ins.profitTrend !== 'neutral' && ins.profitTrend !== '0%'
@@ -1403,13 +1381,13 @@ export default function Dashboard() {
                   },
                   {
                     label: 'Expenses',
-                    value: `KES ${ins.today?.expenses.toLocaleString()}`,
+                    value: `${symbol} ${convert(ins.today?.expenses ?? 0)}`,
                     color: '#EF4444',
                     sub: 'Today',
                   },
                   {
                     label: 'Net Profit',
-                    value: `KES ${ins.today?.profit.toLocaleString()}`,
+                    value: `${symbol} ${convert(ins.today?.profit ?? 0)}`,
                     color: '#10B981',
                     sub: `${ins.today?.margin}% margin`,
                   },
@@ -1480,7 +1458,7 @@ export default function Dashboard() {
                 ))}
               </motion.div>
 
-              {/* chart + score ring */}
+              {/* Chart + score ring */}
               <motion.div
                 variants={stagger}
                 style={{
@@ -1530,7 +1508,7 @@ export default function Dashboard() {
                           color: '#F1F5F9',
                         }}
                       >
-                        KES {(week?.summary?.total_sales || 0).toLocaleString()}
+                        {symbol} {convert(week?.summary?.total_sales || 0)}
                       </div>
                     </div>
                     <div
@@ -1788,7 +1766,7 @@ export default function Dashboard() {
                 </motion.div>
               </motion.div>
 
-              {/* intelligence panel */}
+              {/* Intelligence panel */}
               <motion.div
                 variants={fadeUp}
                 style={{
@@ -1817,7 +1795,7 @@ export default function Dashboard() {
                       },
                       {
                         key: 'alerts',
-                        label: isMobile ? 'Alerts' : 'Alerts',
+                        label: 'Alerts',
                         count: alerts.length,
                         color: '#EF4444',
                       },
@@ -2232,7 +2210,7 @@ export default function Dashboard() {
                 </div>
               </motion.div>
 
-              {/* week stats */}
+              {/* Weekly summary — all values converted */}
               {ins.weekStats && (
                 <motion.div
                   variants={fadeUp}
@@ -2266,22 +2244,22 @@ export default function Dashboard() {
                     {[
                       {
                         label: 'Total Sales',
-                        value: `KES ${ins.weekStats.totalSales.toLocaleString()}`,
+                        value: `${symbol} ${convert(ins.weekStats.totalSales)}`,
                         color: '#3B82F6',
                       },
                       {
                         label: 'Total Expenses',
-                        value: `KES ${ins.weekStats.totalExpenses.toLocaleString()}`,
+                        value: `${symbol} ${convert(ins.weekStats.totalExpenses)}`,
                         color: '#EF4444',
                       },
                       {
                         label: 'Total Profit',
-                        value: `KES ${ins.weekStats.totalProfit.toLocaleString()}`,
+                        value: `${symbol} ${convert(ins.weekStats.totalProfit)}`,
                         color: '#10B981',
                       },
                       {
                         label: 'Avg Daily',
-                        value: `KES ${ins.weekStats.avgDailySales.toLocaleString()}`,
+                        value: `${symbol} ${convert(ins.weekStats.avgDailySales)}`,
                         color: '#06B6D4',
                       },
                       {
