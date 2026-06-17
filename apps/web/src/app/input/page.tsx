@@ -7,6 +7,7 @@ import { api } from '@/lib/api';
 import { analytics } from '@/lib/analytics';
 import { useBusinessStore } from '@/store/useBusinessStore';
 import { useCurrency } from '@/context/CurrencyContext';
+import CurrencyDropdown from '@/components/CurrencyDropdown';
 
 export default function InputPage() {
   const router = useRouter();
@@ -30,8 +31,7 @@ export default function InputPage() {
       .then((d) => {
         if (d.entry) {
           setExisting(d.entry);
-          // Convert existing KES values to user's currency for display
-          const { rates } = useCurrency as any;
+          // Show existing values in user's currency
           setForm({
             sales: String(d.entry.sales),
             expenses: String(d.entry.expenses),
@@ -130,24 +130,35 @@ export default function InputPage() {
           zIndex: 2,
         }}
       >
+        {/* Header */}
         <div style={{ marginBottom: 28 }}>
-          <Link
-            href="/dashboard"
+          <div
             style={{
-              fontSize: 12,
-              color: 'var(--t3)',
-              textDecoration: 'none',
-              display: 'inline-flex',
+              display: 'flex',
               alignItems: 'center',
-              gap: 6,
+              justifyContent: 'space-between',
               marginBottom: 20,
-              transition: 'color .2s',
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--t1)')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--t3)')}
           >
-            ← Dashboard
-          </Link>
+            <Link
+              href="/dashboard"
+              style={{
+                fontSize: 12,
+                color: 'var(--t3)',
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                transition: 'color .2s',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--t1)')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--t3)')}
+            >
+              ← Dashboard
+            </Link>
+            {/* Currency dropdown right here on input page */}
+            <CurrencyDropdown />
+          </div>
           <div
             style={{
               fontSize: 10,
