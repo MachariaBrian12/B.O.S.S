@@ -11,7 +11,7 @@ import { useCurrency } from '@/context/CurrencyContext';
 export default function InputPage() {
   const router = useRouter();
   const { token, setInsights } = useBusinessStore((s) => s);
-  const { convert, symbol } = useCurrency();
+  const { convert, convertToKES, symbol } = useCurrency();
   const [form, setForm] = useState({ sales: '', expenses: '', notes: '' });
   const [existing, setExisting] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -30,6 +30,8 @@ export default function InputPage() {
       .then((d) => {
         if (d.entry) {
           setExisting(d.entry);
+          // Convert existing KES values to user's currency for display
+          const { rates } = useCurrency as any;
           setForm({
             sales: String(d.entry.sales),
             expenses: String(d.entry.expenses),
@@ -56,22 +58,19 @@ export default function InputPage() {
     setLoading(true);
     try {
       const fn = existing ? api.updateEntry : api.addEntry;
+      // Convert from user's currency to KES before saving
+      const salesInKES = convertToKES(parseFloat(form.sales));
+      const expensesInKES = convertToKES(parseFloat(form.expenses));
       const data = await fn(token, {
-        sales: parseFloat(form.sales),
-        expenses: parseFloat(form.expenses),
+        sales: salesInKES,
+        expenses: expensesInKES,
         notes: form.notes,
       });
       if (data.insights) setInsights(data.insights);
       if (existing) {
-        analytics.entryUpdated({
-          sales: parseFloat(form.sales),
-          expenses: parseFloat(form.expenses),
-        });
+        analytics.entryUpdated({ sales: salesInKES, expenses: expensesInKES });
       } else {
-        analytics.entryCreated({
-          sales: parseFloat(form.sales),
-          expenses: parseFloat(form.expenses),
-        });
+        analytics.entryCreated({ sales: salesInKES, expenses: expensesInKES });
       }
       setSuccess(true);
       setTimeout(() => router.push('/dashboard'), 1200);
@@ -283,7 +282,14 @@ export default function InputPage() {
                   color: profit >= 0 ? '#10B981' : '#EF4444',
                 }}
               >
-                {symbol} {convert(profit)}
+                {symbol}{' '}
+                {new Intl.NumberFormat('en-US', {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 2,
+                }).format(profit)}
+              </div>
+              <div style={{ fontSize: 10, color: '#475569', marginTop: 4 }}>
+                ≈ KSh {convertToKES(profit).toLocaleString()} saved to database
               </div>
             </motion.div>
           )}

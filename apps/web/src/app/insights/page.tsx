@@ -325,6 +325,7 @@ export default function InsightsPage() {
         </div>
 
         <AnimatePresence mode="wait">
+          {/* ── HEALTH SCORE TAB ── */}
           {activeTab === 'score' && (
             <motion.div
               key="score"
@@ -740,6 +741,7 @@ export default function InsightsPage() {
             </motion.div>
           )}
 
+          {/* ── AI INSIGHTS TAB ── */}
           {activeTab === 'insights' && (
             <motion.div
               key="insights"
@@ -805,6 +807,7 @@ export default function InsightsPage() {
                   animate="show"
                   style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
                 >
+                  {/* ── TODAY'S SUMMARY — now uses currency convert ── */}
                   <motion.div
                     variants={fadeUp}
                     style={{
@@ -833,7 +836,10 @@ export default function InsightsPage() {
                         fontWeight: 300,
                       }}
                     >
-                      {ins.summary}
+                      {symbol} {convert(ins.today?.sales ?? 0)} in sales ·{' '}
+                      {symbol} {convert(ins.today?.expenses ?? 0)} in expenses ·{' '}
+                      {symbol} {convert(ins.today?.profit ?? 0)} profit (
+                      {ins.today?.margin}% margin).
                     </p>
                   </motion.div>
 
@@ -1081,6 +1087,7 @@ export default function InsightsPage() {
             </motion.div>
           )}
 
+          {/* ── WEEKLY REPORT TAB ── */}
           {activeTab === 'week' && (
             <motion.div
               key="week"
@@ -1146,7 +1153,6 @@ export default function InsightsPage() {
                   animate="show"
                   style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
                 >
-                  {/* Week headline — all converted */}
                   <motion.div
                     variants={fadeUp}
                     style={{
@@ -1234,7 +1240,6 @@ export default function InsightsPage() {
                     </div>
                   </motion.div>
 
-                  {/* Profit margin */}
                   <motion.div
                     variants={fadeUp}
                     style={{
@@ -1336,7 +1341,6 @@ export default function InsightsPage() {
                     })()}
                   </motion.div>
 
-                  {/* Days tracking */}
                   <motion.div
                     variants={fadeUp}
                     style={{
