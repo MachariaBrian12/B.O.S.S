@@ -120,7 +120,7 @@ Built with artificial intelligence at its core, B.O.S.S helps businesses move be
 | Backend       | Node.js, Express.js, TypeScript, Zod, Pino            |
 | Database      | PostgreSQL (Neon) — production · SQLite — local dev   |
 | ORM           | Prisma                                                |
-| AI            | OpenAI GPT-4o-mini, persistent memory, cost telemetry |
+| AI            | GuruAI,OpenAI GPT-4, persistent memory, cost telemetry|
 | Auth          | JWT with role-based middleware                        |
 | Security      | Helmet, CORS, Rate Limiting                           |
 | Payments      | M-Pesa STK Push, Stripe                               |
@@ -204,4 +204,4 @@ Every intelligence → Action
 | **API**         | [boss-production-75ce.up.railway.app](https://boss-production-75ce.up.railway.app) |
 | **Version**     | v3.2.0                                                                             |
 | **Uptime**      | 99.52% crash-free sessions                                                         |
-| **Deployments** | 235 +                                                                              |
+| **Deployments** | 245 +                                                                              |
