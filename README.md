@@ -4,11 +4,11 @@
 
 ### Business Orchestration Software Systems
 
-[![Version](https://img.shields.io/badge/version-3.1.0-blueviolet?style=flat-square&logo=github)](https://github.com/MachariaBrian12/B.O.S.S)
+[![Version](https://img.shields.io/badge/version-3.5.0-blueviolet?style=flat-square&logo=github)](https://github.com/MachariaBrian12/B.O.S.S)
 [![Status](https://img.shields.io/badge/Status-Production-brightgreen?style=flat-square&logo=vercel)](https://boss-engine.vercel.app)
 [![Uptime](https://img.shields.io/badge/Uptime-99.52%25-brightgreen?style=flat-square&logo=statuspage)](https://boss-engine.vercel.app)
 [![Observability](https://img.shields.io/badge/Observability-10%2F10-brightgreen?style=flat-square&logo=sentry)](https://sentry.io)
-[![AI](https://img.shields.io/badge/AI-GPT--4o--mini-blueviolet?style=flat-square&logo=openai)](https://openai.com)
+[![AI](https://img.shields.io/badge/AI-GPT--blueviolet?style=flat-square&logo=openai)](https://openai.com)
 [![Stack](https://img.shields.io/badge/Stack-Next.js%20%2B%20Express-blue?style=flat-square&logo=nextdotjs)](https://nextjs.org)
 [![Database](https://img.shields.io/badge/Database-Neon%20PostgreSQL-teal?style=flat-square&logo=postgresql)](https://neon.tech)
 [![Payments](https://img.shields.io/badge/Payments-M--Pesa%20%2B%20Stripe-green?style=flat-square&logo=stripe)](https://stripe.com)
