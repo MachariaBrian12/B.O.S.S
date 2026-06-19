@@ -101,7 +101,7 @@ Built with artificial intelligence at its core, B.O.S.S helps businesses move be
 
 **AI**
 
-- Provider: OpenAI API (GPT-4o)
+- Provider: OpenAI API (GPT-4)
 - Memory: Prisma-backed persistent conversation history
 - Telemetry: Sentry spans + AiUsage table (cost, latency, tokens per request)
 
