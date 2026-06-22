@@ -4,7 +4,8 @@ const {
   login,
   logout,
   me,
-  resetPassword,
+  requestPasswordReset,
+  confirmPasswordReset,
   updateProfile,
 } = require('../controllers/auth.controller');
 const jwt = require('jsonwebtoken');
@@ -27,7 +28,11 @@ router.post('/register', register);
 router.post('/login', login);
 router.post('/logout', protect, logout);
 router.get('/me', protect, me);
-router.post('/reset-password', resetPassword);
+
+// Password reset — two steps, token-gated
+router.post('/forgot-password', requestPasswordReset); // step 1: email only
+router.post('/reset-password', confirmPasswordReset); // step 2: email + token + newPassword
+
 router.put('/profile', protect, updateProfile);
 
 // Currency preference

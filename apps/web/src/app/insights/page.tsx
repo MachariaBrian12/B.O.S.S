@@ -142,7 +142,7 @@ function getPillarScore(ins: Insights, key: string): number {
 
 export default function InsightsPage() {
   const router = useRouter();
-  const { user, token, insights, setInsights } = useBusinessStore((s) => s);
+  const { user, insights, setInsights } = useBusinessStore((s) => s);
   const { convert, symbol } = useCurrency();
   const ins = insights as Insights | null;
   const [loading, setLoading] = useState(true);
@@ -152,12 +152,12 @@ export default function InsightsPage() {
   const [animateScore, setAnimateScore] = useState(false);
 
   useEffect(() => {
-    if (!token || !user) {
+    if (!user) {
       router.push('/login');
       return;
     }
     api
-      .getInsights(token)
+      .getInsights()
       .then((d) => setInsights(d.insights))
       .catch(() => {})
       .finally(() => {
@@ -807,7 +807,6 @@ export default function InsightsPage() {
                   animate="show"
                   style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
                 >
-                  {/* ── TODAY'S SUMMARY — now uses currency convert ── */}
                   <motion.div
                     variants={fadeUp}
                     style={{

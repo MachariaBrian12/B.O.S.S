@@ -11,7 +11,7 @@ import CurrencyDropdown from '@/components/CurrencyDropdown';
 
 export default function InputPage() {
   const router = useRouter();
-  const { token, setInsights } = useBusinessStore((s) => s);
+  const { setInsights } = useBusinessStore((s) => s);
   const { convert, convertToKES, symbol } = useCurrency();
   const [form, setForm] = useState({ sales: '', expenses: '', notes: '' });
   const [existing, setExisting] = useState<any>(null);
@@ -22,16 +22,11 @@ export default function InputPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
-    if (!token) {
-      router.push('/login');
-      return;
-    }
     api
-      .getToday(token)
+      .getToday()
       .then((d) => {
         if (d.entry) {
           setExisting(d.entry);
-          // Show existing values in user's currency
           setForm({
             sales: String(d.entry.sales),
             expenses: String(d.entry.expenses),
@@ -40,7 +35,7 @@ export default function InputPage() {
         }
       })
       .catch(() => {});
-  }, [token]);
+  }, []);
 
   const update =
     (k: string) =>
@@ -49,7 +44,6 @@ export default function InputPage() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token) return;
     if (!form.sales || !form.expenses) {
       setError('Sales and expenses are required');
       return;
@@ -58,10 +52,9 @@ export default function InputPage() {
     setLoading(true);
     try {
       const fn = existing ? api.updateEntry : api.addEntry;
-      // Convert from user's currency to KES before saving
       const salesInKES = convertToKES(parseFloat(form.sales));
       const expensesInKES = convertToKES(parseFloat(form.expenses));
-      const data = await fn(token, {
+      const data = await fn({
         sales: salesInKES,
         expenses: expensesInKES,
         notes: form.notes,
@@ -82,10 +75,9 @@ export default function InputPage() {
   };
 
   const handleDelete = async () => {
-    if (!token) return;
     setDeleting(true);
     try {
-      await api.deleteEntry(token);
+      await api.deleteEntry();
       analytics.entryDeleted();
       router.push('/dashboard');
     } catch (err: any) {
@@ -130,7 +122,6 @@ export default function InputPage() {
           zIndex: 2,
         }}
       >
-        {/* Header */}
         <div style={{ marginBottom: 28 }}>
           <div
             style={{
@@ -156,7 +147,6 @@ export default function InputPage() {
             >
               ← Dashboard
             </Link>
-            {/* Currency dropdown right here on input page */}
             <CurrencyDropdown />
           </div>
           <div

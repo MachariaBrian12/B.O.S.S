@@ -1,11 +1,11 @@
-import { create } from "zustand";
-import { api } from "../lib/api";
+import { create } from 'zustand';
+import { api } from '../lib/api';
 
 interface StoreState {
   status: unknown;
   insights: unknown;
   loading: boolean;
-  loadAll: (token: string) => Promise<void>;
+  loadAll: () => Promise<void>;
 }
 
 export const useStore = create<StoreState>((set) => ({
@@ -13,16 +13,16 @@ export const useStore = create<StoreState>((set) => ({
   insights: null,
   loading: false,
 
-  loadAll: async (token: string) => {
+  loadAll: async () => {
     set({ loading: true });
     try {
       const [status, insights] = await Promise.all([
-        api.me(token),
-        api.getInsights(token),
+        api.me(),
+        api.getInsights(),
       ]);
       set({ status, insights, loading: false });
     } catch (error) {
-      console.error("[useStore] error:", error);
+      console.error('[useStore] error:', error);
       set({ loading: false });
     }
   },

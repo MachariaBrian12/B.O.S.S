@@ -1,19 +1,25 @@
-const { Pool } = require("pg");
+const { Pool } = require('pg');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
+  ssl:
+    process.env.NODE_ENV === 'production'
+      ? { rejectUnauthorized: false }
+      : false,
 });
 
 const init = async () => {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
-      id          SERIAL PRIMARY KEY,
-      name        TEXT    NOT NULL,
-      email       TEXT    NOT NULL UNIQUE,
-      password    TEXT    NOT NULL,
-      business    TEXT    NOT NULL DEFAULT 'My Business',
-      created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      id                    SERIAL PRIMARY KEY,
+      name                  TEXT        NOT NULL,
+      email                 TEXT        NOT NULL UNIQUE,
+      password              TEXT        NOT NULL,
+      business              TEXT        NOT NULL DEFAULT 'My Business',
+      currency              TEXT        NOT NULL DEFAULT 'KES',
+      reset_token           TEXT,
+      reset_token_expires   TIMESTAMPTZ,
+      created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
     CREATE TABLE IF NOT EXISTS business_entries (
       id          SERIAL PRIMARY KEY,
@@ -47,7 +53,7 @@ const init = async () => {
       UNIQUE(user_id, date)
     );
   `);
-  console.log("✅ Database ready (Postgres)");
+  console.log('✅ Database ready (Postgres)');
 };
 
 module.exports = { pool, init };

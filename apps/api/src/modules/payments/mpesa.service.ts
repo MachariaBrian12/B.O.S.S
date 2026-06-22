@@ -2,32 +2,22 @@ import axios from 'axios';
 import 'dotenv/config';
 
 /**
- * =========================
- * JUST FILL YOUR .ENV FILE
- * =========================
- * MPESA_CONSUMER_KEY=tCcvvsA0NKZ4gnzfKBD39kv0ZlB7S6glBEM3Rn3VUGaG89dW
- * MPESA_CONSUMER_SECRET=AUITH0VZRdYFS2GuuJpwQJXcSJaOsEVXVaUGteREDolpNS8Chx3ZkI8zJdtGov3f
- * MPESA_SHORTCODE=
- * MPESA_PASSKEY=
- * MPESA_CALLBACK_URL=
- * MPESA_ENV=sandbox
+ * M-Pesa STK Push service.
+ *
+ * Required environment variables:
+ *   MPESA_CONSUMER_KEY
+ *   MPESA_CONSUMER_SECRET
+ *   MPESA_SHORTCODE
+ *   MPESA_PASSKEY
+ *   MPESA_CALLBACK_URL
+ *   MPESA_ENV=sandbox | production
  */
 
-/**
- * =========================
- * CONFIG
- * =========================
- */
 const BASE_URL =
   process.env.MPESA_ENV === 'production'
     ? 'https://api.safaricom.co.ke'
     : 'https://sandbox.safaricom.co.ke';
 
-/**
- * =========================
- * SIMPLE ENV CHECK
- * =========================
- */
 function checkEnv() {
   const required = [
     'MPESA_CONSUMER_KEY',
@@ -36,31 +26,19 @@ function checkEnv() {
     'MPESA_PASSKEY',
     'MPESA_CALLBACK_URL',
   ];
-
   for (const key of required) {
     if (!process.env[key]) {
-      throw new Error(`❌ Missing env: ${key}`);
+      throw new Error(`Missing required env variable: ${key}`);
     }
   }
 }
 
-/**
- * =========================
- * TOKEN CACHE
- * =========================
- */
 let tokenCache: { token: string; expires: number } | null = null;
 
-/**
- * =========================
- * GET ACCESS TOKEN
- * =========================
- */
-async function getToken() {
+async function getToken(): Promise<string> {
   checkEnv();
 
   const now = Date.now();
-
   if (tokenCache && tokenCache.expires > now) {
     return tokenCache.token;
   }
@@ -71,11 +49,7 @@ async function getToken() {
 
   const res = await axios.get(
     `${BASE_URL}/oauth/v1/generate?grant_type=client_credentials`,
-    {
-      headers: {
-        Authorization: `Basic ${auth}`,
-      },
-    },
+    { headers: { Authorization: `Basic ${auth}` } },
   );
 
   tokenCache = {
@@ -86,23 +60,12 @@ async function getToken() {
   return tokenCache.token;
 }
 
-/**
- * =========================
- * FORMAT PHONE
- * =========================
- */
-function formatPhone(phone: string) {
+function formatPhone(phone: string): string {
   return phone.replace(/^0/, '254').replace('+', '');
 }
 
-/**
- * =========================
- * TIMESTAMP
- * =========================
- */
-function timestamp() {
+function timestamp(): string {
   const d = new Date();
-
   return (
     d.getFullYear() +
     String(d.getMonth() + 1).padStart(2, '0') +
@@ -113,23 +76,15 @@ function timestamp() {
   );
 }
 
-/**
- * =========================
- * MAIN STK PUSH (CLEAN)
- * =========================
- */
 export async function stkPush(phone: string, amount: number) {
   try {
     checkEnv();
 
     const token = await getToken();
     const time = timestamp();
-
     const shortcode = process.env.MPESA_SHORTCODE!;
     const passkey = process.env.MPESA_PASSKEY!;
-
     const password = Buffer.from(shortcode + passkey + time).toString('base64');
-
     const msisdn = formatPhone(phone);
 
     const payload = {
@@ -164,11 +119,13 @@ export async function stkPush(phone: string, amount: number) {
       message: res.data.CustomerMessage,
     };
   } catch (err: any) {
-    console.log('STK ERROR:', err.response?.data || err.message);
+    // Log the full error server-side for debugging but never expose it to the client
+    const detail = err.response?.data || err.message;
+    console.error('[M-Pesa] stkPush failed:', detail);
 
     return {
       success: false,
-      error: 'Payment failed',
+      message: 'Payment initiation failed. Please try again.',
     };
   }
 }

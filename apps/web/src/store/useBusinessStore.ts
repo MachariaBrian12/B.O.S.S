@@ -1,6 +1,6 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import * as Sentry from "@sentry/nextjs";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import * as Sentry from '@sentry/nextjs';
 
 export interface User {
   id: number;
@@ -71,54 +71,53 @@ export interface Insights {
 }
 
 interface BusinessStore {
-  user:     User | null;
-  token:    string | null;
+  user: User | null;
   insights: Insights | null;
-  loading:  boolean;
-  error:    string | null;
+  loading: boolean;
+  error: string | null;
 
-  setUser:     (user: User, token: string) => void;
+  setUser: (user: User) => void;
   setInsights: (insights: Insights) => void;
-  setLoading:  (loading: boolean) => void;
-  setError:    (error: string | null) => void;
-  logout:      () => void;
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+  logout: () => void;
 }
 
 export const useBusinessStore = create<BusinessStore>()(
   persist(
     (set) => ({
-      user:     null,
-      token:    null,
+      user: null,
       insights: null,
-      loading:  false,
-      error:    null,
+      loading: false,
+      error: null,
 
-      setUser: (user, token) => {
-        // Tell Sentry exactly who is logged in.
-        // Like showing the security camera the guest register.
+      setUser: (user) => {
+        // Tell Sentry exactly who is logged in
         Sentry.setUser({
-          id:       String(user.id),
-          email:    user.email,
+          id: String(user.id),
+          email: user.email,
           username: user.name,
           business: user.business,
         });
-        set({ user, token, error: null });
+        set({ user, error: null });
       },
 
       setInsights: (insights) => set({ insights }),
-      setLoading:  (loading)  => set({ loading }),
-      setError:    (error)    => set({ error }),
+      setLoading: (loading) => set({ loading }),
+      setError: (error) => set({ error }),
 
       logout: () => {
-        // Clear Sentry user — guest has checked out.
-        // Without this, errors after logout get wrongly attributed.
+        // Clear Sentry user so errors after logout aren't misattributed
         Sentry.setUser(null);
-        set({ user: null, token: null, insights: null });
+        set({ user: null, insights: null });
       },
     }),
     {
-      name: "boss-store",
-      partialize: (state) => ({ user: state.user, token: state.token }),
+      // Only persist the user object for display — never the token.
+      // Auth is handled by the httpOnly cookie set by the API,
+      // which is invisible to JavaScript and safe from XSS.
+      name: 'boss-store',
+      partialize: (state) => ({ user: state.user }),
     },
   ),
 );

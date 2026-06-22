@@ -1,26 +1,9 @@
 import express from 'express';
 import OpenAI from 'openai';
 import * as Sentry from '@sentry/node';
-import { prisma } from '../lib/prisma';
-import jwt from 'jsonwebtoken';
+import { protect } from '../middleware/auth.middleware';
 
 const router = express.Router();
-
-// Inline auth — removes broken middleware import dependency
-function authMiddleware(req: any, res: any, next: any) {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'No token provided' });
-  try {
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || 'dev_secret_change_me',
-    );
-    req.user = decoded;
-    next();
-  } catch {
-    return res.status(401).json({ error: 'Invalid token' });
-  }
-}
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -42,7 +25,7 @@ function calcCost(
   return promptTokens * p.prompt + completionTokens * p.completion;
 }
 
-router.post('/chat', authMiddleware, async (req: any, res) => {
+router.post('/chat', protect, async (req: any, res) => {
   const { messages, feature = 'chat' } = req.body;
   const userId = req.user?.id;
 
@@ -77,26 +60,17 @@ router.post('/chat', authMiddleware, async (req: any, res) => {
         span?.setAttribute('ai.cost_usd', costUsd);
         span?.setAttribute('ai.feature', feature);
 
-        if (userId) {
-          prisma.aiUsage
-            .create({
-              data: {
-                id: crypto.randomUUID(),
-                userId,
-                feature,
-                model: 'gpt-4o-mini',
-                promptTokens,
-                completionTokens,
-                totalTokens,
-                costUsd,
-                latencyMs,
-                success: true,
-              },
-            })
-            .catch((err: Error) =>
-              console.error('[AiUsage] Failed to log usage:', err.message),
-            );
-        }
+        // TODO: replace with pg-based logging once schema is aligned (bug #4)
+        console.log('[AiUsage]', {
+          userId,
+          feature,
+          promptTokens,
+          completionTokens,
+          totalTokens,
+          costUsd,
+          latencyMs,
+          success: true,
+        });
 
         return res.json({
           success: true,
@@ -115,31 +89,18 @@ router.post('/chat', authMiddleware, async (req: any, res) => {
         const latencyMs = Date.now() - aiStart;
         Sentry.captureException(err);
 
-        if (userId) {
-          prisma.aiUsage
-            .create({
-              data: {
-                id: crypto.randomUUID(),
-                userId,
-                feature,
-                model: 'gpt-4o-mini',
-                promptTokens: 0,
-                completionTokens: 0,
-                totalTokens: 0,
-                costUsd: 0,
-                latencyMs,
-                success: false,
-              },
-            })
-            .catch(() => {});
-        }
+        // TODO: replace with pg-based logging once schema is aligned (bug #4)
+        console.error('[AiUsage] Failed request', {
+          userId,
+          feature,
+          latencyMs,
+          success: false,
+        });
 
-        return res
-          .status(500)
-          .json({
-            success: false,
-            message: err?.message ?? 'AI request failed',
-          });
+        return res.status(500).json({
+          success: false,
+          message: err?.message ?? 'AI request failed',
+        });
       }
     },
   );

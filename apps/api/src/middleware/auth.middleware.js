@@ -1,23 +1,32 @@
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || "boss_secret_change_in_prod";
+// Crash at startup if JWT_SECRET is not set.
+// A missing secret means tokens are signed with a known fallback —
+// anyone can forge a token and authenticate as any user.
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error(
+    'FATAL: JWT_SECRET environment variable is not set. Refusing to start.',
+  );
+  process.exit(1);
+}
 
 const protect = (req, res, next) => {
   try {
-    /* check cookie first, then Authorization header */
+    // Check Authorization header first, then fall back to cookie
     const token =
-      req.cookies?.boss_token ||
-      req.headers.authorization?.replace("Bearer ", "");
+      req.headers.authorization?.replace('Bearer ', '') ||
+      req.cookies?.boss_token;
 
     if (!token) {
-      return res.status(401).json({ error: "Not authenticated" });
+      return res.status(401).json({ error: 'Not authenticated' });
     }
 
     const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;
     next();
   } catch {
-    return res.status(401).json({ error: "Invalid or expired token" });
+    return res.status(401).json({ error: 'Invalid or expired token' });
   }
 };
 

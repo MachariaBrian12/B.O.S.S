@@ -14,8 +14,6 @@ export async function register(email: string, password: string, name?: string) {
   });
 }
 
-export async function getMe(token: string) {
-  return apiClient('/auth/me', {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export async function getMe() {
+  return apiClient('/auth/me');
 }

@@ -79,9 +79,7 @@ const signalColor = (dir: string) =>
 
 export default function Dashboard() {
   const router = useRouter();
-  const { user, token, insights, setInsights, logout } = useBusinessStore(
-    (s) => s,
-  );
+  const { user, insights, setInsights, logout } = useBusinessStore((s) => s);
   const { convert, symbol } = useCurrency();
   const ins = insights as Insights | null;
   const [week, setWeek] = useState<WeekData | null>(null);
@@ -155,25 +153,25 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    if (token && user) {
+    if (user) {
       Promise.all([
-        api.getInsights(token).then((d) => {
+        api.getInsights().then((d) => {
           setInsights(d.insights);
           setFeed(d.insights.feed || []);
           setAlerts(d.insights.alerts || []);
         }),
-        api.getWeek(token).then(setWeek),
-        api.getSignals(token).then((d) => setSignals(d.signals || [])),
+        api.getWeek().then(setWeek),
+        api.getSignals().then((d) => setSignals(d.signals || [])),
       ])
         .catch(() => {})
         .finally(() => setLoading(false));
     } else {
       const timer = setTimeout(() => {
-        if (!token || !user) router.push('/login');
+        if (!user) router.push('/login');
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [token, user]);
+  }, [user]);
 
   useEffect(() => {
     if (!ins?.hasData) {
@@ -183,7 +181,7 @@ export default function Dashboard() {
   }, [ins?.hasData]);
 
   const seedDemoData = async () => {
-    if (!token || seedingDemo) return;
+    if (seedingDemo) return;
     setSeedingDemo(true);
     const entries = [
       { sales: 42000, expenses: 18500, notes: 'Demo: Monday' },
@@ -196,7 +194,7 @@ export default function Dashboard() {
     ];
     try {
       for (const entry of entries) {
-        await api.addEntry(token, entry).catch(() => {});
+        await api.addEntry(entry).catch(() => {});
         await new Promise((r) => setTimeout(r, 120));
       }
       window.location.reload();
@@ -206,7 +204,7 @@ export default function Dashboard() {
   };
 
   const handleLogout = async () => {
-    if (token) await api.logout(token).catch(() => {});
+    await api.logout().catch(() => {});
     logout();
     router.push('/login');
   };
@@ -229,7 +227,6 @@ export default function Dashboard() {
       profit: r.profit,
     }));
 
-  // Chart tooltip with currency conversion
   const ChartTip = ({
     active,
     payload,
@@ -1357,7 +1354,6 @@ export default function Dashboard() {
 
           {ins?.hasData && (
             <motion.div variants={stagger} initial="hidden" animate="show">
-              {/* KPI row — all values now converted */}
               <motion.div
                 variants={stagger}
                 style={{
@@ -1458,7 +1454,6 @@ export default function Dashboard() {
                 ))}
               </motion.div>
 
-              {/* Chart + score ring */}
               <motion.div
                 variants={stagger}
                 style={{
@@ -1766,7 +1761,6 @@ export default function Dashboard() {
                 </motion.div>
               </motion.div>
 
-              {/* Intelligence panel */}
               <motion.div
                 variants={fadeUp}
                 style={{
@@ -2210,7 +2204,6 @@ export default function Dashboard() {
                 </div>
               </motion.div>
 
-              {/* Weekly summary — all values converted */}
               {ins.weekStats && (
                 <motion.div
                   variants={fadeUp}

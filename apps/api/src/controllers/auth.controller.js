@@ -1,6 +1,7 @@
-const db = require("../db/database");
+const db = require('../db/database');
 const authService = require('../services/auth.service');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -60,34 +61,127 @@ const me = async (req, res) => {
   }
 };
 
-const resetPassword = async (req, res) => {
+// ─── Step 1: Request a password reset ────────────────────────────────────────
+// User submits their email. We generate a secure time-limited token and send
+// it to them. We always return the same message whether the email exists or not
+// so attackers can't tell which addresses are registered (account enumeration).
+
+const requestPasswordReset = async (req, res) => {
+  const genericResponse = {
+    success: true,
+    message: 'If that email is registered, a reset link has been sent.',
+  };
+
   try {
-    const { email, newPassword } = req.body;
-    if (!email || !newPassword)
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+
+    const { rows } = await db.pool.query(
+      'SELECT id, name FROM users WHERE email = $1',
+      [email.toLowerCase().trim()],
+    );
+
+    // No account — return generic response so we don't leak which emails exist
+    if (!rows[0]) return res.json(genericResponse);
+
+    const user = rows[0];
+
+    // Generate a cryptographically secure random token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    // Store only the hash — the raw token is sent to the user, never stored
+    const tokenHash = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // expires in 1 hour
+
+    await db.pool.query(
+      `UPDATE users
+       SET reset_token = $1, reset_token_expires = $2
+       WHERE id = $3`,
+      [tokenHash, expiresAt, user.id],
+    );
+
+    const firstName = user.name ? user.name.split(' ')[0] : 'there';
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}&email=${encodeURIComponent(email.toLowerCase().trim())}`;
+
+    // Send the reset email — if email sending fails we still return generic
+    // so the user isn't confused, but we log the error for debugging
+    try {
+      await authService.sendPasswordResetEmail({
+        to: email.toLowerCase().trim(),
+        firstName,
+        resetUrl,
+      });
+    } catch (emailErr) {
+      console.error('Failed to send password reset email:', emailErr);
+    }
+
+    return res.json(genericResponse);
+  } catch (err) {
+    console.error('requestPasswordReset error:', err);
+    // Still return generic — don't leak error details
+    return res.json(genericResponse);
+  }
+};
+
+// ─── Step 2: Confirm a password reset ────────────────────────────────────────
+// User clicks the link in their email which contains ?token=...&email=...
+// They submit { email, token, newPassword }. We verify the token is valid and
+// unexpired before touching the password. Token is single-use — cleared on use.
+
+const confirmPasswordReset = async (req, res) => {
+  try {
+    const { email, token, newPassword } = req.body;
+
+    if (!email || !token || !newPassword)
       return res
         .status(400)
-        .json({ error: 'Email and new password are required' });
+        .json({ error: 'Email, token, and new password are required' });
+
     if (newPassword.length < 6)
       return res
         .status(400)
         .json({ error: 'Password must be at least 6 characters' });
-    const db = require('../db/database');
+
+    // Hash the incoming token to compare with what we stored
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
     const { rows } = await db.pool.query(
-      'SELECT id FROM users WHERE email = $1',
-      [email.toLowerCase().trim()],
+      `SELECT id FROM users
+       WHERE email = $1
+         AND reset_token = $2
+         AND reset_token_expires > NOW()`,
+      [email.toLowerCase().trim(), tokenHash],
     );
+
     if (!rows[0])
       return res
-        .status(404)
-        .json({ error: 'No account found with that email' });
+        .status(400)
+        .json({
+          error:
+            'This reset link is invalid or has expired. Please request a new one.',
+        });
+
     const hashed = await bcrypt.hash(newPassword, 10);
-    await db.pool.query('UPDATE users SET password = $1 WHERE email = $2', [
-      hashed,
-      email.toLowerCase().trim(),
-    ]);
-    res.json({ success: true, message: 'Password updated successfully' });
+
+    // Update password and clear the token so it can't be reused
+    await db.pool.query(
+      `UPDATE users
+       SET password = $1,
+           reset_token = NULL,
+           reset_token_expires = NULL
+       WHERE id = $2`,
+      [hashed, rows[0].id],
+    );
+
+    res.json({
+      success: true,
+      message: 'Password updated successfully. You can now log in.',
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('confirmPasswordReset error:', err);
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
   }
 };
 
@@ -96,7 +190,6 @@ const updateProfile = async (req, res) => {
     const { name, business, currentPassword, newPassword } = req.body;
     if (!name || !business)
       return res.status(400).json({ error: 'Name and business are required' });
-    const db = require('../db/database');
     const { rows } = await db.pool.query('SELECT * FROM users WHERE id = $1', [
       req.user.id,
     ]);
@@ -136,4 +229,12 @@ const updateProfile = async (req, res) => {
   }
 };
 
-module.exports = { register, login, logout, me, resetPassword, updateProfile };
+module.exports = {
+  register,
+  login,
+  logout,
+  me,
+  requestPasswordReset,
+  confirmPasswordReset,
+  updateProfile,
+};

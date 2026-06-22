@@ -1,7 +1,7 @@
 'use client';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { CURRENCIES, CurrencyCode } from '@/lib/currencies';
-import { useBusinessStore } from '@/store/useBusinessStore';
+import { CurrencyCode } from '@/lib/currencies';
+import { apiClient } from '@/lib/apiClient';
 
 interface CurrencyContextType {
   currency: CurrencyCode;
@@ -13,8 +13,6 @@ interface CurrencyContextType {
 }
 
 const CurrencyContext = createContext<CurrencyContextType | null>(null);
-
-const API = process.env.NEXT_PUBLIC_API_URL;
 
 const SYMBOLS: Record<string, string> = {
   KES: 'KSh',
@@ -46,12 +44,11 @@ const SYMBOLS: Record<string, string> = {
 };
 
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
-  const { token } = useBusinessStore((s) => s);
   const [currency, setCurrencyState] = useState<CurrencyCode>('KES');
   const [rates, setRates] = useState<Record<string, number>>({ KES: 1 });
   const [loading, setLoading] = useState(true);
 
-  // Load exchange rates
+  // Load exchange rates from public API — no auth needed
   useEffect(() => {
     fetch('https://open.er-api.com/v6/latest/KES')
       .then((r) => r.json())
@@ -62,50 +59,37 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
       .finally(() => setLoading(false));
   }, []);
 
-  // Load saved currency from backend when user logs in
+  // Load saved currency from backend on mount — cookie handles auth
   useEffect(() => {
-    if (!token) return;
-    fetch(`${API}/api/v1/auth/currency`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => r.json())
+    apiClient('/auth/currency')
       .then((data) => {
         if (data.currency) setCurrencyState(data.currency as CurrencyCode);
       })
       .catch(() => {
-        // Fallback to localStorage
+        // Fallback to localStorage if not logged in yet
         const saved = localStorage.getItem('boss_currency');
         if (saved) setCurrencyState(saved as CurrencyCode);
       });
-  }, [token]);
+  }, []);
 
   // Save currency to backend + localStorage when changed
   const setCurrency = (c: CurrencyCode) => {
     setCurrencyState(c);
     localStorage.setItem('boss_currency', c);
-    if (token) {
-      fetch(`${API}/api/v1/auth/currency`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ currency: c }),
-      }).catch(console.error);
-    }
+    apiClient('/auth/currency', {
+      method: 'PUT',
+      body: JSON.stringify({ currency: c }),
+    }).catch(console.error);
   };
 
-  // Convert from KES to selected currency for display
   const convert = (amountInKES: number): string => {
     const rate = rates[currency] ?? 1;
-    const converted = amountInKES * rate;
     return new Intl.NumberFormat('en-US', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
-    }).format(converted);
+    }).format(amountInKES * rate);
   };
 
-  // Convert from selected currency back to KES for saving
   const convertToKES = (amount: number): number => {
     const rate = rates[currency] ?? 1;
     return Math.round(amount / rate);

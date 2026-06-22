@@ -1,26 +1,66 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
 
+const ADMIN_SECRET = process.env.BOSS_ADMIN_SECRET;
+
 export async function GET(req: NextRequest) {
-  const secret = req.headers.get('x-admin-secret');
-  if (!secret || secret !== process.env.BOSS_ADMIN_SECRET) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+  if (!ADMIN_SECRET) {
+    return NextResponse.json(
+      { error: 'Admin not configured' },
+      { status: 503 },
+    );
+  }
+
+  const internalToken = req.headers.get('x-internal-token');
+  if (!internalToken || internalToken !== ADMIN_SECRET) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const { searchParams } = new URL(req.url);
-  const action  = searchParams.get('action') || '';
-  const limit   = parseInt(searchParams.get('limit') || '100');
+  const action = searchParams.get('action') || '';
+  const limitRaw = searchParams.get('limit');
+  const limit = limitRaw ? parseInt(limitRaw, 10) : 100;
   const actorId = searchParams.get('actorId') || '';
 
+  // Guard against NaN from invalid limit param (bug #24)
+  if (isNaN(limit) || limit < 1 || limit > 1000) {
+    return NextResponse.json(
+      { error: 'Invalid limit parameter' },
+      { status: 400 },
+    );
+  }
+
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
+  });
+
   try {
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+    // AuditLog table doesn't exist in the live schema yet (Prisma only).
+    // Return empty logs rather than a 500 until schema is aligned (bug #4).
+    const tableCheck = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables
+        WHERE table_name = 'AuditLog'
+      ) AS exists
+    `);
+
+    if (!tableCheck.rows[0]?.exists) {
+      return NextResponse.json({ logs: [] });
+    }
 
     const conditions: string[] = [];
-    const values: any[]        = [];
-    let   idx = 1;
+    const values: any[] = [];
+    let idx = 1;
 
-    if (action)  { conditions.push(`a.action = $${idx++}`);    values.push(action); }
-    if (actorId) { conditions.push(`a."actorId" = $${idx++}`); values.push(actorId); }
+    if (action) {
+      conditions.push(`a.action = $${idx++}`);
+      values.push(action);
+    }
+    if (actorId) {
+      conditions.push(`a."actorId" = $${idx++}`);
+      values.push(actorId);
+    }
 
     const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
 
@@ -33,12 +73,17 @@ export async function GET(req: NextRequest) {
        ${where}
        ORDER BY a."createdAt" DESC
        LIMIT $${idx}`,
-      [...values, limit]
+      [...values, limit],
     );
 
-    await pool.end();
-    return new Response(JSON.stringify({ logs: rows }), { status: 200 });
+    return NextResponse.json({ logs: rows });
   } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    console.error('Admin audit-logs error:', err);
+    return NextResponse.json(
+      { error: 'Failed to fetch audit logs' },
+      { status: 500 },
+    );
+  } finally {
+    await pool.end();
   }
 }
