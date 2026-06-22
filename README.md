@@ -204,4 +204,4 @@ Every intelligence → Action
 | **API**         | [boss-production-75ce.up.railway.app](https://boss-production-75ce.up.railway.app) |
 | **Version**     | v3.5.0                                                                             |
 | **Uptime**      | 99.52% crash-free sessions                                                         |
-| **Deployments** | 245 +                                                                              |
+| **Deployments** | 275 +                                                                              |
