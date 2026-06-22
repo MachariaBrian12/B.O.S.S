@@ -8,30 +8,18 @@ const {
   confirmPasswordReset,
   updateProfile,
 } = require('../controllers/auth.controller');
-const jwt = require('jsonwebtoken');
 
-const protect = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'No token provided' });
-  try {
-    req.user = jwt.verify(
-      token,
-      process.env.JWT_SECRET || 'dev_secret_change_me',
-    );
-    next();
-  } catch {
-    return res.status(401).json({ error: 'Invalid token' });
-  }
-};
+// Single source of truth — same secret used everywhere
+const { protect } = require('../middleware/auth.middleware');
 
 router.post('/register', register);
 router.post('/login', login);
 router.post('/logout', protect, logout);
 router.get('/me', protect, me);
 
-// Password reset — two steps, token-gated
-router.post('/forgot-password', requestPasswordReset); // step 1: email only
-router.post('/reset-password', confirmPasswordReset); // step 2: email + token + newPassword
+// Password reset — two steps, token-gated (fixed in bug #1)
+router.post('/forgot-password', requestPasswordReset);
+router.post('/reset-password', confirmPasswordReset);
 
 router.put('/profile', protect, updateProfile);
 
