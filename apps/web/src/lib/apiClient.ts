@@ -1,6 +1,3 @@
-// Use the environment variable in all environments.
-// In development this is http://localhost:4000/api/v1
-// In production set NEXT_PUBLIC_API_URL in your Vercel/Railway dashboard.
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
 
@@ -16,9 +13,6 @@ export async function apiClient(url: string, options: RequestInit = {}) {
   try {
     const res = await fetch(`${BASE_URL}${url}`, {
       ...options,
-      // credentials: "include" sends the httpOnly cookie the API sets on login.
-      // Without this the browser strips the cookie from cross-origin requests
-      // and every protected route returns 401.
       credentials: 'include',
       signal: controller.signal,
       headers: {
@@ -30,7 +24,6 @@ export async function apiClient(url: string, options: RequestInit = {}) {
 
     clearTimeout(timeout);
 
-    // Handle non-JSON error responses (e.g. 502 gateway errors return HTML)
     const contentType = res.headers.get('content-type');
     if (!contentType?.includes('application/json')) {
       throw new Error(`Server error: ${res.status} ${res.statusText}`);
@@ -40,6 +33,14 @@ export async function apiClient(url: string, options: RequestInit = {}) {
 
     if (!res.ok) {
       throw new Error(data?.error || 'Request failed');
+    }
+
+    // Store token in a frontend cookie so Next.js middleware.ts
+    // can read it for server-side route protection.
+    // Needed because the API httpOnly cookie is cross-domain
+    // (railway.app vs vercel.app) and browsers block it.
+    if (data?.token) {
+      document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
     }
 
     return data;
