@@ -1,13 +1,11 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 import { analytics } from '@/lib/analytics';
 import { useBusinessStore } from '@/store/useBusinessStore';
 
 export default function Login() {
-  const router = useRouter();
   const setUser = useBusinessStore((s) => s.setUser);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,10 +20,11 @@ export default function Login() {
       const { user } = await api.login(email, password);
       setUser(user);
       analytics.login();
-      router.push('/dashboard');
+      // Full page reload ensures middleware reads the fresh cookie
+      await new Promise((r) => setTimeout(r, 100));
+      window.location.href = '/dashboard';
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Login failed');
-    } finally {
       setLoading(false);
     }
   };
