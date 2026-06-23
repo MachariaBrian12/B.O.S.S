@@ -41,7 +41,7 @@ export default function ProfilePage() {
             }
           : {}),
       });
-      setUser(data.user);
+      setUser(data.user, data.token || '');
       setSuccess('Profile updated successfully!');
       setForm((f) => ({
         ...f,

@@ -17,8 +17,8 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      const { user } = await api.login(email, password);
-      setUser(user);
+      const { user, token } = await api.login(email, password);
+      setUser(user, token);
       analytics.login();
       // Full page reload ensures middleware reads the fresh cookie
       await new Promise((r) => setTimeout(r, 100));

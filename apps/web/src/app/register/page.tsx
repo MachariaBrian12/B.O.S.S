@@ -25,13 +25,13 @@ export default function Register() {
     setError('');
     setLoading(true);
     try {
-      const { user } = await api.register(
+      const { user, token } = await api.register(
         form.name,
         form.email,
         form.password,
         form.business,
       );
-      setUser(user);
+      setUser(user, token);
       router.push('/dashboard');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Registration failed');

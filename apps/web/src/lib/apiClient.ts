@@ -1,10 +1,17 @@
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
 
-function getTokenFromCookie(): string | null {
-  if (typeof document === 'undefined') return null;
-  const match = document.cookie.match(/(?:^|;\s*)token=([^;]*)/);
-  return match ? decodeURIComponent(match[1]) : null;
+// Read token from Zustand persisted store in localStorage
+function getToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem('boss-store');
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed?.state?.token || null;
+  } catch {
+    return null;
+  }
 }
 
 export async function apiClient(url: string, options: RequestInit = {}) {
@@ -16,7 +23,7 @@ export async function apiClient(url: string, options: RequestInit = {}) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 60000);
 
-  const token = getTokenFromCookie();
+  const token = getToken();
 
   try {
     const res = await fetch(`${BASE_URL}${url}`, {
@@ -44,8 +51,9 @@ export async function apiClient(url: string, options: RequestInit = {}) {
       throw new Error(data?.error || 'Request failed');
     }
 
-    // Store token in cookie for middleware and future requests
-    if (data?.token) {
+    // When login/register returns a token, store it in a cookie
+    // so Next.js middleware can read it for server-side route protection
+    if (data?.token && typeof document !== 'undefined') {
       document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
     }
 

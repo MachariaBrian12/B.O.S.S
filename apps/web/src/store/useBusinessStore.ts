@@ -72,11 +72,12 @@ export interface Insights {
 
 interface BusinessStore {
   user: User | null;
+  token: string | null;
   insights: Insights | null;
   loading: boolean;
   error: string | null;
 
-  setUser: (user: User) => void;
+  setUser: (user: User, token: string) => void;
   setInsights: (insights: Insights) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
@@ -87,19 +88,19 @@ export const useBusinessStore = create<BusinessStore>()(
   persist(
     (set) => ({
       user: null,
+      token: null,
       insights: null,
       loading: false,
       error: null,
 
-      setUser: (user) => {
-        // Tell Sentry exactly who is logged in
+      setUser: (user, token) => {
         Sentry.setUser({
           id: String(user.id),
           email: user.email,
           username: user.name,
           business: user.business,
         });
-        set({ user, error: null });
+        set({ user, token, error: null });
       },
 
       setInsights: (insights) => set({ insights }),
@@ -107,17 +108,13 @@ export const useBusinessStore = create<BusinessStore>()(
       setError: (error) => set({ error }),
 
       logout: () => {
-        // Clear Sentry user so errors after logout aren't misattributed
         Sentry.setUser(null);
-        set({ user: null, insights: null });
+        set({ user: null, token: null, insights: null });
       },
     }),
     {
-      // Only persist the user object for display — never the token.
-      // Auth is handled by the httpOnly cookie set by the API,
-      // which is invisible to JavaScript and safe from XSS.
       name: 'boss-store',
-      partialize: (state) => ({ user: state.user }),
+      partialize: (state) => ({ user: state.user, token: state.token }),
     },
   ),
 );
