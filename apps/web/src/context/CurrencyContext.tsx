@@ -48,15 +48,25 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const [rates, setRates] = useState<Record<string, number>>({ KES: 1 });
   const [loading, setLoading] = useState(true);
 
-  // Load exchange rates from public API — no auth needed
+  // Load saved currency — try localStorage first, then sync with backend
   useEffect(() => {
-    fetch('https://open.er-api.com/v6/latest/KES')
-      .then((r) => r.json())
-      .then((data) => {
-        if (data?.rates) setRates(data.rates);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    // Always check localStorage first as instant fallback
+    const saved = localStorage.getItem('boss_currency');
+    if (saved) setCurrencyState(saved as CurrencyCode);
+
+    // Then try to sync with backend — delay slightly for store to rehydrate
+    const timer = setTimeout(() => {
+      apiClient('/auth/currency')
+        .then((data) => {
+          if (data.currency) {
+            setCurrencyState(data.currency as CurrencyCode);
+            localStorage.setItem('boss_currency', data.currency);
+          }
+        })
+        .catch(() => {});
+    }, 500);
+
+    return () => clearTimeout(timer);
   }, []);
 
   // Load saved currency from backend on mount — cookie handles auth
