@@ -18,6 +18,7 @@ import CurrencyDropdown from '@/components/CurrencyDropdown';
 import { useBusinessStore } from '@/store/useBusinessStore';
 import { useCurrency } from '@/context/CurrencyContext';
 import type { Insights } from '@/store/useBusinessStore';
+import { setUser } from '@sentry/nextjs';
 
 interface FeedItem {
   id: string;
@@ -153,6 +154,8 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
+
     if (user) {
       Promise.all([
         api.getInsights().then((d) => {
@@ -164,13 +167,43 @@ export default function Dashboard() {
         api.getSignals().then((d) => setSignals(d.signals || [])),
       ])
         .catch(() => {})
-        .finally(() => setLoading(false));
+        .finally(() => {
+          if (!cancelled) setLoading(false);
+        });
     } else {
-      const timer = setTimeout(() => {
-        if (!user) router.push('/login');
-      }, 500);
-      return () => clearTimeout(timer);
+      // User not in store yet — verify session with server before deciding
+      api
+        .me()
+        .then((data) => {
+          if (cancelled) return;
+          if (data?.user) {
+            // Session valid — restore user in store
+            const raw =
+              typeof localStorage !== 'undefined'
+                ? localStorage.getItem('boss-store')
+                : null;
+            const token = raw ? JSON.parse(raw)?.state?.token || '' : '';
+            useBusinessStore.setState({ user: data.user, token });
+            // useEffect will re-run when user is set in store
+          } else {
+            // No valid session — clear cookie and go to login
+            document.cookie = 'token=; path=/; max-age=0; SameSite=Lax';
+            setLoading(false);
+            window.location.href = '/login';
+          }
+        })
+        .catch(() => {
+          if (cancelled) return;
+          // API returned 401 — clear cookie and go to login
+          document.cookie = 'token=; path=/; max-age=0; SameSite=Lax';
+          setLoading(false);
+          window.location.href = '/login';
+        });
     }
+
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   useEffect(() => {
