@@ -206,7 +206,9 @@ export default function Dashboard() {
   const handleLogout = async () => {
     await api.logout().catch(() => {});
     logout();
-    router.push('/login');
+    // Clear the token cookie so middleware stops treating user as logged in
+    document.cookie = 'token=; path=/; max-age=0; SameSite=Lax';
+    window.location.href = '/login';
   };
 
   const scoreColor = !ins?.hasData
