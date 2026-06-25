@@ -18,7 +18,6 @@ import CurrencyDropdown from '@/components/CurrencyDropdown';
 import { useBusinessStore } from '@/store/useBusinessStore';
 import { useCurrency } from '@/context/CurrencyContext';
 import type { Insights } from '@/store/useBusinessStore';
-import { setUser } from '@sentry/nextjs';
 
 interface FeedItem {
   id: string;
@@ -80,7 +79,9 @@ const signalColor = (dir: string) =>
 
 export default function Dashboard() {
   const router = useRouter();
-  const { user, insights, setInsights, logout } = useBusinessStore((s) => s);
+  const { user, insights, setInsights, logout, setUser } = useBusinessStore(
+    (s) => s,
+  );
   const { convert, symbol } = useCurrency();
   const ins = insights as Insights | null;
   const [week, setWeek] = useState<WeekData | null>(null);
@@ -171,22 +172,18 @@ export default function Dashboard() {
           if (!cancelled) setLoading(false);
         });
     } else {
-      // User not in store yet — verify session with server before deciding
       api
         .me()
         .then((data) => {
           if (cancelled) return;
           if (data?.user) {
-            // Session valid — restore user in store
             const raw =
               typeof localStorage !== 'undefined'
                 ? localStorage.getItem('boss-store')
                 : null;
             const token = raw ? JSON.parse(raw)?.state?.token || '' : '';
-            useBusinessStore.setState({ user: data.user, token });
-            // useEffect will re-run when user is set in store
+            setUser(data.user, token);
           } else {
-            // No valid session — clear cookie and go to login
             document.cookie = 'token=; path=/; max-age=0; SameSite=Lax';
             setLoading(false);
             window.location.href = '/login';
@@ -194,7 +191,6 @@ export default function Dashboard() {
         })
         .catch(() => {
           if (cancelled) return;
-          // API returned 401 — clear cookie and go to login
           document.cookie = 'token=; path=/; max-age=0; SameSite=Lax';
           setLoading(false);
           window.location.href = '/login';
@@ -239,8 +235,9 @@ export default function Dashboard() {
   const handleLogout = async () => {
     await api.logout().catch(() => {});
     logout();
-    // Clear the token cookie so middleware stops treating user as logged in
     document.cookie = 'token=; path=/; max-age=0; SameSite=Lax';
+    localStorage.removeItem('boss-store');
+    localStorage.removeItem('boss_currency');
     window.location.href = '/login';
   };
 
