@@ -46,43 +46,39 @@ const SYMBOLS: Record<string, string> = {
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const [currency, setCurrencyState] = useState<CurrencyCode>('KES');
   const [rates, setRates] = useState<Record<string, number>>({ KES: 1 });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // false so dropdown is never stuck disabled
 
-  // Load saved currency — try localStorage first, then sync with backend
+  // Load exchange rates from public API
   useEffect(() => {
-    // Always check localStorage first as instant fallback
+    fetch('https://open.er-api.com/v6/latest/KES')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.rates) setRates(data.rates);
+      })
+      .catch(() => {}); // silently fail — KES:1 fallback stays
+  }, []);
+
+  // Load saved currency — localStorage first for instant UI, then sync with backend
+  useEffect(() => {
+    // Instant: load from localStorage
     const saved = localStorage.getItem('boss_currency');
     if (saved) setCurrencyState(saved as CurrencyCode);
 
-    // Then try to sync with backend — delay slightly for store to rehydrate
+    // Delayed: sync with backend after store rehydrates
     const timer = setTimeout(() => {
       apiClient('/auth/currency')
         .then((data) => {
-          if (data.currency) {
+          if (data?.currency) {
             setCurrencyState(data.currency as CurrencyCode);
             localStorage.setItem('boss_currency', data.currency);
           }
         })
-        .catch(() => {});
-    }, 500);
+        .catch(() => {}); // not logged in yet — localStorage value is fine
+    }, 600);
 
     return () => clearTimeout(timer);
   }, []);
 
-  // Load saved currency from backend on mount — cookie handles auth
-  useEffect(() => {
-    apiClient('/auth/currency')
-      .then((data) => {
-        if (data.currency) setCurrencyState(data.currency as CurrencyCode);
-      })
-      .catch(() => {
-        // Fallback to localStorage if not logged in yet
-        const saved = localStorage.getItem('boss_currency');
-        if (saved) setCurrencyState(saved as CurrencyCode);
-      });
-  }, []);
-
-  // Save currency to backend + localStorage when changed
   const setCurrency = (c: CurrencyCode) => {
     setCurrencyState(c);
     localStorage.setItem('boss_currency', c);
