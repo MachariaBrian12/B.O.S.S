@@ -4,12 +4,10 @@ const {
   login,
   logout,
   me,
-  requestPasswordReset,
-  confirmPasswordReset,
+  resetPassword,
   updateProfile,
 } = require('../controllers/auth.controller');
 
-// Single source of truth — same secret used everywhere
 const { protect } = require('../middleware/auth.middleware');
 
 router.post('/register', register);
@@ -17,13 +15,10 @@ router.post('/login', login);
 router.post('/logout', protect, logout);
 router.get('/me', protect, me);
 
-// Password reset — two steps, token-gated (fixed in bug #1)
-router.post('/forgot-password', requestPasswordReset);
-router.post('/reset-password', confirmPasswordReset);
+router.post('/reset-password', resetPassword);
 
 router.put('/profile', protect, updateProfile);
 
-// Currency preference
 router.get('/currency', protect, async (req, res) => {
   try {
     const { pool } = require('../db/database');
