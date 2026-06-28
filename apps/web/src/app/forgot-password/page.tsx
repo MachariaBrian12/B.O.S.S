@@ -5,22 +5,37 @@ import { motion } from 'framer-motion';
 import { apiClient } from '@/lib/apiClient';
 
 export default function ForgotPassword() {
-  const [email, setEmail] = useState('');
+  const [form, setForm] = useState({
+    email: '',
+    businessName: '',
+    newPassword: '',
+    confirm: '',
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [sent, setSent] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const update = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((f) => ({ ...f, [k]: e.target.value }));
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (form.newPassword !== form.confirm) {
+      setError("Passwords don't match");
+      return;
+    }
     setError('');
     setLoading(true);
     try {
-      await apiClient('/auth/forgot-password', {
+      await apiClient('/auth/reset-password', {
         method: 'POST',
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({
+          email: form.email,
+          businessName: form.businessName,
+          newPassword: form.newPassword,
+        }),
       });
-      // Always show the sent state — the API never reveals if the email exists
-      setSent(true);
+      setSuccess(true);
     } catch (err: any) {
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
@@ -80,7 +95,7 @@ export default function ForgotPassword() {
               textTransform: 'uppercase',
             }}
           >
-            Forgot Password
+            Reset Password
           </div>
         </div>
 
@@ -100,7 +115,7 @@ export default function ForgotPassword() {
           </div>
         )}
 
-        {sent ? (
+        {success ? (
           <div style={{ textAlign: 'center' }}>
             <div
               style={{
@@ -113,25 +128,21 @@ export default function ForgotPassword() {
                 color: '#10B981',
               }}
             >
-              ✓ If that email is registered, a reset link is on its way. Check
-              your inbox.
+              ✓ Password updated successfully. You can now sign in.
             </div>
-            <p style={{ fontSize: 13, color: 'var(--t3)', marginBottom: 16 }}>
-              Didn't get it? Check your spam folder, or try again with a
-              different address.
-            </p>
-            <button
-              className="btn btn-primary"
-              style={{
-                width: '100%',
-                justifyContent: 'center',
-                padding: '14px',
-                fontSize: 15,
-              }}
-              onClick={() => setSent(false)}
-            >
-              Try again
-            </button>
+            <Link href="/login">
+              <button
+                className="btn btn-primary"
+                style={{
+                  width: '100%',
+                  justifyContent: 'center',
+                  padding: '14px',
+                  fontSize: 15,
+                }}
+              >
+                Sign in →
+              </button>
+            </Link>
           </div>
         ) : (
           <form onSubmit={submit}>
@@ -141,13 +152,48 @@ export default function ForgotPassword() {
                 className="input"
                 type="email"
                 placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={form.email}
+                onChange={update('email')}
                 required
               />
             </div>
-            <div style={{ marginBottom: 12, fontSize: 13, color: 'var(--t3)' }}>
-              We'll send a reset link to this address. It expires in 1 hour.
+            <div style={{ marginBottom: 18 }}>
+              <label className="label">Business Name</label>
+              <input
+                className="input"
+                type="text"
+                placeholder="Your registered business name"
+                value={form.businessName}
+                onChange={update('businessName')}
+                required
+              />
+              <div style={{ fontSize: 11, color: 'var(--t3)', marginTop: 6 }}>
+                Enter the business name you registered with
+              </div>
+            </div>
+            <div style={{ marginBottom: 18 }}>
+              <label className="label">New Password</label>
+              <input
+                className="input"
+                type="password"
+                placeholder="Min 6 characters"
+                value={form.newPassword}
+                onChange={update('newPassword')}
+                required
+                minLength={6}
+              />
+            </div>
+            <div style={{ marginBottom: 28 }}>
+              <label className="label">Confirm Password</label>
+              <input
+                className="input"
+                type="password"
+                placeholder="Repeat new password"
+                value={form.confirm}
+                onChange={update('confirm')}
+                required
+                minLength={6}
+              />
             </div>
             <button
               className="btn btn-primary"
@@ -157,11 +203,10 @@ export default function ForgotPassword() {
                 justifyContent: 'center',
                 padding: '14px',
                 fontSize: 15,
-                marginTop: 16,
               }}
               disabled={loading}
             >
-              {loading ? 'Sending...' : 'Send reset link →'}
+              {loading ? 'Updating...' : 'Reset password →'}
             </button>
           </form>
         )}
