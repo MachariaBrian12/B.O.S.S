@@ -45,36 +45,28 @@ const SYMBOLS: Record<string, string> = {
 
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const [currency, setCurrencyState] = useState<CurrencyCode>('KES');
-  const [rates, setRates] = useState<Record<string, number>>({ KES: 1 });
-  const [loading, setLoading] = useState(false); // false so dropdown is never stuck disabled
+  const [rates] = useState<Record<string, number>>({ KES: 1 });
+  const [loading, setLoading] = useState(false);
 
-  // Load exchange rates from public API
   useEffect(() => {
-    fetch('https://open.er-api.com/v6/latest/KES')
-      .then((r) => r.json())
-      .then((data) => {
-        if (data?.rates) setRates(data.rates);
-      })
-      .catch(() => {}); // silently fail — KES:1 fallback stays
-  }, []);
-
-  // Load saved currency — localStorage first for instant UI, then sync with backend
-  useEffect(() => {
-    // Instant: load from localStorage
+    // Instantly load from localStorage
     const saved = localStorage.getItem('boss_currency');
     if (saved) setCurrencyState(saved as CurrencyCode);
 
-    // Delayed: sync with backend after store rehydrates
+    // Sync with backend after store rehydrates
     const timer = setTimeout(() => {
       apiClient('/auth/currency')
         .then((data) => {
-          if (data?.currency) {
+          if (data.currency) {
             setCurrencyState(data.currency as CurrencyCode);
             localStorage.setItem('boss_currency', data.currency);
           }
         })
-        .catch(() => {}); // not logged in yet — localStorage value is fine
-    }, 600);
+        .catch(() => {
+          // Not logged in yet — localStorage fallback already applied above
+        })
+        .finally(() => setLoading(false));
+    }, 500);
 
     return () => clearTimeout(timer);
   }, []);
