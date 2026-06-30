@@ -202,6 +202,6 @@ Every intelligence → Action
 | --------------- | ---------------------------------------------------------------------------------- |
 | **Web**         | [boss-engine.vercel.app](https://boss-engine.vercel.app)                           |
 | **API**         | [boss-production-75ce.up.railway.app](https://boss-production-75ce.up.railway.app) |
-| **Version**     | v3.5.5                                                                             |
+| **Version**     | v3.5.6                                                                             |
 | **Uptime**      | 99.52% crash-free sessions                                                         |
-| **Deployments** | 310 +                                                                              |
+| **Deployments** | 320 +                                                                              |
