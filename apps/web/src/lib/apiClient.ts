@@ -54,7 +54,7 @@ export async function apiClient(url: string, options: RequestInit = {}) {
     // When login/register returns a token, store it in a cookie
     // so Next.js middleware can read it for server-side route protection
     if (data?.token && typeof document !== 'undefined') {
-      document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+      document.cookie = `boss_token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
     }
 
     return data;

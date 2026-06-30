@@ -16,7 +16,7 @@ const AUTH_ONLY = [
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const token = request.cookies.get('token')?.value;
+  const token = request.cookies.get('boss_token')?.value;
 
   const isProtected = PROTECTED.some((path) => pathname.startsWith(path));
   const isAuthOnly = AUTH_ONLY.some((path) => pathname.startsWith(path));

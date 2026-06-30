@@ -26,7 +26,7 @@ const register = async (req, res) => {
       password,
       business,
     );
-    res.cookie('token', token, COOKIE_OPTIONS);
+    res.cookie('boss_token', token, COOKIE_OPTIONS);
     res.status(201).json({ success: true, user, token });
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -39,7 +39,7 @@ const login = async (req, res) => {
     if (!email || !password)
       return res.status(400).json({ error: 'Email and password are required' });
     const { user, token } = await authService.login(email, password);
-    res.cookie('token', token, COOKIE_OPTIONS);
+    res.cookie('boss_token', token, COOKIE_OPTIONS);
     res.json({ success: true, user, token });
   } catch (err) {
     res.status(401).json({ error: err.message });
@@ -47,7 +47,7 @@ const login = async (req, res) => {
 };
 
 const logout = (_req, res) => {
-  res.clearCookie('token');
+  res.clearCookie('boss_token');
   res.json({ success: true, message: 'Logged out successfully' });
 };
 
