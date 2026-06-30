@@ -184,14 +184,14 @@ export default function Dashboard() {
             const token = raw ? JSON.parse(raw)?.state?.token || '' : '';
             setUser(data.user, token);
           } else {
-            document.cookie = 'token=; path=/; max-age=0; SameSite=Lax';
+            document.cookie = 'boss_token=; path=/; max-age=0; SameSite=Lax';
             setLoading(false);
             window.location.href = '/login';
           }
         })
         .catch(() => {
           if (cancelled) return;
-          document.cookie = 'token=; path=/; max-age=0; SameSite=Lax';
+          document.cookie = 'boss_token=; path=/; max-age=0; SameSite=Lax';
           setLoading(false);
           window.location.href = '/login';
         });
@@ -235,7 +235,7 @@ export default function Dashboard() {
   const handleLogout = async () => {
     await api.logout().catch(() => {});
     logout();
-    document.cookie = 'token=; path=/; max-age=0; SameSite=Lax';
+    document.cookie = 'boss_token=; path=/; max-age=0; SameSite=Lax';
     localStorage.removeItem('boss-store');
     localStorage.removeItem('boss_currency');
     window.location.href = '/login';
