@@ -29,7 +29,6 @@ export default function Landing() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    /* ── STARFIELD ── */
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext('2d')!;
     let W = (canvas.width = window.innerWidth);
@@ -39,7 +38,6 @@ export default function Landing() {
       H = canvas.height = window.innerHeight;
     };
     window.addEventListener('resize', onResize);
-
     const COLS = [
       '#ffffff',
       '#06B6D4',
@@ -57,7 +55,6 @@ export default function Landing() {
       speed: 0.006 + Math.random() * 0.016,
       color: COLS[Math.floor(Math.random() * 6)],
     }));
-
     interface Shoot {
       x: number;
       y: number;
@@ -79,7 +76,6 @@ export default function Landing() {
         maxLife: 38,
       });
     const si = setInterval(spawnShoot, 3200);
-
     let starId: number;
     const drawStars = () => {
       ctx.clearRect(0, 0, W, H);
@@ -146,19 +142,16 @@ export default function Landing() {
       starId = requestAnimationFrame(drawStars);
     };
     drawStars();
-
-    /* ── CURSOR ── */
     let mx = 0,
       my = 0,
       rx = 0,
       ry = 0,
       ax = 0,
-      ay = 0;
-    let vx = 0,
+      ay = 0,
+      vx = 0,
       vy = 0,
       curId: number,
       isHover = false;
-
     const onMove = (e: MouseEvent) => {
       mx = e.clientX;
       my = e.clientY;
@@ -167,7 +160,6 @@ export default function Landing() {
         dotRef.current.style.top = my + 'px';
       }
     };
-
     const tick = () => {
       const rEase = isHover ? 0.72 : 0.82;
       const aEase = isHover ? 0.58 : 0.68;
@@ -193,10 +185,8 @@ export default function Landing() {
       }
       curId = requestAnimationFrame(tick);
     };
-
     document.addEventListener('mousemove', onMove);
     tick();
-
     const grow = () => {
       isHover = true;
       dotRef.current?.classList.add('dot-big');
@@ -215,8 +205,6 @@ export default function Landing() {
         el.addEventListener('mouseenter', grow);
         el.addEventListener('mouseleave', shrink);
       });
-
-    /* ── SMOOTH SCROLL ── */
     document.querySelectorAll('.nav-link').forEach((link) => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
@@ -228,7 +216,6 @@ export default function Landing() {
         }
       });
     });
-
     return () => {
       window.removeEventListener('resize', onResize);
       document.removeEventListener('mousemove', onMove);
@@ -348,9 +335,7 @@ export default function Landing() {
     const obs = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
-          if (e.isIntersecting) {
-            e.target.classList.add('revealed');
-          }
+          if (e.isIntersecting) e.target.classList.add('revealed');
         });
       },
       { threshold: 0.08, rootMargin: '0px 0px -20px 0px' },
@@ -364,14 +349,7 @@ export default function Landing() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
         *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-        :root{
-          --void:#02020c; --blue:#3B82F6; --cyan:#06B6D4; --purple:#8B5CF6;
-          --green:#10B981; --amber:#F59E0B; --pink:#EC4899;
-          --t1:#F1F5F9; --t2:#94A3B8; --t3:#475569;
-          --gb:rgba(255,255,255,0.022); --gbr:rgba(255,255,255,0.07);
-        }
-
-        /* ── HAMBURGER ── */
+        :root{--void:#02020c;--blue:#3B82F6;--cyan:#06B6D4;--purple:#8B5CF6;--green:#10B981;--amber:#F59E0B;--pink:#EC4899;--t1:#F1F5F9;--t2:#94A3B8;--t3:#475569;--gb:rgba(255,255,255,0.022);--gbr:rgba(255,255,255,0.07);}
         .ham{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px;background:none;border:none;z-index:200;}
         @media(min-width:769px){.nav-links{display:flex;gap:4px;list-style:none;}.nav-btns{display:flex;gap:8px;align-items:center;}}
         .ham span{display:block;width:22px;height:2px;background:var(--t1);border-radius:2px;transition:all .3s ease;}
@@ -384,108 +362,16 @@ export default function Landing() {
         .mob-link:hover{color:var(--cyan);}
         .mob-btns{display:flex;flex-direction:column;gap:12px;width:260px;margin-top:16px;}
         @media(max-width:768px){.ham{display:flex;}.nav-links{display:none;}.nav-btns{display:none;}.stat{padding:24px 12px;}}
-
         html{scroll-behavior:smooth;}
         body{background:var(--void);color:var(--t1);font-family:'DM Sans',sans-serif;overflow-x:hidden;cursor:none;}
         html,body{max-width:100vw;overflow-x:hidden;}
-
-        @media(max-width:768px){
-          body{cursor:auto;}
-          #cur-dot,#cur-ring,#cur-aura{display:none;}
-          .nav-links,.nav-btns{display:none;}
-          .nav{padding:10px 16px;}
-          .hero{padding:110px 22px 90px;}
-          .hero-title{font-size:clamp(42px,14vw,80px);}
-          .hero-actions{flex-direction:column;width:100%;}
-          .btn-primary,.btn-secondary{width:100%;justify-content:center;}
-          .dash-frame{display:none;}
-          .stats-inner{grid-template-columns:1fr 1fr;}
-          .stat{padding:28px 16px;}
-          .stat-n{font-size:36px;}
-          .about{flex-direction:column;gap:40px;padding:80px 22px;}
-          .about-h{font-size:clamp(28px,8.5vw,44px);}
-          .pills{flex-direction:column;}
-          .features{padding:80px 22px;}
-          .bento{grid-template-columns:1fr;}
-          .bc.bw{grid-column:span 1;}
-          .ai-sec{flex-direction:column;padding:80px 22px;gap:40px;}
-          .ai-chat{max-width:100%;}
-          .pg{flex-direction:column;align-items:center;}
-          .price-card{width:100%;max-width:360px;}
-          .cta-strip{padding:110px 22px;}
-          .sec-h{font-size:clamp(28px,7.5vw,42px);}
-          @keyframes aA{to{transform:translate(0,0) scale(1);}}
-          @keyframes aB{to{transform:translate(0,0) scale(1);}}
-          @keyframes aC{to{transform:translate(0,0) scale(1);}}
-        }
-
-        /* ── CURSOR ── */
-        #cur-dot{
-          position:fixed;z-index:10000;
-          width:5px;height:5px;
-          background:#fff;
-          border-radius:50%;
-          pointer-events:none;
-          transform:translate(-50%,-50%);
-          transition:width .15s ease,height .15s ease;
-          box-shadow:
-            0 0 0 1px rgba(255,255,255,.6),
-            0 0 8px 3px rgba(6,182,212,.85),
-            0 0 18px 6px rgba(6,182,212,.45),
-            0 0 32px 12px rgba(139,92,246,.25);
-        }
-        #cur-dot.dot-big{
-          width:7px;height:7px;
-          box-shadow:
-            0 0 0 1.5px rgba(255,255,255,.8),
-            0 0 12px 4px rgba(6,182,212,.95),
-            0 0 28px 10px rgba(6,182,212,.55),
-            0 0 50px 20px rgba(139,92,246,.35),
-            0 0 80px 35px rgba(59,130,246,.2);
-        }
-        #cur-ring{
-          position:fixed;z-index:9999;
-          width:30px;height:30px;
-          border-radius:50%;
-          pointer-events:none;
-          transform:translate(-50%,-50%);
-          border:1px solid rgba(6,182,212,.55);
-          box-shadow:
-            0 0 6px 1px rgba(6,182,212,.22),
-            inset 0 0 6px 1px rgba(6,182,212,.08);
-          transition:width .18s cubic-bezier(.16,1,.3,1),height .18s cubic-bezier(.16,1,.3,1),border-color .18s ease,box-shadow .18s ease;
-        }
-        #cur-ring.ring-big{
-          width:52px;height:52px;
-          border-color:rgba(6,182,212,.8);
-          box-shadow:
-            0 0 14px 3px rgba(6,182,212,.4),
-            0 0 28px 8px rgba(139,92,246,.2),
-            inset 0 0 10px 2px rgba(6,182,212,.12);
-        }
-        #cur-aura{
-          position:fixed;z-index:9998;
-          width:110px;height:110px;
-          border-radius:50%;
-          pointer-events:none;
-          transform:translate(-50%,-50%);
-          background:radial-gradient(circle at center,
-            rgba(6,182,212,.10) 0%,
-            rgba(59,130,246,.06) 35%,
-            rgba(139,92,246,.03) 60%,
-            transparent 72%);
-          transition:width .45s cubic-bezier(.16,1,.3,1),height .45s cubic-bezier(.16,1,.3,1);
-        }
-        #cur-aura.aura-big{
-          width:180px;height:180px;
-          background:radial-gradient(circle at center,
-            rgba(6,182,212,.15) 0%,
-            rgba(59,130,246,.09) 35%,
-            rgba(139,92,246,.05) 60%,
-            transparent 72%);
-        }
-
-        /* ── AURORA ── */
+        @media(max-width:768px){body{cursor:auto;}#cur-dot,#cur-ring,#cur-aura{display:none;}.nav-links,.nav-btns{display:none;}.nav{padding:10px 16px;}.hero{padding:110px 22px 90px;}.hero-title{font-size:clamp(42px,14vw,80px);}.hero-actions{flex-direction:column;width:100%;}.btn-primary,.btn-secondary{width:100%;justify-content:center;}.dash-frame{display:none;}.stats-inner{grid-template-columns:1fr 1fr;}.stat{padding:28px 16px;}.stat-n{font-size:36px;}.about{flex-direction:column;gap:40px;padding:80px 22px;}.about-h{font-size:clamp(28px,8.5vw,44px);}.features{padding:80px 22px;}.bento{grid-template-columns:1fr;}.bc.bw{grid-column:span 1;}.ai-sec{flex-direction:column;padding:80px 22px;gap:40px;}.ai-chat{max-width:100%;}.pg{flex-direction:column;align-items:center;}.price-card{width:100%;max-width:360px;}.cta-strip{padding:110px 22px;}.sec-h{font-size:clamp(28px,7.5vw,42px);}@keyframes aA{to{transform:translate(0,0) scale(1);}}@keyframes aB{to{transform:translate(0,0) scale(1);}}@keyframes aC{to{transform:translate(0,0) scale(1);}}}
+        #cur-dot{position:fixed;z-index:10000;width:5px;height:5px;background:#fff;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);transition:width .15s ease,height .15s ease;box-shadow:0 0 0 1px rgba(255,255,255,.6),0 0 8px 3px rgba(6,182,212,.85),0 0 18px 6px rgba(6,182,212,.45),0 0 32px 12px rgba(139,92,246,.25);}
+        #cur-dot.dot-big{width:7px;height:7px;box-shadow:0 0 0 1.5px rgba(255,255,255,.8),0 0 12px 4px rgba(6,182,212,.95),0 0 28px 10px rgba(6,182,212,.55),0 0 50px 20px rgba(139,92,246,.35),0 0 80px 35px rgba(59,130,246,.2);}
+        #cur-ring{position:fixed;z-index:9999;width:30px;height:30px;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);border:1px solid rgba(6,182,212,.55);box-shadow:0 0 6px 1px rgba(6,182,212,.22),inset 0 0 6px 1px rgba(6,182,212,.08);transition:width .18s cubic-bezier(.16,1,.3,1),height .18s cubic-bezier(.16,1,.3,1),border-color .18s ease,box-shadow .18s ease;}
+        #cur-ring.ring-big{width:52px;height:52px;border-color:rgba(6,182,212,.8);box-shadow:0 0 14px 3px rgba(6,182,212,.4),0 0 28px 8px rgba(139,92,246,.2),inset 0 0 10px 2px rgba(6,182,212,.12);}
+        #cur-aura{position:fixed;z-index:9998;width:110px;height:110px;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);background:radial-gradient(circle at center,rgba(6,182,212,.10) 0%,rgba(59,130,246,.06) 35%,rgba(139,92,246,.03) 60%,transparent 72%);transition:width .45s cubic-bezier(.16,1,.3,1),height .45s cubic-bezier(.16,1,.3,1);}
+        #cur-aura.aura-big{width:180px;height:180px;background:radial-gradient(circle at center,rgba(6,182,212,.15) 0%,rgba(59,130,246,.09) 35%,rgba(139,92,246,.05) 60%,transparent 72%);}
         .aurora-bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
         .a1{position:absolute;width:min(1000px,180vw);height:min(1000px,180vw);background:radial-gradient(circle,rgba(59,130,246,.15) 0%,transparent 65%);top:-300px;left:-200px;animation:aA 22s ease-in-out infinite alternate;}
         .a2{position:absolute;width:min(750px,150vw);height:min(750px,150vw);background:radial-gradient(circle,rgba(139,92,246,.13) 0%,transparent 65%);top:80px;right:-150px;animation:aB 28s ease-in-out infinite alternate;}
@@ -495,11 +381,8 @@ export default function Landing() {
         @keyframes aA{to{transform:translate(110px,85px) scale(1.16);}}
         @keyframes aB{to{transform:translate(-85px,125px) scale(.88);}}
         @keyframes aC{to{transform:translate(-125px,-85px) scale(1.12);}}
-
         .noise{position:fixed;inset:0;z-index:1;opacity:.018;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
         .grid{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.013;background-image:linear-gradient(rgba(255,255,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,1) 1px,transparent 1px);background-size:80px 80px;}
-
-        /* ── NAV ── */
         .nav{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:1000;width:calc(100% - 40px);max-width:1140px;display:flex;align-items:center;justify-content:space-between;padding:10px 22px;background:rgba(2,2,12,.76);backdrop-filter:blur(40px) saturate(200%);border:1px solid rgba(255,255,255,.075);border-radius:15px;}
         .nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;letter-spacing:.04em;background:linear-gradient(135deg,#fff,var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:flex;align-items:center;gap:8px;text-decoration:none;}
         .nav-pulse{width:6px;height:6px;background:var(--green);border-radius:50%;box-shadow:0 0 10px var(--green);flex-shrink:0;-webkit-text-fill-color:initial;animation:blink 2s ease-in-out infinite;}
@@ -512,8 +395,6 @@ export default function Landing() {
         .btn-nav-ghost:hover{background:rgba(255,255,255,.06);color:var(--t1);border-color:rgba(255,255,255,.18);}
         .btn-nav-primary{padding:8px 20px;background:linear-gradient(135deg,var(--blue),var(--purple));border:none;border-radius:10px;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:none;transition:all .25s ease;text-decoration:none;display:inline-flex;align-items:center;}
         .btn-nav-primary:hover{transform:scale(1.05);box-shadow:0 8px 32px rgba(59,130,246,.45);}
-
-        /* ── HERO ── */
         .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:120px 24px 80px;text-align:center;position:relative;}
         .hero-badge{display:inline-flex;align-items:center;gap:8px;padding:5px 16px 5px 10px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.22);border-radius:100px;font-size:11px;color:var(--green);font-weight:500;letter-spacing:.08em;text-transform:uppercase;margin-bottom:40px;}
         .badge-dot{width:6px;height:6px;background:var(--green);border-radius:50%;box-shadow:0 0 8px var(--green);animation:blink 2s ease-in-out infinite;}
@@ -529,15 +410,12 @@ export default function Landing() {
         .btn-primary:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 20px 60px rgba(59,130,246,.45),0 0 100px rgba(139,92,246,.18);}
         .btn-secondary{padding:14px 28px;background:transparent;border:1px solid rgba(255,255,255,.11);border-radius:12px;color:var(--t2);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:400;cursor:none;transition:all .25s ease;text-decoration:none;display:inline-flex;align-items:center;}
         .btn-secondary:hover{background:rgba(255,255,255,.055);border-color:rgba(255,255,255,.2);color:var(--t1);transform:translateY(-2px);}
-
-        /* ── DASHBOARD MOCKUP ── */
         .dash-frame{width:100%;max-width:980px;position:relative;}
         .dash-frame::before{content:'';position:absolute;inset:-1px;background:linear-gradient(135deg,rgba(59,130,246,.25),rgba(139,92,246,.22),rgba(6,182,212,.25));border-radius:24px;z-index:-1;filter:blur(.5px);}
         .dash-frame::after{content:'';position:absolute;inset:-80px;z-index:-2;background:radial-gradient(ellipse at 50% 40%,rgba(59,130,246,.09) 0%,rgba(139,92,246,.04) 40%,transparent 65%);}
         .dashboard{background:rgba(4,4,16,.95);backdrop-filter:blur(48px);border:1px solid rgba(255,255,255,.055);border-radius:22px;overflow:hidden;padding:22px;}
         .dash-bar{display:flex;align-items:center;gap:6px;margin-bottom:18px;}
-        .dd{width:10px;height:10px;border-radius:50%;}
-        .dr{background:#FF5F57;}.dy{background:#FFBD2E;}.dg{background:#28C840;}
+        .dd{width:10px;height:10px;border-radius:50%;}.dr{background:#FF5F57;}.dy{background:#FFBD2E;}.dg{background:#28C840;}
         .dt{margin-left:14px;font-size:10px;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;}
         .dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;}
         .dc{background:rgba(255,255,255,.022);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:12px;}
@@ -555,18 +433,14 @@ export default function Landing() {
         .dfi{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03);}
         .dfl{font-size:10px;color:var(--t2);}.dfs{font-size:9px;color:var(--t3);margin-top:1px;}
         .dfa{font-size:11px;font-weight:600;color:var(--green);font-family:'Syne',sans-serif;}
-
-        /* ── STATS ── */
         .stats{padding:40px 16px;}
         .stats-inner{max-width:100%;margin:0 auto;display:grid;grid-template-columns:1fr;gap:12px;border-radius:24px;overflow:hidden;}
-        @media(min-width:769px){.stats-inner{grid-template-columns:repeat(4,1fr);gap:14px;}}
+        @media(min-width:769px){.stats-inner{grid-template-columns:repeat(3,1fr);gap:14px;}}
         .stat{background:linear-gradient(160deg,rgba(20,22,40,0.97) 0%,rgba(8,8,20,0.99) 100%);border:1px solid rgba(255,255,255,.09);border-top:1px solid rgba(255,255,255,.18);border-bottom:1px solid rgba(0,0,0,.6);box-shadow:0 2px 0 rgba(255,255,255,.06) inset,0 -1px 0 rgba(0,0,0,.5) inset,0 20px 60px rgba(0,0,0,.5),0 4px 16px rgba(0,0,0,.4);padding:44px 32px;text-align:center;transition:all .35s cubic-bezier(.16,1,.3,1);border-radius:18px;position:relative;overflow:hidden;}
         .stat::before{content:'';position:absolute;inset:0;border-radius:18px;background:linear-gradient(160deg,rgba(255,255,255,.04) 0%,transparent 50%);pointer-events:none;}
-        .stat:hover{transform:translateY(-4px) scale(1.015);border-top-color:rgba(255,255,255,.28);box-shadow:0 2px 0 rgba(255,255,255,.08) inset,0 -1px 0 rgba(0,0,0,.5) inset,0 32px 80px rgba(0,0,0,.6),0 0 60px rgba(59,130,246,.08);}
+        .stat:hover{transform:translateY(-4px) scale(1.015);}
         .stat-n{font-family:'Syne',sans-serif;font-size:clamp(28px,8vw,50px);font-weight:800;letter-spacing:-.05em;background:linear-gradient(160deg,#ffffff 0%,rgba(255,255,255,.75) 60%,rgba(180,200,255,.6) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:block;margin-bottom:8px;overflow:hidden;filter:drop-shadow(0 2px 8px rgba(59,130,246,.3)) drop-shadow(0 0 20px rgba(139,92,246,.15));}
         .stat-l{font-size:11px;color:var(--t3);font-weight:300;letter-spacing:.07em;text-transform:uppercase;}
-
-        /* ── ABOUT ── */
         .about{padding:60px 16px;max-width:100vw;margin:0 auto;display:grid;grid-template-columns:1fr;gap:40px;align-items:center;overflow:hidden;width:100%;box-sizing:border-box;}
         @media(min-width:769px){.about{padding:100px 24px;grid-template-columns:1fr 1fr;gap:80px;}}
         .about-tag{font-size:11px;color:var(--blue);font-weight:500;letter-spacing:.15em;text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
@@ -576,7 +450,7 @@ export default function Landing() {
         .about-p{font-size:15px;color:var(--t2);line-height:1.88;font-weight:300;}
         .about-p strong{color:var(--t1);font-weight:500;}
         .pill{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.065);border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:14px;transition:all .3s cubic-bezier(.16,1,.3,1);margin-bottom:10px;cursor:none;}
-        .pill:hover{background:rgba(59,130,246,.055)!important;border-color:rgba(59,130,246,.18)!important;box-shadow:0 0 28px rgba(59,130,246,.07),inset 0 1px 0 rgba(255,255,255,.06);transform:translateX(7px);}
+        .pill:hover{background:rgba(59,130,246,.055)!important;border-color:rgba(59,130,246,.18)!important;transform:translateX(7px);}
         .pill-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
         .pill-text{font-size:12.5px;color:var(--t2);font-weight:300;line-height:1.5;}
         .pill-text strong{color:var(--t1);font-weight:500;display:block;margin-bottom:2px;font-size:13px;}
@@ -585,8 +459,6 @@ export default function Landing() {
         .ip{background:rgba(139,92,246,.13);border:1px solid rgba(139,92,246,.2);}
         .ig{background:rgba(16,185,129,.13);border:1px solid rgba(16,185,129,.2);}
         .ia{background:rgba(245,158,11,.13);border:1px solid rgba(245,158,11,.2);}
-
-        /* ── FEATURES ── */
         .features{padding:80px 24px;max-width:1140px;margin:0 auto;}
         .sec-tag{font-size:11px;color:var(--blue);font-weight:500;letter-spacing:.15em;text-transform:uppercase;margin-bottom:18px;}
         .sec-h{font-family:'Syne',sans-serif;font-size:clamp(32px,4.2vw,52px);font-weight:700;letter-spacing:-.035em;line-height:1.05;margin-bottom:52px;max-width:560px;background:linear-gradient(135deg,#ffffff 0%,rgba(255,255,255,.9) 40%,var(--cyan) 70%,var(--purple) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 30px rgba(6,182,212,.2));}
@@ -594,15 +466,11 @@ export default function Landing() {
         @media(min-width:769px){.bento{grid-template-columns:repeat(3,1fr);}}
         .bw{grid-column:span 2;}
         .bc{background:var(--gb);border:1px solid var(--gbr);border-radius:18px;padding:26px;position:relative;overflow:hidden;transition:all .4s cubic-bezier(.16,1,.3,1);cursor:none;}
-        .bc::before{content:'';position:absolute;inset:0;border-radius:18px;background:linear-gradient(135deg,rgba(255,255,255,.06),transparent);opacity:0;transition:opacity .3s;}
-        .bc:hover{transform:translateY(-5px) scale(1.008);border-color:rgba(255,255,255,.11);box-shadow:0 28px 70px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.08),inset 0 1px 0 rgba(255,255,255,.07)!important;}
-        .bc:hover::before{opacity:1;}
+        .bc:hover{transform:translateY(-5px) scale(1.008);border-color:rgba(255,255,255,.11);}
         .bi{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:17px;}
         .bt{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;letter-spacing:-.02em;margin-bottom:9px;}
         .bd{font-size:13px;color:var(--t2);line-height:1.65;font-weight:300;}
         .bg{position:absolute;width:180px;height:180px;border-radius:50%;filter:blur(70px);opacity:.1;bottom:-45px;right:-45px;pointer-events:none;}
-
-        /* ── AI SECTION ── */
         .ai-sec{padding:60px 20px;max-width:1140px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:40px;align-items:center;}
         @media(min-width:769px){.ai-sec{padding:80px 24px;grid-template-columns:1fr 1fr;gap:70px;}}
         .ai-list{list-style:none;margin-top:28px;display:flex;flex-direction:column;gap:12px;}
@@ -612,25 +480,22 @@ export default function Landing() {
         .ai-chat::before{content:'';position:absolute;inset:-1px;background:linear-gradient(135deg,rgba(139,92,246,.18),transparent 50%,rgba(59,130,246,.18));border-radius:19px;z-index:-1;}
         .ai-hdr{display:flex;align-items:center;gap:9px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.055);}
         .ai-av{width:30px;height:30px;background:linear-gradient(135deg,var(--purple),var(--blue));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:'Syne',sans-serif;color:#fff;}
-        .ai-nm{font-size:12px;font-weight:500;color:var(--t1);text-shadow:0 0 12px rgba(139,92,246,.5);}
+        .ai-nm{font-size:12px;font-weight:500;color:var(--t1);}
         .ai-st{font-size:10px;color:var(--green);margin-top:1px;}
-        .cm{margin-bottom:11px;}
-        .cu{display:flex;justify-content:flex-end;}
+        .cm{margin-bottom:11px;}.cu{display:flex;justify-content:flex-end;}
         .cb{max-width:82%;padding:9px 13px;border-radius:13px;font-size:12px;line-height:1.55;}
         .cbu{background:rgba(59,130,246,.17);border:1px solid rgba(59,130,246,.22);border-radius:13px 13px 4px 13px;color:var(--t1);}
         .cba{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);border-radius:13px 13px 13px 4px;color:var(--t2);}
-        .hl{color:var(--cyan);font-weight:500;text-shadow:0 0 16px rgba(6,182,212,.7),0 0 32px rgba(6,182,212,.3);}
-
-        /* ── PRICING ── */
+        .hl{color:var(--cyan);font-weight:500;}
         .pricing{padding:80px 24px;max-width:1140px;margin:0 auto;text-align:center;}
         .pg{display:grid;grid-template-columns:1fr;gap:13px;margin-top:56px;text-align:left;}
-        @media(min-width:769px){.pg{grid-template-columns:repeat(3,1fr);}}
+        @media(min-width:769px){.pg{grid-template-columns:repeat(2,1fr);max-width:760px;margin-left:auto;margin-right:auto;}}
         .price-card{background:var(--gb);border:1px solid var(--gbr);border-radius:18px;padding:30px;position:relative;overflow:hidden;transition:all .35s ease;cursor:none;width:100%;box-sizing:border-box;}
         .price-card:hover{transform:translateY(-7px);box-shadow:0 36px 90px rgba(0,0,0,.55);}
         .price-card.feat{background:linear-gradient(135deg,rgba(59,130,246,.065),rgba(139,92,246,.065));border-color:rgba(59,130,246,.3);}
         .price-card.feat::before{content:'MOST POPULAR';position:absolute;top:18px;right:18px;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--blue);background:rgba(59,130,246,.12);padding:3px 9px;border-radius:100px;border:1px solid rgba(59,130,246,.22);}
         .pt{font-size:10px;font-weight:500;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:22px;}
-        .pp{font-family:'Syne',sans-serif;font-size:clamp(28px,8vw,50px);font-weight:800;letter-spacing:-.05em;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+        .pp{font-family:'Syne',sans-serif;font-size:clamp(28px,8vw,50px);font-weight:800;letter-spacing:-.05em;margin-bottom:4px;}
         .pper{font-size:12px;color:var(--t3);margin-bottom:28px;font-weight:300;}
         .pf{list-style:none;margin-bottom:28px;}
         .pf li{font-size:12.5px;color:var(--t2);padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:9px;font-weight:300;}
@@ -639,74 +504,28 @@ export default function Landing() {
         .pb:hover{background:rgba(255,255,255,.09);color:var(--t1);}
         .feat .pb{background:linear-gradient(135deg,var(--blue),var(--purple));border-color:transparent;color:#fff;}
         .feat .pb:hover{box-shadow:0 0 45px rgba(59,130,246,.42);transform:scale(1.02);}
-
-        /* ── CTA STRIP ── */
         .cta-strip{padding:100px 24px;text-align:center;position:relative;}
         .cta-strip::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(59,130,246,.07) 0%,transparent 65%);pointer-events:none;}
-
-        /* ── FOOTER ── */
         footer{padding:56px 24px;border-top:1px solid rgba(255,255,255,.045);position:relative;z-index:2;}
         @media(max-width:768px){footer{padding:40px 16px;}}
         .fl{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;background:linear-gradient(135deg,#fff,var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;}
         .ft{font-size:12px;color:var(--t3);font-weight:300;letter-spacing:.02em;margin-bottom:28px;}
-        .flinks{display:flex;gap:28px;justify-content:center;list-style:none;}
-        .flinks a{font-size:11px;color:var(--t3);text-decoration:none;transition:color .2s;}
-        .flinks a:hover{color:var(--t2);}
-
-        /* ── SCROLL REVEAL ── */
         .reveal{opacity:0;transform:translateY(32px);transition:opacity .75s cubic-bezier(.16,1,.3,1),transform .75s cubic-bezier(.16,1,.3,1);}
         .reveal.revealed{opacity:1;transform:translateY(0);}
-
-        /* ── BREATHING GLOW ── */
         .glow-breathe{animation:breathe 4s ease-in-out infinite;}
-        @keyframes breathe{
-          0%,100%{filter:drop-shadow(0 0 30px rgba(6,182,212,.25)) drop-shadow(0 0 80px rgba(139,92,246,.12));}
-          50%{filter:drop-shadow(0 0 60px rgba(6,182,212,.45)) drop-shadow(0 0 140px rgba(139,92,246,.25));}
-        }
-
-        /* ── BUTTON GLOW ── */
-        .btn-primary{position:relative;overflow:hidden;}
+        @keyframes breathe{0%,100%{filter:drop-shadow(0 0 30px rgba(6,182,212,.25)) drop-shadow(0 0 80px rgba(139,92,246,.12));}50%{filter:drop-shadow(0 0 60px rgba(6,182,212,.45)) drop-shadow(0 0 140px rgba(139,92,246,.25));}}
         .btn-primary::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:conic-gradient(transparent,rgba(255,255,255,.08),transparent 30%);animation:spin 4s linear infinite;opacity:0;transition:opacity .3s;}
         .btn-primary:hover::before{opacity:1;}
         @keyframes spin{to{transform:rotate(360deg);}}
-        .btn-primary:active{transform:scale(.97)!important;}
-        .btn-secondary:active{transform:scale(.97)!important;}
-
-        /* ── STAT CARD ── */
-        .stat-n{transition:filter .3s ease;}
-        .stat:hover .stat-n{filter:drop-shadow(0 0 16px rgba(6,182,212,.6)) drop-shadow(0 0 40px rgba(139,92,246,.3));}
-
-        /* ── LIGHT BEAM ── */
+        .btn-primary:active,.btn-secondary:active{transform:scale(.97)!important;}
         @keyframes beam{0%{opacity:0;transform:translateX(-100%) rotate(-45deg);}50%{opacity:.06;}100%{opacity:0;transform:translateX(100%) rotate(-45deg);}}
         .hero::after{content:'';position:absolute;top:0;left:0;right:0;height:100%;background:linear-gradient(135deg,transparent 30%,rgba(6,182,212,.04) 50%,transparent 70%);animation:beam 8s ease-in-out infinite;pointer-events:none;}
-
-        /* ── MOBILE EXTRAS ── */
-        @media(max-width:768px){
-          .stats,.about,.features,.ai-sec,.pricing,.cta-strip{border-top:1px solid rgba(255,255,255,.03);}
-          .hero-badge{margin-bottom:32px;}
-          .hero-fullname{font-size:10px;letter-spacing:.2em;margin-bottom:28px;}
-          .hero-tagline{font-size:14px;margin-bottom:44px;}
-          .hero-actions{gap:10px;margin-bottom:60px;}
-          .btn-primary{padding:16px 32px;font-size:16px;}
-          .btn-secondary{padding:14px 24px;font-size:14px;}
-          .about-p{font-size:15px;line-height:1.9;}
-          .pill{padding:18px 20px;margin-bottom:12px;}
-          .pill-text{font-size:13px;}
-          .bd{font-size:13.5px;}
-          .ai-list li{font-size:14px;}
-          .pp{font-size:clamp(36px,12vw,52px);}
-        }
-        ::-webkit-scrollbar{width:4px;}
-        ::-webkit-scrollbar-track{background:transparent;}
-        ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px;}
+        ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px;}
       `}</style>
 
-      {/* ── CURSOR ── */}
       <div id="cur-dot" ref={dotRef} />
       <div id="cur-ring" ref={ringRef} />
       <div id="cur-aura" ref={auraRef} />
-
-      {/* ── BG ── */}
       <canvas
         ref={canvasRef}
         style={{
@@ -726,7 +545,6 @@ export default function Landing() {
       <div className="noise" />
       <div className="grid" />
 
-      {/* ══════════════ NAV ══════════════ */}
       <nav className="nav">
         <Link href="/" className="nav-logo">
           <span className="nav-pulse" />
@@ -773,7 +591,6 @@ export default function Landing() {
         </button>
       </nav>
 
-      {/* ── MOBILE MENU ── */}
       <div
         className={`mob-menu${menuOpen ? ' open' : ''}`}
         onClick={() => setMenuOpen(false)}
@@ -827,7 +644,7 @@ export default function Landing() {
       </div>
 
       <main style={{ position: 'relative', zIndex: 2 }}>
-        {/* ══════════════ HERO ══════════════ */}
+        {/* HERO */}
         <section className="hero" id="hero">
           <motion.div
             variants={fadeUp}
@@ -836,46 +653,38 @@ export default function Landing() {
             className="hero-badge"
           >
             <span className="badge-dot" />
-            Live · 2,840 merchants across Africa
+            Built in Nairobi · For African entrepreneurs
           </motion.div>
-
           <motion.div
             variants={fadeUp}
             initial="hidden"
             animate="show"
-            style={{ animationDelay: '.1s' }}
             className="hero-wordmark"
           >
             <div className="hero-title glow-breathe">B.O.S.S</div>
           </motion.div>
-
           <motion.div
             variants={fadeUp}
             initial="hidden"
             animate="show"
-            style={{ animationDelay: '.2s' }}
             className="hero-fullname"
           >
             Business Orchestration Software Systems
           </motion.div>
-
           <motion.div
             variants={fadeUp}
             initial="hidden"
             animate="show"
-            style={{ animationDelay: '.3s' }}
             className="hero-tagline"
           >
             <span className="tl" />
             Intelligent by design.&nbsp;&nbsp;Powerful by nature.
             <span className="tl tr" />
           </motion.div>
-
           <motion.div
             variants={fadeUp}
             initial="hidden"
             animate="show"
-            style={{ animationDelay: '.4s' }}
             className="hero-actions"
           >
             <Link href="/register" className="btn-primary">
@@ -892,12 +701,11 @@ export default function Landing() {
               See How It Works
             </a>
           </motion.div>
-
           <motion.div
             variants={fadeUp}
             initial="hidden"
             animate="show"
-            style={{ animationDelay: '.5s', width: '100%', maxWidth: 980 }}
+            style={{ width: '100%', maxWidth: 980 }}
             className="dash-frame"
           >
             <div className="dashboard">
@@ -911,12 +719,12 @@ export default function Landing() {
                 {[
                   {
                     l: 'Revenue Today',
-                    v: 'KES 48,250',
+                    v: 'KSh 48,250',
                     d: '↑ 23.4% vs yesterday',
                   },
-                  { l: 'Transactions', v: '847', d: '↑ 12% this hour' },
-                  { l: 'Active Stores', v: '5', d: 'All systems nominal' },
-                  { l: 'Uptime', v: '99.99%', d: '30-day average' },
+                  { l: 'Net Profit', v: 'KSh 27,100', d: '56% margin' },
+                  { l: 'Health Score', v: '92/100', d: 'Excellent' },
+                  { l: 'Day Streak', v: '14 days', d: '🔥 Keep it going' },
                 ].map((c) => (
                   <div key={c.l} className="dc">
                     <div className="dcl">{c.l}</div>
@@ -927,7 +735,7 @@ export default function Landing() {
               </div>
               <div className="dash-bottom">
                 <div className="dca">
-                  <div className="dcal">Hourly Revenue</div>
+                  <div className="dcal">7-Day Revenue Trend</div>
                   <div className="bars">
                     {[
                       12, 18, 24, 31, 28, 45, 52, 61, 58, 72, 68, 84, 91, 87,
@@ -944,24 +752,28 @@ export default function Landing() {
                 <div className="dlf">
                   <div className="dlh">
                     <span className="dld" />
-                    Live Transactions
+                    Guru AI Insights
                   </div>
                   {[
                     {
-                      item: 'Arabica Blend',
-                      store: 'Westlands',
-                      amt: 'KES 420',
+                      item: 'Profit up 23%',
+                      store: 'vs last Tuesday',
+                      amt: '↑',
                     },
                     {
-                      item: 'Cold Brew Kit',
-                      store: 'CBD Branch',
-                      amt: 'KES 280',
+                      item: 'Expenses on track',
+                      store: 'Below 45% threshold',
+                      amt: '✓',
                     },
-                    { item: 'Matcha Set', store: 'Karen', amt: 'KES 340' },
                     {
-                      item: 'Oat Milk 1L',
-                      store: 'Mombasa Rd',
-                      amt: 'KES 180',
+                      item: 'Best day: Friday',
+                      store: 'KSh 63,000 revenue',
+                      amt: '🏆',
+                    },
+                    {
+                      item: 'Streak: 14 days',
+                      store: 'Log today to keep it',
+                      amt: '🔥',
                     },
                   ].map((r, i) => (
                     <div key={i} className="dfi">
@@ -978,14 +790,13 @@ export default function Landing() {
           </motion.div>
         </section>
 
-        {/* ══════════════ STATS ══════════════ */}
+        {/* STATS — honest */}
         <section className="stats">
           <div className="stats-inner">
             {[
-              { n: '50K+', l: 'Active Merchants' },
-              { n: '$2.8B', l: 'Processed Monthly' },
-              { n: '99.99%', l: 'Uptime SLA' },
-              { n: '140+', l: 'Countries' },
+              { n: '30s', l: 'To log your daily numbers' },
+              { n: 'AI', l: 'Insights from your real data' },
+              { n: 'KES', l: 'M-Pesa payments built in' },
             ].map((s) => (
               <div key={s.l} className="stat reveal">
                 <span className="stat-n">{s.n}</span>
@@ -995,7 +806,7 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* ══════════════ ABOUT ══════════════ */}
+        {/* ABOUT */}
         <section
           className="about"
           id="about"
@@ -1014,56 +825,52 @@ export default function Landing() {
             }}
           />
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <div className="about-tag">About B.O.S.S</div>
+            <div className="about-tag">What B.O.S.S actually does</div>
             <h2 className="about-h">
-              The AI that sees beyond
+              Your business numbers.
               <br />
-              <span>every transaction.</span>
+              <span>Understood in seconds.</span>
             </h2>
             <p className="about-p">
-              B.O.S.S is an <strong>AI-native SaaS platform</strong> engineered
-              to function as the central intelligence layer for modern
-              businesses. Where traditional software offers isolated,
-              point-in-time analytics, B.O.S.S delivers a{' '}
-              <strong>
-                continuously evolving, AI-powered orchestration system
-              </strong>{' '}
-              that ingests business data, generates structured insights, tracks
-              system performance, and surfaces{' '}
-              <strong>intelligent recommendations in real time</strong>.
+              Most African business owners track their numbers in a notebook —
+              or not at all. B.O.S.S gives you a{' '}
+              <strong>30-second daily entry</strong> that turns into AI-powered
+              insights, streak accountability, and a weekly CEO briefing written
+              specifically for your business.{' '}
+              <strong>No spreadsheets. No accountant needed.</strong>
             </p>
           </div>
           <div style={{ position: 'relative', zIndex: 1 }}>
             {[
               {
-                icon: '📊',
+                icon: '⚡',
                 cls: 'ib',
-                title: 'Sales & Marketing Intelligence',
-                body: 'AI-driven campaigns, customer segmentation and revenue forecasting — automatically.',
-              },
-              {
-                icon: '📈',
-                cls: 'ic',
-                title: 'Market Trends & Demand Forecasting',
-                body: 'Know what your customers want before they do.',
-              },
-              {
-                icon: '🔗',
-                cls: 'ip',
-                title: 'Supplier & Order Management',
-                body: 'Auto-reorder triggers, supplier sync and procurement — end-to-end.',
+                title: '30-Second Daily Entry',
+                body: 'Log your sales and expenses in under 30 seconds. Via the app or WhatsApp — whichever you prefer.',
               },
               {
                 icon: '🧠',
-                cls: 'ig',
-                title: 'Business Intelligence Layer',
-                body: 'Every data point across every store, unified into one living dashboard.',
+                cls: 'ic',
+                title: 'AI That Knows Your Business',
+                body: 'Guru AI reads your actual numbers and gives you specific insights — not generic advice. "Your profit dropped Tuesday because expenses were 18% higher."',
               },
               {
-                icon: '⚡',
+                icon: '📊',
+                cls: 'ip',
+                title: 'Daily + Weekly Intelligence',
+                body: 'Morning digest every day. Full CEO briefing every Sunday. Know exactly how your business is doing before you open your doors.',
+              },
+              {
+                icon: '🔥',
+                cls: 'ig',
+                title: 'Streak & Accountability',
+                body: 'A daily streak keeps you consistent. Businesses that track daily see 23% higher profits on average. B.O.S.S makes it effortless.',
+              },
+              {
+                icon: '📱',
                 cls: 'ia',
-                title: 'Real-Time Operations Tracking',
-                body: 'Live visibility into every transaction, shift and store — simultaneously.',
+                title: 'M-Pesa Native',
+                body: 'Kenyan-first. Pay with M-Pesa. Log M-Pesa transactions. Built for how business actually works in East Africa.',
               },
             ].map((p) => (
               <div key={p.title} className="pill reveal">
@@ -1077,52 +884,50 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* ══════════════ FEATURES ══════════════ */}
+        {/* FEATURES */}
         <section className="features" id="platform">
-          <div className="sec-tag">Platform Capabilities</div>
-          <h2 className="sec-h">
-            Everything your business demands. Nothing it doesn&apos;t.
-          </h2>
+          <div className="sec-tag">What you get</div>
+          <h2 className="sec-h">Everything a serious business owner needs.</h2>
           <div className="bento">
             {[
               {
                 cls: 'bc bw',
                 icon: '📊',
                 icls: 'ib',
-                title: 'Real-Time Revenue Intelligence',
-                body: 'Live dashboards surfacing revenue velocity, customer behaviour and product performance across every location — every second.',
+                title: 'Real Business Intelligence',
+                body: 'Your actual revenue, expenses, profit margin and health score — updated every time you log an entry. See trends, spot problems, and understand your business in one glance.',
                 glow: 'var(--blue)',
               },
               {
                 cls: 'bc',
-                icon: '📦',
+                icon: '🤖',
                 icls: 'ic',
-                title: 'Precision Inventory',
-                body: 'Auto-reorder triggers, expiry tracking, supplier sync. Stockouts become a memory.',
+                title: 'Guru AI Chat',
+                body: 'Ask anything about your business. Get answers using your real data, not generic advice.',
                 glow: 'var(--cyan)',
               },
               {
                 cls: 'bc',
-                icon: '⚡',
+                icon: '📧',
                 icls: 'ip',
-                title: 'Mobile-First POS',
-                body: 'Full point-of-sale on any device. Offline-resilient. Auto-syncs on reconnect.',
+                title: 'Daily Digest Email',
+                body: "6am every morning: yesterday's numbers, today's AI insight, one action to take.",
                 glow: 'var(--purple)',
               },
               {
                 cls: 'bc',
-                icon: '🔲',
+                icon: '💱',
                 icls: 'ig',
-                title: 'Frictionless Payments',
-                body: 'QR, NFC, card, M-Pesa, cash — in under two seconds. Zero friction at checkout.',
+                title: 'Multi-Currency',
+                body: 'KES, USD, EUR, GBP and 20+ more. Switch instantly. All conversions are live.',
                 glow: 'var(--green)',
               },
               {
                 cls: 'bc bw',
-                icon: '🏢',
+                icon: '📈',
                 icls: 'ia',
-                title: 'Multi-Store Command Centre',
-                body: 'Manage unlimited locations from one interface. Westlands, CBD, Karen, Mombasa Road — all in perfect sync.',
+                title: '7-Day Trend + Weekly CEO Report',
+                body: "See your week at a glance. Get a full AI-written Sunday report: what went well, what didn't, and one thing to do differently next week.",
                 glow: 'var(--amber)',
               },
             ].map((c) => (
@@ -1136,12 +941,12 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* ══════════════ AI ══════════════ */}
+        {/* AI SECTION */}
         <section className="ai-sec" id="intelligence">
           <div>
-            <div className="sec-tag">Intelligence Layer</div>
+            <div className="sec-tag">Guru AI</div>
             <h2 className="sec-h" style={{ marginBottom: 16 }}>
-              The central intelligence layer for your business.
+              The AI that actually knows your business.
             </h2>
             <p
               style={{
@@ -1152,17 +957,17 @@ export default function Landing() {
                 maxWidth: 380,
               }}
             >
-              B.O.S.S doesn&apos;t just report what happened — it{' '}
-              <strong style={{ color: '#06B6D4' }}>understands why</strong>,
-              predicts what comes next, and tells you exactly what to do about
-              it. One system. Total orchestration.
+              B.O.S.S doesn&apos;t give generic business advice. Guru AI reads{' '}
+              <strong style={{ color: '#06B6D4' }}>your actual data</strong> —
+              your sales, your margins, your patterns — and tells you exactly
+              what&apos;s happening and what to do about it.
             </p>
             <ul className="ai-list">
               {[
-                'Predictive restock recommendations',
-                'Anomaly detection & fraud alerts',
-                'Demand forecasting across all stores',
-                'Personalised offers per customer segment',
+                'Why did my profit drop this week?',
+                'What was my best day and why?',
+                'Am I on track for my monthly target?',
+                'What should I focus on tomorrow?',
               ].map((i) => (
                 <li key={i}>
                   <span className="ai-ck">✓</span>
@@ -1173,42 +978,44 @@ export default function Landing() {
           </div>
           <div className="ai-chat">
             <div className="ai-hdr">
-              <div className="ai-av">B</div>
+              <div className="ai-av">G</div>
               <div>
-                <div className="ai-nm">B.O.S.S Intelligence</div>
-                <div className="ai-st">● Online · Analysing your stores</div>
+                <div className="ai-nm">Guru AI</div>
+                <div className="ai-st">● Online · Reading your data</div>
               </div>
             </div>
             <div className="cm cu">
-              <div className="cb cbu">What were my top products this week?</div>
+              <div className="cb cbu">Why did my profit drop on Tuesday?</div>
             </div>
             <div className="cm">
               <div className="cb cba">
-                Top performers this week:
+                Your Tuesday expenses were{' '}
+                <span className="hl">KSh 18,400</span> — 34% higher than your
+                weekly average of KSh 13,700. Revenue was normal at KSh 42,000,
+                but the expense spike cut your margin from 56% to 38%.
                 <br />
                 <br />
-                1. <span className="hl">Arabica Blend</span> — KES 4,821 (↑ 23%)
-                <br />
-                2. <span className="hl">Cold Brew Kit</span> — KES 3,204 (↑ 11%)
-                <br />
-                3. <span className="hl">Matcha Latte Set</span> — KES 2,102 (↑
-                44%)
+                The pattern matches your last 3 Tuesdays. Check if you have a
+                recurring supplier payment hitting on Tuesdays.
               </div>
             </div>
             <div className="cm cu">
-              <div className="cb cbu">Should I restock Matcha?</div>
+              <div className="cb cbu">What should I focus on this week?</div>
             </div>
             <div className="cm">
               <div className="cb cba">
-                <span className="hl">✅ Restock immediately.</span> 3 units
-                left. At 44% growth you&apos;ll sell out in ~18 hours. Order 24
-                units today.
+                <span className="hl">
+                  One thing: get expenses below KSh 15,000/day.
+                </span>{' '}
+                You&apos;ve hit your revenue target 5 of the last 7 days. The
+                only thing limiting your profit is the expense side. Fix that
+                and you&apos;re at 60%+ margin.
               </div>
             </div>
           </div>
         </section>
 
-        {/* ══════════════ PRICING ══════════════ */}
+        {/* PRICING — honest 2 tiers */}
         <section className="pricing" id="pricing">
           <div className="sec-tag">Pricing</div>
           <h2
@@ -1219,63 +1026,37 @@ export default function Landing() {
               textAlign: 'center',
             }}
           >
-            Invest in scale. Not complexity.
+            Simple. No surprises.
           </h2>
           <div className="pg">
             {[
               {
-                tier: 'Starter',
-                price: 'Free',
-                per: 'forever · 1 location',
+                tier: 'Free',
+                price: 'KSh 0',
+                per: 'forever · get started today',
                 feat: [
-                  '1 POS device',
-                  'Core analytics',
-                  '500 products',
-                  'QR & M-Pesa payments',
+                  'Daily entry (sales + expenses)',
+                  'Health score + basic insights',
+                  '7-day trend chart',
+                  '14-day streak tracking',
                 ],
-                btn: 'Begin for Free',
+                btn: 'Start Free',
                 cls: 'price-card',
               },
               {
-                tier: 'Growth',
-                price: '$49',
-                per: 'per month · unlimited locations',
+                tier: 'Pro',
+                price: 'KSh 1,499',
+                per: 'per month · cancel anytime',
                 feat: [
-                  'Up to 10 POS devices',
-                  'Real-time analytics',
-                  'Full AI intelligence suite',
-                  'Multi-store command centre',
-                  'Staff & shift management',
+                  'Everything in Free',
+                  'Guru AI chat (unlimited)',
+                  'Daily 6am digest email',
+                  'Weekly CEO briefing',
+                  'M-Pesa payment tracking',
+                  'Multi-currency support',
                 ],
-                btn: 'Start 14-Day Trial',
+                btn: 'Start 14-Day Free Trial',
                 cls: 'price-card feat',
-              },
-              {
-                tier: 'Professional',
-                price: '$99',
-                per: 'per month · up to 5 locations',
-                feat: [
-                  'Up to 100 POS devices',
-                  'Up to 100 stores all interconnected',
-                  'Priority support',
-                  'Advanced analytics',
-                  'Custom branding',
-                ],
-                btn: 'Start 14-Day Trial',
-                cls: 'price-card',
-              },
-              {
-                tier: 'Enterprise',
-                price: 'Custom',
-                per: 'tailored to your scale',
-                feat: [
-                  'Everything in Professional',
-                  'Dedicated account team',
-                  'Custom integrations & API',
-                  'Enterprise SLA guarantees',
-                ],
-                btn: 'Talk to Sales',
-                cls: 'price-card',
               },
             ].map((p) => (
               <div key={p.tier} className={p.cls}>
@@ -1306,7 +1087,7 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* ══════════════ CTA STRIP ══════════════ */}
+        {/* CTA */}
         <section className="cta-strip">
           <motion.div
             variants={stagger}
@@ -1324,7 +1105,7 @@ export default function Landing() {
                   marginBottom: 20,
                 }}
               >
-                Stop Managing.
+                Built in Nairobi. For Africa. 🇰🇪
               </div>
             </motion.div>
             <motion.h2
@@ -1342,9 +1123,9 @@ export default function Landing() {
                 WebkitTextFillColor: 'transparent',
               }}
             >
-              Start Orchestrating.
+              Know your numbers.
               <br />
-              Start Winning.
+              Grow your business.
             </motion.h2>
             <motion.p
               variants={fadeUp}
@@ -1357,8 +1138,9 @@ export default function Landing() {
                 margin: '0 auto 36px',
               }}
             >
-              Join thousands of merchants already using B.O.S.S to make smarter
-              decisions, every single day.
+              Log your first entry in 30 seconds. Get your first AI insight
+              immediately. Join entrepreneurs across East Africa who track daily
+              and grow faster.
             </motion.p>
             <motion.div
               variants={fadeUp}
@@ -1384,7 +1166,6 @@ export default function Landing() {
         </section>
       </main>
 
-      {/* ══════════════ FOOTER ══════════════ */}
       <footer>
         <div style={{ maxWidth: 1140, margin: '0 auto', padding: '0 24px' }}>
           <div
@@ -1478,7 +1259,7 @@ export default function Landing() {
                     ['About', '#about'],
                     ['Privacy', '#'],
                     ['Terms', '#'],
-                    ['Status', '#'],
+                    ['Contact', 'https://wa.me/254701937625'],
                   ].map(([l, h]) => (
                     <li key={l}>
                       <a
@@ -1496,136 +1277,6 @@ export default function Landing() {
                 </ul>
               </div>
             </div>
-            <div>
-              <div
-                style={{
-                  fontSize: 10,
-                  color: '#334155',
-                  letterSpacing: '.1em',
-                  textTransform: 'uppercase',
-                  marginBottom: 12,
-                  fontWeight: 600,
-                }}
-              >
-                Follow Us
-              </div>
-              <div
-                style={{ display: 'flex', flexDirection: 'column', gap: 10 }}
-              >
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: 10,
-                  }}
-                >
-                  {[
-                    {
-                      icon: (
-                        <svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 24 24"
-                          fill="#94A3B8"
-                        >
-                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                        </svg>
-                      ),
-                      label: '@GuruSoftwareGrp',
-                      href: 'https://twitter.com/GuruSoftwareGrp',
-                    },
-                    {
-                      icon: (
-                        <svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 24 24"
-                          fill="#94A3B8"
-                        >
-                          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
-                        </svg>
-                      ),
-                      label: '@gurusoftwaregroup',
-                      href: 'https://instagram.com/gurusoftwaregroup',
-                    },
-                    {
-                      icon: (
-                        <svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 24 24"
-                          fill="#94A3B8"
-                        >
-                          <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.76a4.85 4.85 0 01-1.01-.07z" />
-                        </svg>
-                      ),
-                      label: '@gurusoftwaregroup',
-                      href: 'https://tiktok.com/@gurusoftwaregroup',
-                    },
-                    {
-                      icon: (
-                        <svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 24 24"
-                          fill="#94A3B8"
-                        >
-                          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                        </svg>
-                      ),
-                      label: '@gurusoftwaregroup',
-                      href: 'https://facebook.com/gurusoftwaregroup',
-                    },
-                    {
-                      icon: (
-                        <svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 24 24"
-                          fill="#94A3B8"
-                        >
-                          <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.088 13.78l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.834.779h.026z" />
-                        </svg>
-                      ),
-                      label: '@gurusoftwaregroup',
-                      href: 'https://t.me/gurusoftwaregroup',
-                    },
-                    {
-                      icon: (
-                        <svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 24 24"
-                          fill="#94A3B8"
-                        >
-                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                        </svg>
-                      ),
-                      label: '+254701937625',
-                      href: 'https://wa.me/254701937625',
-                    },
-                  ].map((s) => (
-                    <a
-                      key={s.label}
-                      href={s.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 8,
-                        fontSize: 11,
-                        color: '#475569',
-                        textDecoration: 'none',
-                      }}
-                    >
-                      {s.icon}
-                      {s.label}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            </div>
           </div>
           <div
             style={{
@@ -1640,13 +1291,13 @@ export default function Landing() {
             <p
               style={{ fontSize: 11, color: '#1e293b', letterSpacing: '.06em' }}
             >
-              © 2026 Guru Software Group. Built in Nairobi, Kenya 🇰🇪 Africa, for
-              the world.
+              © 2026 Guru Software Group. Built in Nairobi, Kenya 🇰🇪 for Africa
+              and the world.
             </p>
             <p
               style={{ fontSize: 11, color: '#1e293b', letterSpacing: '.04em' }}
             >
-              B.O.S.S v2.0 · Guru AI Core
+              B.O.S.S · Guru AI Core
             </p>
           </div>
         </div>
