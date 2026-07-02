@@ -1,35 +1,516 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import CurrencyDropdown from '@/components/CurrencyDropdown';
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
+/* ─────────────────────────────────────────────
+   ANIMATION TOKENS
+───────────────────────────────────────────── */
+const fUp = {
+  hidden: { opacity: 0, y: 28 },
   show: {
     opacity: 1,
     y: 0,
-    transition: {
-      duration: 0.6,
-      ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
-    },
+    transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] as any },
   },
 };
-const stagger = { show: { transition: { staggerChildren: 0.08 } } };
+const fIn = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { duration: 0.5 } },
+};
+const stag = { show: { transition: { staggerChildren: 0.08 } } };
 
+/* ─────────────────────────────────────────────
+   MASCOT
+───────────────────────────────────────────── */
+function BossMascot({
+  size = 120,
+  float = false,
+}: {
+  size?: number;
+  float?: boolean;
+}) {
+  return (
+    <motion.svg
+      width={size}
+      height={size}
+      viewBox="0 0 120 120"
+      fill="none"
+      animate={float ? { y: [0, -10, 0] } : {}}
+      transition={
+        float ? { duration: 3.5, repeat: Infinity, ease: 'easeInOut' } : {}
+      }
+    >
+      <defs>
+        <radialGradient id="mg1" cx="40%" cy="30%">
+          <stop offset="0%" stopColor="#a78bfa" />
+          <stop offset="100%" stopColor="#3B82F6" />
+        </radialGradient>
+        <radialGradient id="mg2" cx="50%" cy="40%">
+          <stop offset="0%" stopColor="#7C3AED" />
+          <stop offset="100%" stopColor="#4F46E5" />
+        </radialGradient>
+        <linearGradient id="mg3" x1="0" y1="0" x2="1" y2="1">
+          <stop stopColor="#F59E0B" />
+          <stop offset="1" stopColor="#EF4444" />
+        </linearGradient>
+        <linearGradient id="mg4" x1="0" y1="0" x2="0" y2="1">
+          <stop stopColor="#06B6D4" />
+          <stop offset="1" stopColor="#3B82F6" />
+        </linearGradient>
+        <linearGradient id="mg5" x1="0" y1="0" x2="1" y2="1">
+          <stop stopColor="#06B6D4" stopOpacity="0.4" />
+          <stop offset="1" stopColor="#8B5CF6" stopOpacity="0.4" />
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+      {/* Glow ring */}
+      <circle
+        cx="60"
+        cy="60"
+        r="55"
+        fill="none"
+        stroke="rgba(139,92,246,0.15)"
+        strokeWidth="1"
+      />
+      {/* Body */}
+      <ellipse cx="60" cy="74" rx="30" ry="28" fill="url(#mg2)" />
+      {/* Head */}
+      <circle cx="60" cy="46" r="29" fill="url(#mg1)" filter="url(#glow)" />
+      {/* Crown */}
+      <path
+        d="M37 28 L43 13 L53 22 L60 9 L67 22 L77 13 L83 28 Z"
+        fill="url(#mg3)"
+      />
+      <circle cx="43" cy="13" r="4" fill="#FCD34D" filter="url(#glow)" />
+      <circle cx="60" cy="9" r="4" fill="#06B6D4" filter="url(#glow)" />
+      <circle cx="77" cy="13" r="4" fill="#EC4899" filter="url(#glow)" />
+      {/* Eyes */}
+      <ellipse cx="48" cy="46" rx="8" ry="9" fill="white" />
+      <ellipse cx="72" cy="46" rx="8" ry="9" fill="white" />
+      <motion.ellipse
+        cx="50"
+        cy="47"
+        rx="5"
+        ry="6"
+        fill="#1e1b4b"
+        animate={float ? { cx: [50, 51, 50, 49, 50] } : {}}
+        transition={float ? { duration: 4, repeat: Infinity } : {}}
+      />
+      <motion.ellipse
+        cx="74"
+        cy="47"
+        rx="5"
+        ry="6"
+        fill="#1e1b4b"
+        animate={float ? { cx: [74, 75, 74, 73, 74] } : {}}
+        transition={float ? { duration: 4, repeat: Infinity } : {}}
+      />
+      <circle cx="52" cy="44" r="2" fill="white" opacity="0.9" />
+      <circle cx="76" cy="44" r="2" fill="white" opacity="0.9" />
+      {/* Smile */}
+      <path
+        d="M48 58 Q60 69 72 58"
+        stroke="#1e1b4b"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        fill="none"
+      />
+      {/* Blush */}
+      <ellipse cx="40" cy="56" rx="7" ry="4" fill="#EC4899" opacity="0.25" />
+      <ellipse cx="80" cy="56" rx="7" ry="4" fill="#EC4899" opacity="0.25" />
+      {/* Tie */}
+      <path d="M56 77 L60 90 L64 77 L60 72 Z" fill="url(#mg4)" />
+      {/* Laptop */}
+      <rect
+        x="36"
+        y="90"
+        width="48"
+        height="26"
+        rx="4"
+        fill="#0f172a"
+        stroke="#1e293b"
+        strokeWidth="1"
+      />
+      <rect x="39" y="93" width="42" height="18" rx="2" fill="#020617" />
+      <rect
+        x="39"
+        y="93"
+        width="42"
+        height="18"
+        rx="2"
+        fill="url(#mg5)"
+        opacity="0.8"
+      />
+      <text
+        x="60"
+        y="105"
+        textAnchor="middle"
+        fill="#06B6D4"
+        fontSize="5.5"
+        fontFamily="monospace"
+        fontWeight="bold"
+      >
+        B.O.S.S AI
+      </text>
+    </motion.svg>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   DATA
+───────────────────────────────────────────── */
+const PRODUCTS = [
+  {
+    id: 'insights',
+    icon: '📊',
+    label: 'AI Insights',
+    color: '#3B82F6',
+    desc: "Real-time revenue, expenses, profit margin, and health score — updated with every entry. Guru AI reads your actual data and tells you exactly what's happening.",
+  },
+  {
+    id: 'pos',
+    icon: '🏪',
+    label: 'POS System',
+    color: '#06B6D4',
+    desc: 'Lightning-fast point of sale for any device. Accept M-Pesa, card, QR, and cash. Complete a transaction in under 2 seconds.',
+    soon: true,
+  },
+  {
+    id: 'stock',
+    icon: '📦',
+    label: 'Inventory',
+    color: '#10B981',
+    desc: 'Auto-reorder triggers, expiry tracking, multi-warehouse support, and supplier sync. Stockouts become history.',
+    soon: true,
+  },
+  {
+    id: 'erp',
+    icon: '🏢',
+    label: 'Full ERP',
+    color: '#F59E0B',
+    desc: 'HR, payroll, procurement, and supplier management — your entire business operations in one platform.',
+    soon: true,
+  },
+  {
+    id: 'ecom',
+    icon: '🛒',
+    label: 'E-Commerce',
+    color: '#EC4899',
+    desc: 'Launch your own storefront. Inventory syncs in real time. Orders flow directly into your dashboard.',
+    soon: true,
+  },
+  {
+    id: 'loyalty',
+    icon: '⭐',
+    label: 'CRM & Loyalty',
+    color: '#8B5CF6',
+    desc: 'Customer loyalty programs, purchase history, and targeted campaigns that bring people back.',
+    soon: true,
+  },
+  {
+    id: 'accounts',
+    icon: '📋',
+    label: 'Accounting',
+    color: '#A78BFA',
+    desc: 'Tax-compliant invoicing, expense categorisation, and financial reporting. Works with your local tax authority.',
+    soon: true,
+  },
+  {
+    id: 'delivery',
+    icon: '🚚',
+    label: 'Delivery',
+    color: '#EF4444',
+    desc: 'Real-time delivery management, rider tracking, and last-mile logistics for your orders.',
+    soon: true,
+  },
+];
+
+const ROADMAP = [
+  {
+    phase: '01',
+    q: 'Q1–Q2 2025',
+    label: 'Intelligence Core',
+    color: '#10B981',
+    done: true,
+    items: [
+      'Daily sales tracker',
+      'Guru AI insights engine',
+      'Multi-currency (26+ FX)',
+      'Business health score',
+      'Streak & accountability',
+      'CEO daily digest email',
+    ],
+  },
+  {
+    phase: '02',
+    q: 'Q3 2025',
+    label: 'Commerce Layer',
+    color: '#3B82F6',
+    done: false,
+    items: [
+      'M-Pesa subscriptions',
+      'Point-of-sale (POS)',
+      'Inventory management',
+      'WhatsApp entry bot',
+      'Team accounts',
+      'Multi-location HQ view',
+    ],
+  },
+  {
+    phase: '03',
+    q: 'Q4 2025',
+    label: 'Business Suite',
+    color: '#8B5CF6',
+    done: false,
+    items: [
+      'Full ERP module',
+      'E-commerce storefront',
+      'CRM & loyalty system',
+      'Accounting & invoicing',
+      'Supplier management',
+      'Advanced analytics',
+    ],
+  },
+  {
+    phase: '04',
+    q: '2026',
+    label: 'Platform Scale',
+    color: '#F59E0B',
+    done: false,
+    items: [
+      'Delivery tracking',
+      'Open API & webhooks',
+      'White-label for partners',
+      'AI forecasting engine',
+      'Marketplace integrations',
+      'Enterprise SSO & compliance',
+    ],
+  },
+];
+
+const TIERS = [
+  {
+    id: 'free',
+    label: 'Free',
+    badge: '',
+    color: '#475569',
+    monthly: 0,
+    quarterly: 0,
+    annual: 0,
+    currency: 'USD',
+    tagline: 'Start tracking your business today.',
+    features: [
+      'Daily sales & expense entry',
+      'Business health score',
+      '7-day trend chart',
+      '14-day entry streak',
+      'Basic AI summaries',
+      '1 user · 1 location',
+    ],
+    cta: 'Get Started Free',
+    ctaLink: '/register',
+    featured: false,
+  },
+  {
+    id: 'growth',
+    label: 'Growth',
+    badge: 'POPULAR',
+    color: '#3B82F6',
+    monthly: 29,
+    quarterly: 25,
+    annual: 19,
+    currency: 'USD',
+    tagline: 'For businesses ready to grow with data.',
+    features: [
+      'Everything in Free',
+      'Guru AI chat (unlimited)',
+      'Daily 6am digest email',
+      'Weekly CEO briefing',
+      'Multi-currency (26+)',
+      'Monthly & quarterly reports',
+      'Annual financial summary',
+      'Up to 5 users · 2 locations',
+      'Priority support',
+    ],
+    cta: 'Start 14-Day Free Trial',
+    ctaLink: '/register',
+    featured: true,
+  },
+  {
+    id: 'scale',
+    label: 'Scale',
+    badge: '',
+    color: '#8B5CF6',
+    monthly: 79,
+    quarterly: 69,
+    annual: 55,
+    currency: 'USD',
+    tagline: 'The full intelligence suite for serious operators.',
+    features: [
+      'Everything in Growth',
+      'POS system (beta access)',
+      'Inventory management',
+      'WhatsApp bot entry',
+      'Advanced AI forecasting',
+      'Custom report builder',
+      'Monthly, quarterly & annual P&L',
+      'Up to 25 users · 5 locations',
+      'API access',
+      'Dedicated account manager',
+    ],
+    cta: 'Start 14-Day Free Trial',
+    ctaLink: '/register',
+    featured: false,
+  },
+  {
+    id: 'enterprise',
+    label: 'Enterprise',
+    badge: 'CUSTOM',
+    color: '#F59E0B',
+    monthly: null,
+    quarterly: null,
+    annual: null,
+    currency: 'USD',
+    tagline: 'Built for organisations that need everything.',
+    features: [
+      'Everything in Scale',
+      'Full ERP & accounting',
+      'E-commerce storefront',
+      'CRM & loyalty engine',
+      'Delivery management',
+      'Unlimited users & locations',
+      'White-label option',
+      'SSO & compliance (SOC2)',
+      'Custom integrations & API',
+      'SLA guarantee · 24/7 support',
+    ],
+    cta: 'Talk to Sales',
+    ctaLink: 'https://wa.me/254701937625',
+    featured: false,
+  },
+];
+
+const TESTIMONIALS = [
+  {
+    name: 'Wanjiku M.',
+    biz: 'Retail chain, 3 locations',
+    quote:
+      'I used to guess my profits at month-end. Now I know exactly what I made before I close shop — every single day.',
+    color: '#EC4899',
+    av: 'W',
+  },
+  {
+    name: 'Brian O.',
+    biz: 'Electronics distributor',
+    quote:
+      'The AI spotted a recurring expense spike every Tuesday and helped me cut costs by 18% in one week.',
+    color: '#3B82F6',
+    av: 'B',
+  },
+  {
+    name: 'Amina K.',
+    biz: 'Fashion retail, 2 branches',
+    quote:
+      'Tracking two locations from one dashboard changed everything. The weekly CEO report alone is worth the subscription.',
+    color: '#10B981',
+    av: 'A',
+  },
+  {
+    name: 'David N.',
+    biz: 'Food & beverage, franchise owner',
+    quote:
+      'We onboarded our whole team in an afternoon. The health score keeps everyone accountable.',
+    color: '#8B5CF6',
+    av: 'D',
+  },
+];
+
+const FOOTER_TECH = [
+  {
+    cat: 'Infrastructure',
+    items: [
+      'Next.js 14 (App Router)',
+      'Node.js + Express API',
+      'PostgreSQL + Prisma ORM',
+      'Railway (API hosting)',
+      'Vercel (Frontend CDN)',
+    ],
+  },
+  {
+    cat: 'AI & Intelligence',
+    items: [
+      'OpenAI GPT-4o',
+      'Guru AI Engine (custom)',
+      'Real-time data injection',
+      'Conversation memory',
+      'Vector search (planned)',
+    ],
+  },
+  {
+    cat: 'Payments',
+    items: [
+      'M-Pesa STK Push (Daraja)',
+      'Stripe (cards & subscriptions)',
+      '26+ live FX rates',
+      'Open Exchange Rates API',
+      'Resend (transactional email)',
+    ],
+  },
+  {
+    cat: 'Security',
+    items: [
+      'bcrypt password hashing',
+      'JWT + httpOnly cookies',
+      'Rate limiting (per-IP)',
+      'Sentry error tracking',
+      'PostHog analytics',
+    ],
+  },
+];
+
+/* ─────────────────────────────────────────────
+   COMPONENT
+───────────────────────────────────────────── */
 export default function Landing() {
   useEffect(() => {
     fetch('/api/ping').catch(() => {});
   }, []);
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
   const auraRef = useRef<HTMLDivElement>(null);
   const neuralRef = useRef<HTMLCanvasElement>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
 
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [activeProd, setActiveProd] = useState('insights');
+  const [activeTest, setActiveTest] = useState(0);
+  const [billing, setBilling] = useState<'monthly' | 'quarterly' | 'annual'>(
+    'monthly',
+  );
+
+  /* Testimonial rotation */
   useEffect(() => {
-    const canvas = canvasRef.current!;
+    const t = setInterval(
+      () => setActiveTest((p) => (p + 1) % TESTIMONIALS.length),
+      5000,
+    );
+    return () => clearInterval(t);
+  }, []);
+
+  /* ── STARFIELD ── */
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d')!;
     let W = (canvas.width = window.innerWidth);
     let H = (canvas.height = window.innerHeight);
@@ -44,18 +525,20 @@ export default function Landing() {
       '#8B5CF6',
       '#3B82F6',
       '#10B981',
+      '#EC4899',
+      '#F59E0B',
       '#e0f0ff',
     ];
-    const stars = Array.from({ length: 320 }, () => ({
+    const stars = Array.from({ length: 420 }, () => ({
       x: Math.random() * W,
       y: Math.random() * H,
-      size: Math.random() * 1.7 + 0.2,
-      opacity: Math.random() * 0.65 + 0.1,
+      size: Math.random() * 1.9 + 0.2,
+      opacity: Math.random() * 0.75 + 0.1,
       twinkle: Math.random() * Math.PI * 2,
-      speed: 0.006 + Math.random() * 0.016,
-      color: COLS[Math.floor(Math.random() * 6)],
+      speed: 0.005 + Math.random() * 0.016,
+      color: COLS[Math.floor(Math.random() * COLS.length)],
     }));
-    interface Shoot {
+    interface S {
       x: number;
       y: number;
       len: number;
@@ -64,44 +547,32 @@ export default function Landing() {
       life: number;
       maxLife: number;
     }
-    const shoots: Shoot[] = [];
-    const spawnShoot = () =>
-      shoots.push({
-        x: Math.random() * W * 1.4 - W * 0.2,
-        y: Math.random() * H * 0.5,
-        len: 120 + Math.random() * 160,
-        speed: 10 + Math.random() * 14,
-        angle: Math.PI / 6 + (Math.random() - 0.5) * 0.3,
-        life: 0,
-        maxLife: 38,
-      });
-    const si = setInterval(spawnShoot, 3200);
-    let starId: number;
-    const drawStars = () => {
+    const shoots: S[] = [];
+    const si = setInterval(
+      () =>
+        shoots.push({
+          x: Math.random() * W * 1.4 - W * 0.2,
+          y: Math.random() * H * 0.5,
+          len: 80 + Math.random() * 200,
+          speed: 7 + Math.random() * 18,
+          angle: Math.PI / 6 + (Math.random() - 0.5) * 0.45,
+          life: 0,
+          maxLife: 44,
+        }),
+      2600,
+    );
+    let id: number;
+    const draw = () => {
       ctx.clearRect(0, 0, W, H);
-      [
-        { x: W * 0.15, y: H * 0.25, r: 280, c: 'rgba(59,130,246,.028)' },
-        { x: W * 0.8, y: H * 0.15, r: 220, c: 'rgba(139,92,246,.024)' },
-        { x: W * 0.5, y: H * 0.75, r: 260, c: 'rgba(6,182,212,.02)' },
-        { x: W * 0.9, y: H * 0.6, r: 180, c: 'rgba(16,185,129,.016)' },
-      ].forEach((n) => {
-        const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r);
-        g.addColorStop(0, n.c);
-        g.addColorStop(1, 'transparent');
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-        ctx.fill();
-      });
       stars.forEach((s) => {
         s.twinkle += s.speed;
-        const flicker = s.opacity * (0.6 + 0.4 * Math.sin(s.twinkle));
+        const a = s.opacity * (0.55 + 0.45 * Math.sin(s.twinkle));
         const sz = s.size * (0.85 + 0.15 * Math.sin(s.twinkle * 1.3));
         if (s.color !== '#ffffff') {
-          ctx.shadowBlur = 7;
+          ctx.shadowBlur = 9;
           ctx.shadowColor = s.color;
         }
-        ctx.globalAlpha = flicker;
+        ctx.globalAlpha = a;
         ctx.fillStyle = s.color;
         ctx.beginPath();
         ctx.arc(s.x, s.y, sz, 0, Math.PI * 2);
@@ -116,19 +587,19 @@ export default function Landing() {
         sh.y += Math.sin(sh.angle) * sh.speed;
         const p = sh.life / sh.maxLife;
         const a = p < 0.3 ? p / 0.3 : 1 - (p - 0.3) / 0.7;
-        const grd = ctx.createLinearGradient(
+        const g = ctx.createLinearGradient(
           sh.x,
           sh.y,
           sh.x - Math.cos(sh.angle) * sh.len,
           sh.y - Math.sin(sh.angle) * sh.len,
         );
-        grd.addColorStop(0, `rgba(255,255,255,${a * 0.9})`);
-        grd.addColorStop(0.3, `rgba(180,220,255,${a * 0.45})`);
-        grd.addColorStop(1, 'transparent');
-        ctx.strokeStyle = grd;
-        ctx.lineWidth = 1.4;
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = 'rgba(120,200,255,.7)';
+        g.addColorStop(0, `rgba(255,255,255,${a * 0.9})`);
+        g.addColorStop(0.35, `rgba(140,200,255,${a * 0.4})`);
+        g.addColorStop(1, 'transparent');
+        ctx.strokeStyle = g;
+        ctx.lineWidth = 1.6;
+        ctx.shadowBlur = 14;
+        ctx.shadowColor = 'rgba(100,180,255,.8)';
         ctx.beginPath();
         ctx.moveTo(sh.x, sh.y);
         ctx.lineTo(
@@ -139,9 +610,18 @@ export default function Landing() {
         ctx.shadowBlur = 0;
         if (sh.life >= sh.maxLife) shoots.splice(i, 1);
       }
-      starId = requestAnimationFrame(drawStars);
+      id = requestAnimationFrame(draw);
     };
-    drawStars();
+    draw();
+    return () => {
+      cancelAnimationFrame(id);
+      clearInterval(si);
+      window.removeEventListener('resize', onResize);
+    };
+  }, []);
+
+  /* ── CURSOR ── */
+  useEffect(() => {
     let mx = 0,
       my = 0,
       rx = 0,
@@ -151,8 +631,8 @@ export default function Landing() {
       vx = 0,
       vy = 0,
       curId: number,
-      isHover = false;
-    const onMove = (e: MouseEvent) => {
+      hover = false;
+    const mv = (e: MouseEvent) => {
       mx = e.clientX;
       my = e.clientY;
       if (dotRef.current) {
@@ -161,23 +641,23 @@ export default function Landing() {
       }
     };
     const tick = () => {
-      const rEase = isHover ? 0.72 : 0.82;
-      const aEase = isHover ? 0.58 : 0.68;
-      const prevRx = rx,
-        prevRy = ry;
-      rx += (mx - rx) * rEase;
-      ry += (my - ry) * rEase;
-      ax += (mx - ax) * aEase;
-      ay += (my - ay) * aEase;
-      vx = rx - prevRx;
-      vy = ry - prevRy;
-      const speed = Math.sqrt(vx * vx + vy * vy);
-      const stretch = Math.min(1 + speed * 0.055, 1.35);
-      const angle = Math.atan2(vy, vx) * (180 / Math.PI);
+      const re = hover ? 0.72 : 0.82;
+      const ae = hover ? 0.58 : 0.68;
+      const prx = rx,
+        pry = ry;
+      rx += (mx - rx) * re;
+      ry += (my - ry) * re;
+      ax += (mx - ax) * ae;
+      ay += (my - ay) * ae;
+      vx = rx - prx;
+      vy = ry - pry;
+      const sp = Math.sqrt(vx * vx + vy * vy);
+      const st = Math.min(1 + sp * 0.055, 1.35);
+      const ang = (Math.atan2(vy, vx) * 180) / Math.PI;
       if (ringRef.current) {
         ringRef.current.style.left = rx + 'px';
         ringRef.current.style.top = ry + 'px';
-        ringRef.current.style.transform = `translate(-50%,-50%) rotate(${angle}deg) scaleX(${stretch}) scaleY(${1 / stretch})`;
+        ringRef.current.style.transform = `translate(-50%,-50%) rotate(${ang}deg) scaleX(${st}) scaleY(${1 / st})`;
       }
       if (auraRef.current) {
         auraRef.current.style.left = ax + 'px';
@@ -185,107 +665,98 @@ export default function Landing() {
       }
       curId = requestAnimationFrame(tick);
     };
-    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mousemove', mv);
     tick();
-    const grow = () => {
-      isHover = true;
+    const on = () => {
+      hover = true;
       dotRef.current?.classList.add('dot-big');
       ringRef.current?.classList.add('ring-big');
       auraRef.current?.classList.add('aura-big');
     };
-    const shrink = () => {
-      isHover = false;
+    const off = () => {
+      hover = false;
       dotRef.current?.classList.remove('dot-big');
       ringRef.current?.classList.remove('ring-big');
       auraRef.current?.classList.remove('aura-big');
     };
-    document
-      .querySelectorAll('button,a,.bento-card,.price-card')
-      .forEach((el) => {
-        el.addEventListener('mouseenter', grow);
-        el.addEventListener('mouseleave', shrink);
-      });
-    document.querySelectorAll('.nav-link').forEach((link) => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const href = (link as HTMLAnchorElement).getAttribute('href');
-        if (href?.startsWith('#')) {
-          document
-            .querySelector(href)
-            ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      });
+    document.querySelectorAll('button,a,.iact').forEach((el) => {
+      el.addEventListener('mouseenter', on);
+      el.addEventListener('mouseleave', off);
     });
+    document.querySelectorAll('.nav-link').forEach((l) =>
+      l.addEventListener('click', (e) => {
+        e.preventDefault();
+        const h = (l as any).getAttribute('href');
+        if (h?.startsWith('#'))
+          document
+            .querySelector(h)
+            ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }),
+    );
     return () => {
-      window.removeEventListener('resize', onResize);
-      document.removeEventListener('mousemove', onMove);
-      cancelAnimationFrame(starId);
+      document.removeEventListener('mousemove', mv);
       cancelAnimationFrame(curId);
-      clearInterval(si);
     };
   }, []);
 
+  /* ── NEURAL CANVAS ── */
   useEffect(() => {
-    const canvas = neuralRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d')!;
-    const resize = () => {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
+    const cv = neuralRef.current;
+    if (!cv) return;
+    const ctx = cv.getContext('2d')!;
+    const rs = () => {
+      cv.width = cv.offsetWidth;
+      cv.height = cv.offsetHeight;
     };
-    resize();
-    window.addEventListener('resize', resize);
-    const COLS = [
+    rs();
+    window.addEventListener('resize', rs);
+    const CL = [
       'rgba(59,130,246,',
       'rgba(6,182,212,',
       'rgba(139,92,246,',
       'rgba(16,185,129,',
+      'rgba(236,72,153,',
     ];
-    const nodes = Array.from({ length: 45 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.35,
-      vy: (Math.random() - 0.5) * 0.35,
+    const nd = Array.from({ length: 55 }, () => ({
+      x: Math.random() * cv.width,
+      y: Math.random() * cv.height,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
       r: 1 + Math.random() * 2.5,
-      col: COLS[Math.floor(Math.random() * 4)],
+      col: CL[Math.floor(Math.random() * 5)],
       p: Math.random() * Math.PI * 2,
       sp: 0.011 + Math.random() * 0.018,
     }));
-    const packets: { from: number; to: number; t: number; sp: number }[] = [];
-    let lastP = 0,
-      nid = 0;
+    const pk: { f: number; t: number; prog: number; sp: number }[] = [];
+    let lp = 0,
+      ni = 0;
     const draw = (ts: number) => {
-      const W = canvas.width,
-        H = canvas.height;
+      const W = cv.width,
+        H = cv.height;
       ctx.clearRect(0, 0, W, H);
-      if (ts - lastP > 1300 && packets.length < 10) {
-        const a = Math.floor(Math.random() * nodes.length);
+      if (ts - lp > 1100 && pk.length < 14) {
+        const a = Math.floor(Math.random() * nd.length);
         let b = a;
-        while (b === a) b = Math.floor(Math.random() * nodes.length);
-        packets.push({
-          from: a,
-          to: b,
-          t: 0,
-          sp: 0.006 + Math.random() * 0.01,
-        });
-        lastP = ts;
+        while (b === a) b = Math.floor(Math.random() * nd.length);
+        pk.push({ f: a, t: b, prog: 0, sp: 0.007 + Math.random() * 0.01 });
+        lp = ts;
       }
-      nodes.forEach((n) => {
+      nd.forEach((n) => {
         n.x += n.vx;
         n.y += n.vy;
         n.p += n.sp;
         if (n.x < 0 || n.x > W) n.vx *= -1;
         if (n.y < 0 || n.y > H) n.vy *= -1;
       });
-      nodes.forEach((a, i) =>
-        nodes.forEach((b, j) => {
+      nd.forEach((a, i) =>
+        nd.forEach((b, j) => {
           if (j <= i) return;
           const dx = b.x - a.x,
             dy = b.y - a.y,
             d = Math.sqrt(dx * dx + dy * dy);
-          if (d < 135) {
-            ctx.strokeStyle = `rgba(59,130,246,${(1 - d / 135) * 0.11})`;
-            ctx.lineWidth = 0.4;
+          if (d < 145) {
+            ctx.strokeStyle = `rgba(99,102,241,${(1 - d / 145) * 0.11})`;
+            ctx.lineWidth = 0.5;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
             ctx.lineTo(b.x, b.y);
@@ -293,239 +764,343 @@ export default function Landing() {
           }
         }),
       );
-      nodes.forEach((n) => {
+      nd.forEach((n) => {
         const g = 0.3 + 0.25 * Math.sin(n.p);
-        ctx.shadowBlur = 9;
-        ctx.shadowColor = n.col + '0.7)';
+        ctx.shadowBlur = 11;
+        ctx.shadowColor = n.col + '0.8)';
         ctx.fillStyle = n.col + g + ')';
         ctx.beginPath();
         ctx.arc(n.x, n.y, n.r * (0.85 + 0.15 * Math.sin(n.p)), 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
       });
-      for (let i = packets.length - 1; i >= 0; i--) {
-        const pk = packets[i];
-        pk.t += pk.sp;
-        if (pk.t >= 1) {
-          packets.splice(i, 1);
+      for (let i = pk.length - 1; i >= 0; i--) {
+        const p = pk[i];
+        p.prog += p.sp;
+        if (p.prog >= 1) {
+          pk.splice(i, 1);
           continue;
         }
-        const a = nodes[pk.from],
-          b = nodes[pk.to];
-        const x = a.x + (b.x - a.x) * pk.t,
-          y = a.y + (b.y - a.y) * pk.t;
-        const g2 = ctx.createRadialGradient(x, y, 0, x, y, 8);
+        const a = nd[p.f],
+          b = nd[p.t];
+        const x = a.x + (b.x - a.x) * p.prog,
+          y = a.y + (b.y - a.y) * p.prog;
+        const g2 = ctx.createRadialGradient(x, y, 0, x, y, 11);
         g2.addColorStop(0, 'rgba(6,182,212,0.95)');
         g2.addColorStop(1, 'transparent');
         ctx.fillStyle = g2;
         ctx.beginPath();
-        ctx.arc(x, y, 8, 0, Math.PI * 2);
+        ctx.arc(x, y, 11, 0, Math.PI * 2);
         ctx.fill();
       }
-      nid = requestAnimationFrame(draw);
+      ni = requestAnimationFrame(draw);
     };
-    nid = requestAnimationFrame(draw);
+    ni = requestAnimationFrame(draw);
     return () => {
-      cancelAnimationFrame(nid);
-      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(ni);
+      window.removeEventListener('resize', rs);
     };
   }, []);
 
+  /* ── SCROLL REVEAL ── */
   useEffect(() => {
     const obs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
+      (es) => {
+        es.forEach((e) => {
           if (e.isIntersecting) e.target.classList.add('revealed');
         });
       },
-      { threshold: 0.08, rootMargin: '0px 0px -20px 0px' },
+      { threshold: 0.06, rootMargin: '0px 0px -20px 0px' },
     );
     document.querySelectorAll('.reveal').forEach((el) => obs.observe(el));
     return () => obs.disconnect();
   }, []);
 
+  const ap = PRODUCTS.find((p) => p.id === activeProd)!;
+  const price = (t: (typeof TIERS)[0]) => {
+    if (!t.monthly) return null;
+    return t[billing] as number;
+  };
+
+  /* ─────────────────────────────────────────────
+     RENDER
+  ───────────────────────────────────────────── */
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
-        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-        :root{--void:#02020c;--blue:#3B82F6;--cyan:#06B6D4;--purple:#8B5CF6;--green:#10B981;--amber:#F59E0B;--pink:#EC4899;--t1:#F1F5F9;--t2:#94A3B8;--t3:#475569;--gb:rgba(255,255,255,0.022);--gbr:rgba(255,255,255,0.07);}
-        .ham{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px;background:none;border:none;z-index:200;}
-        @media(min-width:769px){.nav-links{display:flex;gap:4px;list-style:none;}.nav-btns{display:flex;gap:8px;align-items:center;}}
-        .ham span{display:block;width:22px;height:2px;background:var(--t1);border-radius:2px;transition:all .3s ease;}
-        .ham.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
-        .ham.open span:nth-child(2){opacity:0;}
-        .ham.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
-        .mob-menu{display:none;position:fixed;inset:0;z-index:150;background:rgba(2,2,12,.97);backdrop-filter:blur(40px);flex-direction:column;align-items:center;justify-content:center;gap:32px;}
-        .mob-menu.open{display:flex;}
-        .mob-link{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:var(--t1);text-decoration:none;letter-spacing:-.02em;transition:color .2s;}
-        .mob-link:hover{color:var(--cyan);}
-        .mob-btns{display:flex;flex-direction:column;gap:12px;width:260px;margin-top:16px;}
-        @media(max-width:768px){.ham{display:flex;}.nav-links{display:none;}.nav-btns{display:none;}.stat{padding:24px 12px;}}
-        html{scroll-behavior:smooth;}
-        body{background:var(--void);color:var(--t1);font-family:'DM Sans',sans-serif;overflow-x:hidden;cursor:none;}
-        html,body{max-width:100vw;overflow-x:hidden;}
-        @media(max-width:768px){body{cursor:auto;}#cur-dot,#cur-ring,#cur-aura{display:none;}.nav-links,.nav-btns{display:none;}.nav{padding:10px 16px;}.hero{padding:110px 22px 90px;}.hero-title{font-size:clamp(42px,14vw,80px);}.hero-actions{flex-direction:column;width:100%;}.btn-primary,.btn-secondary{width:100%;justify-content:center;}.dash-frame{display:none;}.stats-inner{grid-template-columns:1fr 1fr;}.stat{padding:28px 16px;}.stat-n{font-size:36px;}.about{flex-direction:column;gap:40px;padding:80px 22px;}.about-h{font-size:clamp(28px,8.5vw,44px);}.features{padding:80px 22px;}.bento{grid-template-columns:1fr;}.bc.bw{grid-column:span 1;}.ai-sec{flex-direction:column;padding:80px 22px;gap:40px;}.ai-chat{max-width:100%;}.pg{flex-direction:column;align-items:center;}.price-card{width:100%;max-width:360px;}.cta-strip{padding:110px 22px;}.sec-h{font-size:clamp(28px,7.5vw,42px);}@keyframes aA{to{transform:translate(0,0) scale(1);}}@keyframes aB{to{transform:translate(0,0) scale(1);}}@keyframes aC{to{transform:translate(0,0) scale(1);}}}
-        #cur-dot{position:fixed;z-index:10000;width:5px;height:5px;background:#fff;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);transition:width .15s ease,height .15s ease;box-shadow:0 0 0 1px rgba(255,255,255,.6),0 0 8px 3px rgba(6,182,212,.85),0 0 18px 6px rgba(6,182,212,.45),0 0 32px 12px rgba(139,92,246,.25);}
-        #cur-dot.dot-big{width:7px;height:7px;box-shadow:0 0 0 1.5px rgba(255,255,255,.8),0 0 12px 4px rgba(6,182,212,.95),0 0 28px 10px rgba(6,182,212,.55),0 0 50px 20px rgba(139,92,246,.35),0 0 80px 35px rgba(59,130,246,.2);}
-        #cur-ring{position:fixed;z-index:9999;width:30px;height:30px;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);border:1px solid rgba(6,182,212,.55);box-shadow:0 0 6px 1px rgba(6,182,212,.22),inset 0 0 6px 1px rgba(6,182,212,.08);transition:width .18s cubic-bezier(.16,1,.3,1),height .18s cubic-bezier(.16,1,.3,1),border-color .18s ease,box-shadow .18s ease;}
-        #cur-ring.ring-big{width:52px;height:52px;border-color:rgba(6,182,212,.8);box-shadow:0 0 14px 3px rgba(6,182,212,.4),0 0 28px 8px rgba(139,92,246,.2),inset 0 0 10px 2px rgba(6,182,212,.12);}
-        #cur-aura{position:fixed;z-index:9998;width:110px;height:110px;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);background:radial-gradient(circle at center,rgba(6,182,212,.10) 0%,rgba(59,130,246,.06) 35%,rgba(139,92,246,.03) 60%,transparent 72%);transition:width .45s cubic-bezier(.16,1,.3,1),height .45s cubic-bezier(.16,1,.3,1);}
-        #cur-aura.aura-big{width:180px;height:180px;background:radial-gradient(circle at center,rgba(6,182,212,.15) 0%,rgba(59,130,246,.09) 35%,rgba(139,92,246,.05) 60%,transparent 72%);}
-        .aurora-bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
-        .a1{position:absolute;width:min(1000px,180vw);height:min(1000px,180vw);background:radial-gradient(circle,rgba(59,130,246,.15) 0%,transparent 65%);top:-300px;left:-200px;animation:aA 22s ease-in-out infinite alternate;}
-        .a2{position:absolute;width:min(750px,150vw);height:min(750px,150vw);background:radial-gradient(circle,rgba(139,92,246,.13) 0%,transparent 65%);top:80px;right:-150px;animation:aB 28s ease-in-out infinite alternate;}
-        .a3{position:absolute;width:min(850px,160vw);height:min(850px,160vw);background:radial-gradient(circle,rgba(6,182,212,.10) 0%,transparent 65%);bottom:-100px;left:22%;animation:aC 20s ease-in-out infinite alternate;}
-        .a4{position:absolute;width:550px;height:550px;background:radial-gradient(circle,rgba(16,185,129,.08) 0%,transparent 65%);bottom:18%;right:8%;animation:aA 34s ease-in-out infinite alternate-reverse;}
-        .a5{position:absolute;width:480px;height:480px;background:radial-gradient(circle,rgba(236,72,153,.06) 0%,transparent 65%);top:42%;left:42%;animation:aB 26s ease-in-out infinite alternate;}
-        @keyframes aA{to{transform:translate(110px,85px) scale(1.16);}}
-        @keyframes aB{to{transform:translate(-85px,125px) scale(.88);}}
-        @keyframes aC{to{transform:translate(-125px,-85px) scale(1.12);}}
-        .noise{position:fixed;inset:0;z-index:1;opacity:.018;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
-        .grid{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.013;background-image:linear-gradient(rgba(255,255,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,1) 1px,transparent 1px);background-size:80px 80px;}
-        .nav{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:1000;width:calc(100% - 40px);max-width:1140px;display:flex;align-items:center;justify-content:space-between;padding:10px 22px;background:rgba(2,2,12,.76);backdrop-filter:blur(40px) saturate(200%);border:1px solid rgba(255,255,255,.075);border-radius:15px;}
-        .nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;letter-spacing:.04em;background:linear-gradient(135deg,#fff,var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:flex;align-items:center;gap:8px;text-decoration:none;}
-        .nav-pulse{width:6px;height:6px;background:var(--green);border-radius:50%;box-shadow:0 0 10px var(--green);flex-shrink:0;-webkit-text-fill-color:initial;animation:blink 2s ease-in-out infinite;}
-        @keyframes blink{0%,100%{box-shadow:0 0 8px var(--green);}50%{box-shadow:0 0 20px var(--green),0 0 40px rgba(16,185,129,.4);}}
-        .nav-links{gap:4px;list-style:none;}
-        .nav-link{color:var(--t3);text-decoration:none;font-size:13px;font-weight:400;padding:7px 14px;border-radius:10px;transition:all .22s ease;letter-spacing:.01em;cursor:none;}
-        .nav-link:hover{color:var(--t1);background:rgba(255,255,255,.06);}
-        .nav-btns{gap:8px;align-items:center;}
-        .btn-nav-ghost{padding:8px 16px;background:transparent;border:1px solid rgba(255,255,255,.10);border-radius:10px;color:var(--t2);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400;cursor:none;transition:all .22s ease;text-decoration:none;display:inline-flex;align-items:center;}
-        .btn-nav-ghost:hover{background:rgba(255,255,255,.06);color:var(--t1);border-color:rgba(255,255,255,.18);}
-        .btn-nav-primary{padding:8px 20px;background:linear-gradient(135deg,var(--blue),var(--purple));border:none;border-radius:10px;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:none;transition:all .25s ease;text-decoration:none;display:inline-flex;align-items:center;}
-        .btn-nav-primary:hover{transform:scale(1.05);box-shadow:0 8px 32px rgba(59,130,246,.45);}
-        .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:120px 24px 80px;text-align:center;position:relative;}
-        .hero-badge{display:inline-flex;align-items:center;gap:8px;padding:5px 16px 5px 10px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.22);border-radius:100px;font-size:11px;color:var(--green);font-weight:500;letter-spacing:.08em;text-transform:uppercase;margin-bottom:40px;}
-        .badge-dot{width:6px;height:6px;background:var(--green);border-radius:50%;box-shadow:0 0 8px var(--green);animation:blink 2s ease-in-out infinite;}
-        .hero-wordmark{margin-bottom:14px;position:relative;}
-        .hero-title{font-family:'Syne',sans-serif;font-size:clamp(48px,13vw,170px);font-weight:800;line-height:.88;letter-spacing:-.06em;background:linear-gradient(160deg,#ffffff 0%,rgba(255,255,255,.88) 28%,var(--cyan) 60%,var(--purple) 82%,var(--pink) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-size:200% 200%;animation:gradShift 6s ease infinite;filter:drop-shadow(0 0 60px rgba(6,182,212,.22)) drop-shadow(0 0 120px rgba(139,92,246,.12));}
-        @keyframes gradShift{0%,100%{background-position:0% 50%;}50%{background-position:100% 50%;}}
-        .hero-fullname{font-family:'DM Sans',sans-serif;font-size:clamp(11px,1.3vw,15px);font-weight:400;color:var(--t3);letter-spacing:.26em;text-transform:uppercase;margin-bottom:36px;}
-        .hero-tagline{display:inline-flex;align-items:center;gap:14px;font-family:'Syne',sans-serif;font-size:clamp(14px,1.7vw,19px);font-weight:600;letter-spacing:.01em;background:linear-gradient(90deg,var(--cyan),var(--purple),var(--blue),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-size:300% auto;animation:gradShift 4s linear infinite;margin-bottom:52px;}
-        .tl{display:inline-block;width:36px;height:1px;border-radius:1px;background:linear-gradient(90deg,transparent,var(--cyan));vertical-align:middle;opacity:.7;}
-        .tr{background:linear-gradient(90deg,var(--purple),transparent);}
-        .hero-actions{display:flex;gap:12px;align-items:center;margin-bottom:88px;}
-        .btn-primary{padding:14px 30px;background:linear-gradient(135deg,var(--blue) 0%,var(--purple) 100%);border:none;border-radius:12px;color:#fff;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:none;position:relative;overflow:hidden;transition:all .25s ease;text-decoration:none;display:inline-flex;align-items:center;}
-        .btn-primary:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 20px 60px rgba(59,130,246,.45),0 0 100px rgba(139,92,246,.18);}
-        .btn-secondary{padding:14px 28px;background:transparent;border:1px solid rgba(255,255,255,.11);border-radius:12px;color:var(--t2);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:400;cursor:none;transition:all .25s ease;text-decoration:none;display:inline-flex;align-items:center;}
-        .btn-secondary:hover{background:rgba(255,255,255,.055);border-color:rgba(255,255,255,.2);color:var(--t1);transform:translateY(-2px);}
-        .dash-frame{width:100%;max-width:980px;position:relative;}
-        .dash-frame::before{content:'';position:absolute;inset:-1px;background:linear-gradient(135deg,rgba(59,130,246,.25),rgba(139,92,246,.22),rgba(6,182,212,.25));border-radius:24px;z-index:-1;filter:blur(.5px);}
-        .dash-frame::after{content:'';position:absolute;inset:-80px;z-index:-2;background:radial-gradient(ellipse at 50% 40%,rgba(59,130,246,.09) 0%,rgba(139,92,246,.04) 40%,transparent 65%);}
-        .dashboard{background:rgba(4,4,16,.95);backdrop-filter:blur(48px);border:1px solid rgba(255,255,255,.055);border-radius:22px;overflow:hidden;padding:22px;}
-        .dash-bar{display:flex;align-items:center;gap:6px;margin-bottom:18px;}
-        .dd{width:10px;height:10px;border-radius:50%;}.dr{background:#FF5F57;}.dy{background:#FFBD2E;}.dg{background:#28C840;}
-        .dt{margin-left:14px;font-size:10px;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;}
-        .dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;}
-        .dc{background:rgba(255,255,255,.022);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:12px;}
-        .dcl{font-size:9px;color:var(--t3);margin-bottom:5px;letter-spacing:.05em;text-transform:uppercase;}
-        .dcv{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--t1);letter-spacing:-.02em;}
-        .dcd{font-size:9px;color:var(--green);font-weight:500;margin-top:3px;}
-        .dash-bottom{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-        .dca{background:rgba(255,255,255,.016);border:1px solid rgba(255,255,255,.04);border-radius:10px;padding:14px;height:110px;overflow:hidden;}
-        .dcal{font-size:9px;color:var(--t3);margin-bottom:7px;text-transform:uppercase;letter-spacing:.06em;}
-        .bars{display:flex;align-items:flex-end;gap:2px;height:70px;}
-        .bar{flex:1;background:linear-gradient(to top,var(--blue),var(--cyan));border-radius:2px 2px 0 0;opacity:.65;}
-        .dlf{background:rgba(255,255,255,.016);border:1px solid rgba(255,255,255,.04);border-radius:10px;padding:12px;overflow:hidden;}
-        .dlh{font-size:9px;color:var(--t3);margin-bottom:8px;display:flex;align-items:center;gap:5px;text-transform:uppercase;letter-spacing:.06em;}
-        .dld{width:5px;height:5px;background:var(--green);border-radius:50%;box-shadow:0 0 5px var(--green);animation:blink 1.5s ease-in-out infinite;}
-        .dfi{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03);}
-        .dfl{font-size:10px;color:var(--t2);}.dfs{font-size:9px;color:var(--t3);margin-top:1px;}
-        .dfa{font-size:11px;font-weight:600;color:var(--green);font-family:'Syne',sans-serif;}
-        .stats{padding:40px 16px;}
-        .stats-inner{max-width:100%;margin:0 auto;display:grid;grid-template-columns:1fr;gap:12px;border-radius:24px;overflow:hidden;}
-        @media(min-width:769px){.stats-inner{grid-template-columns:repeat(3,1fr);gap:14px;}}
-        .stat{background:linear-gradient(160deg,rgba(20,22,40,0.97) 0%,rgba(8,8,20,0.99) 100%);border:1px solid rgba(255,255,255,.09);border-top:1px solid rgba(255,255,255,.18);border-bottom:1px solid rgba(0,0,0,.6);box-shadow:0 2px 0 rgba(255,255,255,.06) inset,0 -1px 0 rgba(0,0,0,.5) inset,0 20px 60px rgba(0,0,0,.5),0 4px 16px rgba(0,0,0,.4);padding:44px 32px;text-align:center;transition:all .35s cubic-bezier(.16,1,.3,1);border-radius:18px;position:relative;overflow:hidden;}
-        .stat::before{content:'';position:absolute;inset:0;border-radius:18px;background:linear-gradient(160deg,rgba(255,255,255,.04) 0%,transparent 50%);pointer-events:none;}
-        .stat:hover{transform:translateY(-4px) scale(1.015);}
-        .stat-n{font-family:'Syne',sans-serif;font-size:clamp(28px,8vw,50px);font-weight:800;letter-spacing:-.05em;background:linear-gradient(160deg,#ffffff 0%,rgba(255,255,255,.75) 60%,rgba(180,200,255,.6) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:block;margin-bottom:8px;overflow:hidden;filter:drop-shadow(0 2px 8px rgba(59,130,246,.3)) drop-shadow(0 0 20px rgba(139,92,246,.15));}
-        .stat-l{font-size:11px;color:var(--t3);font-weight:300;letter-spacing:.07em;text-transform:uppercase;}
-        .about{padding:60px 16px;max-width:100vw;margin:0 auto;display:grid;grid-template-columns:1fr;gap:40px;align-items:center;overflow:hidden;width:100%;box-sizing:border-box;}
-        @media(min-width:769px){.about{padding:100px 24px;grid-template-columns:1fr 1fr;gap:80px;}}
-        .about-tag{font-size:11px;color:var(--blue);font-weight:500;letter-spacing:.15em;text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
-        .about-tag::before{content:'';display:block;width:24px;height:1px;background:var(--blue);}
-        .about-h{font-family:'Syne',sans-serif;font-size:clamp(28px,3.5vw,48px);font-weight:700;letter-spacing:-.04em;line-height:1.05;margin-bottom:24px;}
-        .about-h span{background:linear-gradient(135deg,var(--cyan),var(--blue),var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 20px rgba(6,182,212,.35));background-size:200% auto;animation:gradShift 4s ease infinite;}
-        .about-p{font-size:15px;color:var(--t2);line-height:1.88;font-weight:300;}
-        .about-p strong{color:var(--t1);font-weight:500;}
-        .pill{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.065);border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:14px;transition:all .3s cubic-bezier(.16,1,.3,1);margin-bottom:10px;cursor:none;}
-        .pill:hover{background:rgba(59,130,246,.055)!important;border-color:rgba(59,130,246,.18)!important;transform:translateX(7px);}
-        .pill-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
-        .pill-text{font-size:12.5px;color:var(--t2);font-weight:300;line-height:1.5;}
-        .pill-text strong{color:var(--t1);font-weight:500;display:block;margin-bottom:2px;font-size:13px;}
-        .ib{background:rgba(59,130,246,.13);border:1px solid rgba(59,130,246,.2);}
-        .ic{background:rgba(6,182,212,.13);border:1px solid rgba(6,182,212,.2);}
-        .ip{background:rgba(139,92,246,.13);border:1px solid rgba(139,92,246,.2);}
-        .ig{background:rgba(16,185,129,.13);border:1px solid rgba(16,185,129,.2);}
-        .ia{background:rgba(245,158,11,.13);border:1px solid rgba(245,158,11,.2);}
-        .features{padding:80px 24px;max-width:1140px;margin:0 auto;}
-        .sec-tag{font-size:11px;color:var(--blue);font-weight:500;letter-spacing:.15em;text-transform:uppercase;margin-bottom:18px;}
-        .sec-h{font-family:'Syne',sans-serif;font-size:clamp(32px,4.2vw,52px);font-weight:700;letter-spacing:-.035em;line-height:1.05;margin-bottom:52px;max-width:560px;background:linear-gradient(135deg,#ffffff 0%,rgba(255,255,255,.9) 40%,var(--cyan) 70%,var(--purple) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 30px rgba(6,182,212,.2));}
-        .bento{display:grid;grid-template-columns:1fr;gap:10px;}
-        @media(min-width:769px){.bento{grid-template-columns:repeat(3,1fr);}}
-        .bw{grid-column:span 2;}
-        .bc{background:var(--gb);border:1px solid var(--gbr);border-radius:18px;padding:26px;position:relative;overflow:hidden;transition:all .4s cubic-bezier(.16,1,.3,1);cursor:none;}
-        .bc:hover{transform:translateY(-5px) scale(1.008);border-color:rgba(255,255,255,.11);}
-        .bi{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:17px;}
-        .bt{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;letter-spacing:-.02em;margin-bottom:9px;}
-        .bd{font-size:13px;color:var(--t2);line-height:1.65;font-weight:300;}
-        .bg{position:absolute;width:180px;height:180px;border-radius:50%;filter:blur(70px);opacity:.1;bottom:-45px;right:-45px;pointer-events:none;}
-        .ai-sec{padding:60px 20px;max-width:1140px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:40px;align-items:center;}
-        @media(min-width:769px){.ai-sec{padding:80px 24px;grid-template-columns:1fr 1fr;gap:70px;}}
-        .ai-list{list-style:none;margin-top:28px;display:flex;flex-direction:column;gap:12px;}
-        .ai-list li{display:flex;align-items:center;gap:11px;font-size:14px;color:var(--t2);font-weight:300;}
-        .ai-ck{width:21px;height:21px;border-radius:7px;background:rgba(16,185,129,.10);border:1px solid rgba(16,185,129,.22);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--green);flex-shrink:0;}
-        .ai-chat{background:rgba(4,4,16,.92);border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:22px;backdrop-filter:blur(24px);position:relative;}
-        .ai-chat::before{content:'';position:absolute;inset:-1px;background:linear-gradient(135deg,rgba(139,92,246,.18),transparent 50%,rgba(59,130,246,.18));border-radius:19px;z-index:-1;}
-        .ai-hdr{display:flex;align-items:center;gap:9px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.055);}
-        .ai-av{width:30px;height:30px;background:linear-gradient(135deg,var(--purple),var(--blue));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:'Syne',sans-serif;color:#fff;}
-        .ai-nm{font-size:12px;font-weight:500;color:var(--t1);}
-        .ai-st{font-size:10px;color:var(--green);margin-top:1px;}
-        .cm{margin-bottom:11px;}.cu{display:flex;justify-content:flex-end;}
-        .cb{max-width:82%;padding:9px 13px;border-radius:13px;font-size:12px;line-height:1.55;}
-        .cbu{background:rgba(59,130,246,.17);border:1px solid rgba(59,130,246,.22);border-radius:13px 13px 4px 13px;color:var(--t1);}
-        .cba{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);border-radius:13px 13px 13px 4px;color:var(--t2);}
-        .hl{color:var(--cyan);font-weight:500;}
-        .pricing{padding:80px 24px;max-width:1140px;margin:0 auto;text-align:center;}
-        .pg{display:grid;grid-template-columns:1fr;gap:13px;margin-top:56px;text-align:left;}
-        @media(min-width:769px){.pg{grid-template-columns:repeat(2,1fr);max-width:760px;margin-left:auto;margin-right:auto;}}
-        .price-card{background:var(--gb);border:1px solid var(--gbr);border-radius:18px;padding:30px;position:relative;overflow:hidden;transition:all .35s ease;cursor:none;width:100%;box-sizing:border-box;}
-        .price-card:hover{transform:translateY(-7px);box-shadow:0 36px 90px rgba(0,0,0,.55);}
-        .price-card.feat{background:linear-gradient(135deg,rgba(59,130,246,.065),rgba(139,92,246,.065));border-color:rgba(59,130,246,.3);}
-        .price-card.feat::before{content:'MOST POPULAR';position:absolute;top:18px;right:18px;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--blue);background:rgba(59,130,246,.12);padding:3px 9px;border-radius:100px;border:1px solid rgba(59,130,246,.22);}
-        .pt{font-size:10px;font-weight:500;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:22px;}
-        .pp{font-family:'Syne',sans-serif;font-size:clamp(28px,8vw,50px);font-weight:800;letter-spacing:-.05em;margin-bottom:4px;}
-        .pper{font-size:12px;color:var(--t3);margin-bottom:28px;font-weight:300;}
-        .pf{list-style:none;margin-bottom:28px;}
-        .pf li{font-size:12.5px;color:var(--t2);padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:9px;font-weight:300;}
-        .ck{color:var(--green);font-size:13px;flex-shrink:0;}
-        .pb{width:100%;padding:13px;border-radius:11px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:none;transition:all .25s ease;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04);color:var(--t2);}
-        .pb:hover{background:rgba(255,255,255,.09);color:var(--t1);}
-        .feat .pb{background:linear-gradient(135deg,var(--blue),var(--purple));border-color:transparent;color:#fff;}
-        .feat .pb:hover{box-shadow:0 0 45px rgba(59,130,246,.42);transform:scale(1.02);}
-        .cta-strip{padding:100px 24px;text-align:center;position:relative;}
-        .cta-strip::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(59,130,246,.07) 0%,transparent 65%);pointer-events:none;}
-        footer{padding:56px 24px;border-top:1px solid rgba(255,255,255,.045);position:relative;z-index:2;}
-        @media(max-width:768px){footer{padding:40px 16px;}}
-        .fl{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;background:linear-gradient(135deg,#fff,var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;}
-        .ft{font-size:12px;color:var(--t3);font-weight:300;letter-spacing:.02em;margin-bottom:28px;}
-        .reveal{opacity:0;transform:translateY(32px);transition:opacity .75s cubic-bezier(.16,1,.3,1),transform .75s cubic-bezier(.16,1,.3,1);}
-        .reveal.revealed{opacity:1;transform:translateY(0);}
-        .glow-breathe{animation:breathe 4s ease-in-out infinite;}
-        @keyframes breathe{0%,100%{filter:drop-shadow(0 0 30px rgba(6,182,212,.25)) drop-shadow(0 0 80px rgba(139,92,246,.12));}50%{filter:drop-shadow(0 0 60px rgba(6,182,212,.45)) drop-shadow(0 0 140px rgba(139,92,246,.25));}}
-        .btn-primary::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:conic-gradient(transparent,rgba(255,255,255,.08),transparent 30%);animation:spin 4s linear infinite;opacity:0;transition:opacity .3s;}
-        .btn-primary:hover::before{opacity:1;}
-        @keyframes spin{to{transform:rotate(360deg);}}
-        .btn-primary:active,.btn-secondary:active{transform:scale(.97)!important;}
-        @keyframes beam{0%{opacity:0;transform:translateX(-100%) rotate(-45deg);}50%{opacity:.06;}100%{opacity:0;transform:translateX(100%) rotate(-45deg);}}
-        .hero::after{content:'';position:absolute;top:0;left:0;right:0;height:100%;background:linear-gradient(135deg,transparent 30%,rgba(6,182,212,.04) 50%,transparent 70%);animation:beam 8s ease-in-out infinite;pointer-events:none;}
-        ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px;}
-      `}</style>
+      @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+      *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+      :root{
+        --v:#02020c; --b:#3B82F6; --c:#06B6D4; --p:#8B5CF6; --g:#10B981;
+        --a:#F59E0B; --pk:#EC4899; --r:#EF4444; --in:#6366F1;
+        --t1:#F1F5F9; --t2:#94A3B8; --t3:#475569; --t4:#334155;
+        --s1:rgba(255,255,255,.025); --s2:rgba(255,255,255,.008);
+        --br:rgba(255,255,255,.075); --br2:rgba(255,255,255,.04);
+      }
+      html{scroll-behavior:smooth;} body{background:var(--v);color:var(--t1);font-family:'DM Sans',sans-serif;overflow-x:hidden;cursor:none;}
+      html,body{max-width:100vw;overflow-x:hidden;}
+      @media(max-width:768px){body{cursor:auto;}#cd,#cr,#ca{display:none;}}
 
-      <div id="cur-dot" ref={dotRef} />
-      <div id="cur-ring" ref={ringRef} />
-      <div id="cur-aura" ref={auraRef} />
+      /* ── CURSOR ── */
+      #cd{position:fixed;z-index:9999;width:5px;height:5px;background:#fff;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);box-shadow:0 0 0 1px rgba(255,255,255,.55),0 0 10px 3px rgba(6,182,212,.9),0 0 22px 7px rgba(6,182,212,.5),0 0 40px 15px rgba(139,92,246,.3);}
+      #cd.dot-big{width:8px;height:8px;box-shadow:0 0 0 1.5px rgba(255,255,255,.9),0 0 16px 5px rgba(6,182,212,1),0 0 34px 13px rgba(6,182,212,.6),0 0 65px 26px rgba(139,92,246,.4);}
+      #cr{position:fixed;z-index:9998;width:33px;height:33px;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);border:1px solid rgba(6,182,212,.55);transition:width .18s cubic-bezier(.16,1,.3,1),height .18s cubic-bezier(.16,1,.3,1);}
+      #cr.ring-big{width:58px;height:58px;border-color:rgba(6,182,212,.9);}
+      #ca{position:fixed;z-index:9997;width:130px;height:130px;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(6,182,212,.09) 0%,rgba(139,92,246,.04) 50%,transparent 70%);transition:width .48s,height .48s;}
+      #ca.aura-big{width:210px;height:210px;}
+
+      /* ── AURORA ── */
+      .aurora{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
+      .aurora div{position:absolute;border-radius:50%;animation-timing-function:ease-in-out;animation-iteration-count:infinite;animation-direction:alternate;}
+      .au1{width:min(1100px,190vw);height:min(1100px,190vw);background:radial-gradient(circle,rgba(59,130,246,.16) 0%,transparent 65%);top:-360px;left:-230px;animation:aA 24s;}
+      .au2{width:min(820px,165vw);height:min(820px,165vw);background:radial-gradient(circle,rgba(139,92,246,.14) 0%,transparent 65%);top:50px;right:-190px;animation:aB 30s;}
+      .au3{width:min(950px,175vw);height:min(950px,175vw);background:radial-gradient(circle,rgba(6,182,212,.11) 0%,transparent 65%);bottom:-130px;left:24%;animation:aC 22s;}
+      .au4{width:640px;height:640px;background:radial-gradient(circle,rgba(236,72,153,.07) 0%,transparent 65%);bottom:22%;right:4%;animation:aA 36s;}
+      .au5{width:520px;height:520px;background:radial-gradient(circle,rgba(245,158,11,.055) 0%,transparent 65%);top:44%;left:44%;animation:aB 28s;}
+      @keyframes aA{to{transform:translate(130px,95px) scale(1.2);}}
+      @keyframes aB{to{transform:translate(-95px,140px) scale(.84);}}
+      @keyframes aC{to{transform:translate(-140px,-95px) scale(1.16);}}
+      @keyframes gradS{0%,100%{background-position:0% 50%;}50%{background-position:100% 50%;}}
+      @keyframes blink{0%,100%{opacity:1;}50%{opacity:.4;}}
+      @keyframes breathe{0%,100%{filter:drop-shadow(0 0 45px rgba(6,182,212,.3)) drop-shadow(0 0 110px rgba(139,92,246,.17));}50%{filter:drop-shadow(0 0 75px rgba(6,182,212,.55)) drop-shadow(0 0 180px rgba(139,92,246,.3));}}
+      @keyframes spin{to{transform:rotate(360deg);}}
+      @keyframes pulse-ring{0%{transform:translate(-50%,-50%) scale(1);opacity:.6;}100%{transform:translate(-50%,-50%) scale(1.8);opacity:0;}}
+      @keyframes beam{0%{opacity:0;transform:translateX(-100%) rotate(-45deg);}50%{opacity:.6;}100%{opacity:0;transform:translateX(100%) rotate(-45deg);}}
+      @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+      .noise{position:fixed;inset:0;z-index:1;opacity:.015;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+      .grid-bg{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.011;background-image:linear-gradient(rgba(255,255,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,1) 1px,transparent 1px);background-size:80px 80px;}
+
+      /* ── NAV ── */
+      .nav{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:1000;width:calc(100% - 36px);max-width:1200px;display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:rgba(2,2,12,.82);backdrop-filter:blur(52px) saturate(200%);border:1px solid rgba(255,255,255,.082);border-radius:16px;}
+      .nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;letter-spacing:.04em;background:linear-gradient(135deg,#fff,var(--c),var(--p));background-size:200% auto;animation:gradS 5s ease infinite;-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:flex;align-items:center;gap:9px;text-decoration:none;position:relative;}
+      .nav-logo::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(6,182,212,.6),transparent);}
+      .np{width:7px;height:7px;background:var(--g);border-radius:50%;-webkit-text-fill-color:initial;box-shadow:0 0 12px var(--g);animation:blink 2s ease-in-out infinite;position:relative;}
+      .np::after{content:'';position:absolute;inset:-3px;border-radius:50%;border:1px solid rgba(16,185,129,.3);animation:pulse-ring 2s ease-out infinite;}
+      .nav-links{display:flex;gap:2px;list-style:none;}
+      .nav-link{color:var(--t3);text-decoration:none;font-size:13px;font-weight:400;padding:7px 13px;border-radius:10px;transition:all .22s;cursor:none;position:relative;}
+      .nav-link::after{content:'';position:absolute;bottom:4px;left:50%;right:50%;height:1px;background:linear-gradient(90deg,transparent,var(--c),transparent);transition:all .3s;}
+      .nav-link:hover{color:var(--t1);background:rgba(255,255,255,.055);}
+      .nav-link:hover::after{left:14px;right:14px;}
+      .nav-right{display:flex;gap:8px;align-items:center;}
+      .btn-ghost{padding:8px 16px;background:transparent;border:1px solid rgba(255,255,255,.09);border-radius:10px;color:var(--t2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:none;transition:all .22s;text-decoration:none;display:inline-flex;align-items:center;}
+      .btn-ghost:hover{background:rgba(255,255,255,.055);color:var(--t1);}
+      .btn-cta{padding:9px 20px;background:linear-gradient(135deg,var(--b),var(--p));border:none;border-radius:10px;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:none;transition:all .25s;text-decoration:none;display:inline-flex;align-items:center;position:relative;overflow:hidden;box-shadow:0 0 24px rgba(59,130,246,.3);}
+      .btn-cta::before{content:'';position:absolute;inset:0;background:conic-gradient(transparent,rgba(255,255,255,.1),transparent 30%);animation:spin 5s linear infinite;opacity:0;transition:opacity .3s;}
+      .btn-cta:hover{transform:scale(1.04);box-shadow:0 0 40px rgba(59,130,246,.6);} .btn-cta:hover::before{opacity:1;}
+      .ham{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px;background:none;border:none;}
+      .ham span{display:block;width:22px;height:2px;background:var(--t1);border-radius:2px;transition:all .3s;}
+      .ham.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+      .ham.open span:nth-child(2){opacity:0;}
+      .ham.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+      .mob{display:none;position:fixed;inset:0;z-index:990;background:rgba(2,2,12,.97);backdrop-filter:blur(48px);flex-direction:column;align-items:center;justify-content:center;gap:28px;}
+      .mob.open{display:flex;}
+      .mob-lnk{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--t1);text-decoration:none;transition:color .2s;} .mob-lnk:hover{color:var(--c);}
+      @media(max-width:768px){.nav-links,.nav-right{display:none;}.ham{display:flex;}}
+
+      /* ── HERO ── */
+      .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:130px 24px 90px;text-align:center;position:relative;}
+      .hero::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 30%,rgba(6,182,212,.032) 50%,transparent 70%);animation:beam 10s ease-in-out infinite;pointer-events:none;}
+      .badge{display:inline-flex;align-items:center;gap:8px;padding:5px 18px 5px 10px;background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.22);border-radius:100px;font-size:11px;color:var(--g);font-weight:500;letter-spacing:.08em;text-transform:uppercase;margin-bottom:38px;}
+      .bdot{width:6px;height:6px;background:var(--g);border-radius:50%;box-shadow:0 0 10px var(--g);animation:blink 2s ease-in-out infinite;}
+      .hero-title{font-family:'Syne',sans-serif;font-size:clamp(54px,14.5vw,185px);font-weight:800;line-height:.84;letter-spacing:-.07em;background:linear-gradient(160deg,#ffffff 0%,rgba(255,255,255,.9) 22%,var(--c) 52%,var(--p) 76%,var(--pk) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-size:200% 200%;animation:gradS 6s ease infinite;filter:drop-shadow(0 0 80px rgba(6,182,212,.28)) drop-shadow(0 0 160px rgba(139,92,246,.18));margin-bottom:18px;}
+      .glow-breathe{animation:breathe 4.5s ease-in-out infinite;}
+      .fullname{font-size:clamp(10px,1.2vw,14px);color:var(--t3);letter-spacing:.3em;text-transform:uppercase;margin-bottom:34px;font-family:'JetBrains Mono',monospace;}
+      .tagline{font-family:'Syne',sans-serif;font-size:clamp(14px,1.9vw,21px);font-weight:600;background:linear-gradient(90deg,var(--c),var(--p),var(--pk),var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-size:300% auto;animation:gradS 4s linear infinite;margin-bottom:28px;display:flex;align-items:center;gap:16px;}
+      .tl{display:inline-block;width:34px;height:1px;background:linear-gradient(90deg,transparent,var(--c));opacity:.7;}
+      .hero-sub{font-size:clamp(14px,1.5vw,18px);color:var(--t2);max-width:540px;line-height:1.78;font-weight:300;margin-bottom:48px;}
+      .hero-sub strong{color:var(--t1);font-weight:500;}
+      .hero-acts{display:flex;gap:12px;align-items:center;margin-bottom:56px;flex-wrap:wrap;justify-content:center;}
+      .btn-hero{padding:17px 38px;background:linear-gradient(135deg,var(--b),var(--p));border:none;border-radius:14px;color:#fff;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:500;cursor:none;transition:all .25s;text-decoration:none;display:inline-flex;align-items:center;position:relative;overflow:hidden;box-shadow:0 0 36px rgba(59,130,246,.4);}
+      .btn-hero::before{content:'';position:absolute;inset:0;background:conic-gradient(transparent,rgba(255,255,255,.12),transparent 30%);animation:spin 5s linear infinite;opacity:0;transition:opacity .3s;}
+      .btn-hero:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 28px 80px rgba(59,130,246,.55);} .btn-hero:hover::before{opacity:1;}
+      .btn-sec{padding:17px 32px;background:transparent;border:1px solid rgba(255,255,255,.11);border-radius:14px;color:var(--t2);font-family:'DM Sans',sans-serif;font-size:16px;cursor:none;transition:all .25s;text-decoration:none;display:inline-flex;align-items:center;}
+      .btn-sec:hover{background:rgba(255,255,255,.055);border-color:rgba(255,255,255,.2);color:var(--t1);transform:translateY(-3px);}
+
+      /* ── MASCOT BUBBLES ── */
+      .mascot-row{display:flex;align-items:center;justify-content:center;gap:28px;margin-bottom:64px;flex-wrap:wrap;}
+      .bubble{background:rgba(255,255,255,.028);border:1px solid rgba(255,255,255,.075);border-radius:18px;padding:18px 22px;max-width:270px;font-size:13px;color:var(--t2);line-height:1.65;position:relative;}
+      .bubble::after{content:'';position:absolute;top:50%;width:0;height:0;border-style:solid;}
+      .bubble-l::after{right:-11px;transform:translateY(-50%);border-width:9px 0 9px 11px;border-color:transparent transparent transparent rgba(255,255,255,.075);}
+      .bubble-r::after{left:-11px;transform:translateY(-50%);border-width:9px 11px 9px 0;border-color:transparent rgba(255,255,255,.075) transparent transparent;}
+      .bubble-tag{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;color:var(--p);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
+
+      /* ── DASHBOARD MOCKUP ── */
+      .dash-frame{width:100%;max-width:1020px;position:relative;margin:0 auto;}
+      .dash-frame::before{content:'';position:absolute;inset:-1.5px;background:linear-gradient(135deg,rgba(59,130,246,.32),rgba(139,92,246,.28),rgba(6,182,212,.32),rgba(236,72,153,.22));border-radius:28px;z-index:-1;filter:blur(.5px);}
+      .dash-inner{background:rgba(4,4,18,.96);border:1px solid rgba(255,255,255,.055);border-radius:26px;overflow:hidden;padding:26px;}
+      .dash-bar{display:flex;align-items:center;gap:7px;margin-bottom:22px;}
+      .dd{width:11px;height:11px;border-radius:50%;}
+      .dr{background:#FF5F57;} .dy{background:#FFBD2E;} .dg{background:#28C840;}
+      .dt{margin-left:14px;font-size:10px;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;}
+      .dash-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px;}
+      .kpi{background:rgba(255,255,255,.022);border:1px solid rgba(255,255,255,.052);border-radius:13px;padding:15px;position:relative;overflow:hidden;}
+      .kpi-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px;}
+      .kpi-v{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--t1);letter-spacing:-.02em;}
+      .kpi-d{font-size:9.5px;font-weight:500;margin-top:5px;}
+      .dash-bottom{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;}
+      .chart-card{background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.04);border-radius:13px;padding:16px;height:126px;overflow:hidden;}
+      .chart-label{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;}
+      .bars{display:flex;align-items:flex-end;gap:3px;height:80px;}
+      .bar{flex:1;border-radius:3px 3px 0 0;opacity:.8;}
+      .ai-card{background:linear-gradient(135deg,rgba(139,92,246,.07),rgba(59,130,246,.05));border:1px solid rgba(139,92,246,.2);border-radius:13px;padding:15px;}
+      .ai-card-h{font-size:9px;color:var(--p);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;display:flex;align-items:center;gap:5px;}
+      .ai-live{width:5px;height:5px;background:var(--g);border-radius:50%;box-shadow:0 0 6px var(--g);animation:blink 1.5s infinite;}
+      .ai-line{font-size:11px;color:var(--t2);margin-bottom:4px;line-height:1.5;} .ai-line span{color:var(--c);font-weight:500;}
+      .score-card{background:linear-gradient(135deg,rgba(16,185,129,.07),rgba(6,182,212,.05));border:1px solid rgba(16,185,129,.2);border-radius:13px;padding:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+      .score-n{font-family:'Syne',sans-serif;font-size:34px;font-weight:800;color:var(--g);}
+      .score-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-top:5px;}
+
+      /* ── SECTIONS ── */
+      .sec{padding:80px 24px;max-width:1200px;margin:0 auto;}
+      .sec-sm{padding:64px 24px;max-width:900px;margin:0 auto;}
+      .sec-tag{font-size:10.5px;color:var(--b);font-weight:600;letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+      .sec-tag::before{content:'';display:inline-block;width:20px;height:1px;background:var(--b);opacity:.7;}
+      .sec-h{font-family:'Syne',sans-serif;font-size:clamp(30px,4vw,52px);font-weight:700;letter-spacing:-.035em;line-height:1.05;background:linear-gradient(135deg,#fff 0%,rgba(255,255,255,.88) 35%,var(--c) 68%,var(--p) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+      .sec-sub{font-size:15px;color:var(--t2);line-height:1.78;font-weight:300;margin-top:14px;max-width:520px;}
+
+      /* ── PITCH ── */
+      .pitch-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:44px;}
+      .pitch-col{padding:30px;border-radius:20px;}
+      .pitch-col.prob{background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.11);}
+      .pitch-col.sol{background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.11);}
+      .pitch-h{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+      .pitch-col.prob .pitch-h{color:var(--r);}
+      .pitch-col.sol  .pitch-h{color:var(--g);}
+      .pitch-item{display:flex;gap:12px;margin-bottom:16px;}
+      .pitch-icon{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-top:2px;}
+      .pitch-text{font-size:13px;color:var(--t2);line-height:1.65;}
+      .pitch-text strong{color:var(--t1);font-weight:500;display:block;margin-bottom:2px;font-size:13.5px;}
+
+      /* ── PRODUCT TABS ── */
+      .prod-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:24px;}
+      .prod-tab{display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:11px;border:1px solid rgba(255,255,255,.06);background:transparent;color:var(--t3);font-family:'DM Sans',sans-serif;font-size:12.5px;cursor:none;transition:all .22s;}
+      .prod-tab:hover{border-color:rgba(255,255,255,.13);color:var(--t1);}
+      .prod-tab.on{color:#fff;}
+      .soon-b{font-size:8.5px;padding:1.5px 6px;border-radius:4px;background:rgba(245,158,11,.13);color:var(--a);border:1px solid rgba(245,158,11,.24);font-weight:700;letter-spacing:.06em;}
+      .prod-preview{background:var(--s1);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:44px;min-height:240px;display:flex;align-items:center;gap:50px;}
+      .prod-icon{font-size:68px;flex-shrink:0;filter:drop-shadow(0 0 24px currentColor);}
+      .prod-title{font-family:'Syne',sans-serif;font-size:30px;font-weight:700;letter-spacing:-.03em;margin-bottom:12px;}
+      .prod-desc{font-size:15px;color:var(--t2);line-height:1.78;max-width:430px;}
+      .prod-coming{display:inline-flex;align-items:center;gap:6px;margin-top:18px;font-size:12px;color:var(--a);padding:6px 14px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:8px;}
+
+      /* ── ROADMAP ── */
+      .rm-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:44px;}
+      .rm-card{background:var(--s1);border:1px solid var(--br2);border-radius:18px;padding:26px;position:relative;overflow:hidden;transition:all .3s;}
+      .rm-card:hover{transform:translateY(-5px);}
+      .rm-card.done{border-top:2px solid var(--g);}
+      .rm-card.next{border-top:2px solid var(--b);opacity:.85;}
+      .rm-ph{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--t4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;}
+      .rm-q{font-size:10px;color:var(--t3);margin-bottom:14px;}
+      .rm-label{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:16px;}
+      .rm-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);margin-bottom:8px;}
+      .rm-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+      .rm-card.done .rm-dot{background:var(--g);box-shadow:0 0 6px var(--g);}
+      .rm-card.next .rm-dot{background:var(--b);}
+      .rm-done-b{position:absolute;top:18px;right:18px;font-size:8.5px;padding:2px 8px;border-radius:4px;background:rgba(16,185,129,.14);color:var(--g);border:1px solid rgba(16,185,129,.24);font-weight:700;letter-spacing:.06em;}
+
+      /* ── AI SECTION ── */
+      .ai-sec{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;}
+      .ai-window{background:rgba(4,4,18,.93);border:1px solid rgba(255,255,255,.07);border-radius:22px;padding:26px;position:relative;}
+      .ai-window::before{content:'';position:absolute;inset:-1px;background:linear-gradient(135deg,rgba(139,92,246,.22),transparent 50%,rgba(59,130,246,.22));border-radius:23px;z-index:-1;}
+      .ai-hdr{display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.055);}
+      .ai-av{width:36px;height:36px;background:linear-gradient(135deg,var(--p),var(--b));border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;font-family:'Syne',sans-serif;color:#fff;}
+      .ai-n{font-size:13px;font-weight:500;color:var(--t1);}
+      .ai-st{font-size:10px;color:var(--g);display:flex;align-items:center;gap:4px;}
+      .ai-stdt{width:5px;height:5px;background:var(--g);border-radius:50%;box-shadow:0 0 6px var(--g);animation:blink 1.5s infinite;}
+      .msg{margin-bottom:13px;}
+      .msg-u{display:flex;justify-content:flex-end;}
+      .bbl{max-width:86%;padding:11px 15px;border-radius:15px;font-size:13px;line-height:1.62;}
+      .bbl-u{background:rgba(59,130,246,.17);border:1px solid rgba(59,130,246,.26);border-radius:15px 15px 4px 15px;color:var(--t1);}
+      .bbl-a{background:rgba(255,255,255,.034);border:1px solid rgba(255,255,255,.065);border-radius:15px 15px 15px 4px;color:var(--t2);}
+      .bbl-a .hl{color:var(--c);font-weight:500;} .bbl-a .pos{color:var(--g);font-weight:500;} .bbl-a .neg{color:var(--r);font-weight:500;}
+      .ai-checks{list-style:none;margin-top:26px;display:flex;flex-direction:column;gap:11px;}
+      .ai-checks li{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--t2);font-weight:300;}
+      .ai-ck{width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;}
+
+      /* ── TESTIMONIALS ── */
+      .test-card{background:var(--s1);border:1px solid var(--br2);border-radius:22px;padding:44px;min-height:200px;display:flex;flex-direction:column;align-items:center;text-align:center;}
+      .test-q{font-size:18px;font-family:'Syne',sans-serif;font-weight:500;line-height:1.62;color:var(--t1);margin-bottom:26px;letter-spacing:-.01em;}
+      .test-auth{display:flex;align-items:center;gap:12px;}
+      .test-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;font-family:'Syne',sans-serif;color:#fff;flex-shrink:0;}
+      .test-nm{font-size:13.5px;font-weight:500;color:var(--t1);}
+      .test-bz{font-size:12px;color:var(--t3);}
+      .test-dots{display:flex;gap:8px;justify-content:center;margin-top:26px;}
+      .tdot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.18);transition:all .3s;cursor:pointer;} .tdot.on{background:var(--c);box-shadow:0 0 9px var(--c);}
+
+      /* ── BILLING TOGGLE ── */
+      .bill-toggle{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:44px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:5px;width:fit-content;margin-left:auto;margin-right:auto;}
+      .bill-btn{padding:8px 18px;border-radius:9px;border:none;background:transparent;color:var(--t3);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400;cursor:none;transition:all .22s;display:flex;align-items:center;gap:6px;}
+      .bill-btn.on{background:linear-gradient(135deg,rgba(59,130,246,.18),rgba(139,92,246,.14));color:var(--t1);border:1px solid rgba(59,130,246,.25);}
+      .save-tag{font-size:9px;padding:2px 7px;border-radius:4px;background:rgba(16,185,129,.15);color:var(--g);border:1px solid rgba(16,185,129,.25);font-weight:700;letter-spacing:.05em;}
+
+      /* ── PRICING GRID ── */
+      .price-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:8px;}
+      .pc{background:var(--s1);border:1px solid var(--br);border-radius:20px;padding:28px;transition:all .35s;cursor:none;position:relative;overflow:hidden;display:flex;flex-direction:column;}
+      .pc:hover{transform:translateY(-8px);box-shadow:0 44px 110px rgba(0,0,0,.6);}
+      .pc.feat{border-color:rgba(59,130,246,.35);}
+      .pc.feat::before{content:'';position:absolute;inset:0;background:linear-gradient(160deg,rgba(59,130,246,.07),rgba(139,92,246,.07));pointer-events:none;}
+      .pc-badge{position:absolute;top:18px;right:18px;font-size:8.5px;font-weight:700;letter-spacing:.1em;padding:3px 9px;border-radius:100px;}
+      .pc-tier{font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:18px;}
+      .pc-price{font-family:'Syne',sans-serif;font-size:clamp(26px,4vw,42px);font-weight:800;letter-spacing:-.05em;margin-bottom:4px;}
+      .pc-per{font-size:12px;color:var(--t3);margin-bottom:6px;}
+      .pc-tag{font-size:12px;color:var(--t2);margin-bottom:22px;font-weight:300;line-height:1.5;}
+      .pc-features{list-style:none;margin-bottom:26px;flex:1;}
+      .pc-features li{font-size:12px;color:var(--t2);padding:8px 0;border-bottom:1px solid rgba(255,255,255,.035);display:flex;align-items:flex-start;gap:8px;line-height:1.5;}
+      .ck{color:var(--g);flex-shrink:0;margin-top:1px;}
+      .pc-btn{width:100%;padding:13px;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:none;transition:all .25s;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04);color:var(--t2);text-align:center;text-decoration:none;display:block;margin-top:auto;}
+      .pc-btn:hover{background:rgba(255,255,255,.08);color:var(--t1);}
+      .pc.feat .pc-btn{background:linear-gradient(135deg,var(--b),var(--p));border-color:transparent;color:#fff;}
+      .pc.feat .pc-btn:hover{box-shadow:0 0 50px rgba(59,130,246,.5);}
+
+      /* ── REPORTS STRIP ── */
+      .reports-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:36px;}
+      .rpt{background:var(--s1);border:1px solid var(--br2);border-radius:16px;padding:24px;display:flex;gap:16px;align-items:flex-start;transition:all .3s;}
+      .rpt:hover{border-color:rgba(255,255,255,.1);transform:translateY(-3px);}
+      .rpt-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+      .rpt-title{font-size:14px;font-weight:500;color:var(--t1);margin-bottom:5px;}
+      .rpt-desc{font-size:12px;color:var(--t2);line-height:1.6;}
+
+      /* ── CTA ── */
+      .cta-sec{padding:120px 24px;text-align:center;position:relative;}
+      .cta-sec::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(59,130,246,.075) 0%,transparent 65%);}
+
+      /* ── FOOTER ── */
+      footer{padding:60px 24px;border-top:1px solid rgba(255,255,255,.042);position:relative;z-index:2;}
+      .foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:32px;margin-bottom:52px;}
+      .foot-label{font-size:9.5px;color:var(--t4);letter-spacing:.11em;text-transform:uppercase;margin-bottom:14px;font-weight:600;}
+      .foot-link{display:block;font-size:12.5px;color:var(--t3);text-decoration:none;margin-bottom:8px;transition:color .2s;} .foot-link:hover{color:var(--t1);}
+      .foot-tech{font-size:11px;color:var(--t4);margin-bottom:6px;line-height:1.7;}
+      .foot-divider{border:none;border-top:1px solid rgba(255,255,255,.04);margin-top:8px;padding-top:24px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;}
+      .foot-copy{font-size:11px;color:var(--t4);}
+
+      /* ── REVEAL ── */
+      .reveal{opacity:0;transform:translateY(26px);transition:opacity .72s cubic-bezier(.16,1,.3,1),transform .72s cubic-bezier(.16,1,.3,1);}
+      .reveal.revealed{opacity:1;transform:translateY(0);}
+
+      /* ── MOBILE ── */
+      @media(max-width:768px){
+        .hero{padding:105px 18px 70px;}
+        .pitch-grid,.rm-grid,.ai-sec{grid-template-columns:1fr!important;}
+        .price-grid{grid-template-columns:1fr!important;}
+        .reports-grid{grid-template-columns:1fr;}
+        .dash-kpis{grid-template-columns:repeat(2,1fr);}
+        .dash-bottom{grid-template-columns:1fr;}
+        .prod-preview{flex-direction:column;gap:22px;padding:28px;}
+        .hero-acts{flex-direction:column;width:100%;}
+        .btn-hero,.btn-sec{width:100%;justify-content:center;}
+        .foot-grid{grid-template-columns:1fr 1fr;}
+        .mascot-row{gap:16px;}
+        .bubble{max-width:200px;font-size:12px;}
+      }
+      ::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-track{background:transparent;} ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px;}
+    `}</style>
+
+      {/* CURSOR */}
+      <div id="cd" ref={dotRef} />
+      <div id="cr" ref={ringRef} />
+      <div id="ca" ref={auraRef} />
+
+      {/* BG */}
       <canvas
         ref={canvasRef}
         style={{
@@ -535,48 +1110,43 @@ export default function Landing() {
           pointerEvents: 'none',
         }}
       />
-      <div className="aurora-bg">
-        <div className="a1" />
-        <div className="a2" />
-        <div className="a3" />
-        <div className="a4" />
-        <div className="a5" />
+      <div className="aurora">
+        <div className="au1" />
+        <div className="au2" />
+        <div className="au3" />
+        <div className="au4" />
+        <div className="au5" />
       </div>
       <div className="noise" />
-      <div className="grid" />
+      <div className="grid-bg" />
 
+      {/* ══ NAV ══ */}
       <nav className="nav">
         <Link href="/" className="nav-logo">
-          <span className="nav-pulse" />
+          <span className="np" />
           B.O.S.S
         </Link>
         <ul className="nav-links">
-          <li>
-            <a href="#platform" className="nav-link">
-              Platform
-            </a>
-          </li>
-          <li>
-            <a href="#intelligence" className="nav-link">
-              Intelligence
-            </a>
-          </li>
-          <li>
-            <a href="#about" className="nav-link">
-              About
-            </a>
-          </li>
-          <li>
-            <a href="#pricing" className="nav-link">
-              Pricing
-            </a>
-          </li>
+          {[
+            ['Platform', '#platform'],
+            ['Intelligence', '#intelligence'],
+            ['Roadmap', '#roadmap'],
+            ['Pricing', '#pricing'],
+            ['About', '#about'],
+          ].map(([l, h]) => (
+            <li key={l}>
+              <a href={h} className="nav-link">
+                {l}
+              </a>
+            </li>
+          ))}
         </ul>
-        <div className="nav-btns">
-          <Link href="/login" className="btn-nav-ghost">
+        <div className="nav-right">
+          <CurrencyDropdown />
+          <Link href="/login" className="btn-ghost">
             Sign In
           </Link>
-          <Link href="/register" className="btn-nav-primary">
+          <Link href="/register" className="btn-cta">
             Get Started →
           </Link>
         </div>
@@ -590,52 +1160,46 @@ export default function Landing() {
           <span />
         </button>
       </nav>
-
       <div
-        className={`mob-menu${menuOpen ? ' open' : ''}`}
+        className={`mob${menuOpen ? ' open' : ''}`}
         onClick={() => setMenuOpen(false)}
       >
-        <a
-          href="#platform"
-          className="mob-link"
-          onClick={() => setMenuOpen(false)}
+        {[
+          ['Platform', '#platform'],
+          ['Intelligence', '#intelligence'],
+          ['Roadmap', '#roadmap'],
+          ['Pricing', '#pricing'],
+        ].map(([l, h]) => (
+          <a
+            key={l}
+            href={h}
+            className="mob-lnk"
+            onClick={() => setMenuOpen(false)}
+          >
+            {l}
+          </a>
+        ))}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 12,
+            width: 260,
+            marginTop: 16,
+          }}
         >
-          Platform
-        </a>
-        <a
-          href="#intelligence"
-          className="mob-link"
-          onClick={() => setMenuOpen(false)}
-        >
-          Intelligence
-        </a>
-        <a
-          href="#about"
-          className="mob-link"
-          onClick={() => setMenuOpen(false)}
-        >
-          About
-        </a>
-        <a
-          href="#pricing"
-          className="mob-link"
-          onClick={() => setMenuOpen(false)}
-        >
-          Pricing
-        </a>
-        <div className="mob-btns">
           <Link
             href="/login"
-            className="btn-nav-ghost"
-            style={{ textAlign: 'center', justifyContent: 'center' }}
+            className="btn-ghost"
+            style={{ justifyContent: 'center' }}
             onClick={() => setMenuOpen(false)}
           >
             Sign In
           </Link>
           <Link
             href="/register"
-            className="btn-nav-primary"
-            style={{ textAlign: 'center', justifyContent: 'center' }}
+            className="btn-cta"
+            style={{ justifyContent: 'center' }}
             onClick={() => setMenuOpen(false)}
           >
             Get Started →
@@ -644,661 +1208,1138 @@ export default function Landing() {
       </div>
 
       <main style={{ position: 'relative', zIndex: 2 }}>
-        {/* HERO */}
+        {/* ══ HERO ══ */}
         <section className="hero" id="hero">
           <motion.div
-            variants={fadeUp}
+            variants={fUp}
             initial="hidden"
             animate="show"
-            className="hero-badge"
+            className="badge"
           >
-            <span className="badge-dot" />
-            Built in Nairobi · For African entrepreneurs
+            <span className="bdot" />
+            AI-Powered Business Intelligence · Built for Scale
           </motion.div>
           <motion.div
-            variants={fadeUp}
+            variants={fUp}
             initial="hidden"
             animate="show"
-            className="hero-wordmark"
+            style={{ animationDelay: '.08s' }}
           >
             <div className="hero-title glow-breathe">B.O.S.S</div>
           </motion.div>
           <motion.div
-            variants={fadeUp}
+            variants={fUp}
             initial="hidden"
             animate="show"
-            className="hero-fullname"
+            style={{ animationDelay: '.14s' }}
           >
-            Business Orchestration Software Systems
+            <div className="fullname">
+              Business Orchestration Software Systems
+            </div>
           </motion.div>
           <motion.div
-            variants={fadeUp}
+            variants={fUp}
             initial="hidden"
             animate="show"
-            className="hero-tagline"
+            style={{ animationDelay: '.2s' }}
+            className="tagline"
           >
             <span className="tl" />
             Intelligent by design.&nbsp;&nbsp;Powerful by nature.
-            <span className="tl tr" />
+            <span
+              className="tl"
+              style={{
+                background: 'linear-gradient(90deg,var(--p),transparent)',
+              }}
+            />
           </motion.div>
           <motion.div
-            variants={fadeUp}
+            variants={fUp}
             initial="hidden"
             animate="show"
-            className="hero-actions"
+            style={{ animationDelay: '.24s' }}
+            className="hero-sub"
           >
-            <Link href="/register" className="btn-primary">
+            The <strong>complete AI business platform</strong> — from daily
+            revenue tracking to full POS, inventory, ERP, and beyond. One
+            dashboard. Every insight. Infinite scale.
+          </motion.div>
+          <motion.div
+            variants={fUp}
+            initial="hidden"
+            animate="show"
+            style={{ animationDelay: '.28s' }}
+            className="hero-acts"
+          >
+            <Link href="/register" className="btn-hero">
               Start for Free →
             </Link>
-            <Link href="/login" className="btn-secondary">
+            <a href="#platform" className="btn-sec">
+              Explore the Platform
+            </a>
+            <Link href="/login" className="btn-sec">
               Sign In
             </Link>
-            <a
-              href="#about"
-              className="btn-secondary nav-link"
-              style={{ fontSize: 13, padding: '10px 20px' }}
-            >
-              See How It Works
-            </a>
           </motion.div>
+
+          {/* MASCOT */}
           <motion.div
-            variants={fadeUp}
+            variants={fUp}
             initial="hidden"
             animate="show"
-            style={{ width: '100%', maxWidth: 980 }}
-            className="dash-frame"
+            style={{ animationDelay: '.34s' }}
+            className="mascot-row"
           >
-            <div className="dashboard">
-              <div className="dash-bar">
-                <div className="dd dr" />
-                <div className="dd dy" />
-                <div className="dd dg" />
-                <span className="dt">B.O.S.S — Command Centre</span>
-              </div>
-              <div className="dash-grid">
-                {[
-                  {
-                    l: 'Revenue Today',
-                    v: 'KSh 48,250',
-                    d: '↑ 23.4% vs yesterday',
-                  },
-                  { l: 'Net Profit', v: 'KSh 27,100', d: '56% margin' },
-                  { l: 'Health Score', v: '92/100', d: 'Excellent' },
-                  { l: 'Day Streak', v: '14 days', d: '🔥 Keep it going' },
-                ].map((c) => (
-                  <div key={c.l} className="dc">
-                    <div className="dcl">{c.l}</div>
-                    <div className="dcv">{c.v}</div>
-                    <div className="dcd">{c.d}</div>
-                  </div>
-                ))}
-              </div>
-              <div className="dash-bottom">
-                <div className="dca">
-                  <div className="dcal">7-Day Revenue Trend</div>
-                  <div className="bars">
-                    {[
-                      12, 18, 24, 31, 28, 45, 52, 61, 58, 72, 68, 84, 91, 87,
-                      95, 102, 98, 88, 76, 65, 54, 43, 32, 21,
-                    ].map((h, i) => (
-                      <div
-                        key={i}
-                        className="bar"
-                        style={{ height: `${(h / 102) * 100}%` }}
-                      />
-                    ))}
-                  </div>
+            <div className="bubble bubble-l">
+              <div className="bubble-tag">Guru AI</div>
+              Revenue is up 23% this week. Tuesday was your best day — $1,240 in
+              6 hours. Want a breakdown?
+            </div>
+            <BossMascot size={134} float={true} />
+            <div className="bubble bubble-r">
+              <div className="bubble-tag">Guru AI</div>
+              Stock of Product #A12 drops below threshold in ~3 days. Raise a
+              reorder now or wait?
+            </div>
+          </motion.div>
+
+          {/* DASHBOARD */}
+          <motion.div
+            variants={fUp}
+            initial="hidden"
+            animate="show"
+            style={{ animationDelay: '.4s', width: '100%', maxWidth: 1020 }}
+          >
+            <div className="dash-frame">
+              <div className="dash-inner">
+                <div className="dash-bar">
+                  <div className="dd dr" />
+                  <div className="dd dy" />
+                  <div className="dd dg" />
+                  <span className="dt">B.O.S.S — Command Centre</span>
                 </div>
-                <div className="dlf">
-                  <div className="dlh">
-                    <span className="dld" />
-                    Guru AI Insights
-                  </div>
+                <div className="dash-kpis">
                   {[
                     {
-                      item: 'Profit up 23%',
-                      store: 'vs last Tuesday',
-                      amt: '↑',
+                      l: 'Revenue Today',
+                      v: '$1,240',
+                      d: '↑ 23.4%',
+                      c: '#3B82F6',
+                      g: 'rgba(59,130,246,.14)',
                     },
                     {
-                      item: 'Expenses on track',
-                      store: 'Below 45% threshold',
-                      amt: '✓',
+                      l: 'Net Profit',
+                      v: '$694',
+                      d: '56% margin',
+                      c: '#10B981',
+                      g: 'rgba(16,185,129,.14)',
                     },
                     {
-                      item: 'Best day: Friday',
-                      store: 'KSh 63,000 revenue',
-                      amt: '🏆',
+                      l: 'Health Score',
+                      v: '92/100',
+                      d: 'Excellent',
+                      c: '#8B5CF6',
+                      g: 'rgba(139,92,246,.14)',
                     },
                     {
-                      item: 'Streak: 14 days',
-                      store: 'Log today to keep it',
-                      amt: '🔥',
+                      l: 'Day Streak',
+                      v: '14 days',
+                      d: '🔥 On fire',
+                      c: '#F59E0B',
+                      g: 'rgba(245,158,11,.14)',
                     },
-                  ].map((r, i) => (
-                    <div key={i} className="dfi">
-                      <div>
-                        <div className="dfl">{r.item}</div>
-                        <div className="dfs">{r.store}</div>
+                  ].map((kp) => (
+                    <div
+                      key={kp.l}
+                      className="kpi"
+                      style={{ borderTop: `1px solid ${kp.c}35` }}
+                    >
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          right: 0,
+                          width: 70,
+                          height: 70,
+                          borderRadius: '50%',
+                          background: kp.g,
+                          filter: 'blur(22px)',
+                        }}
+                      />
+                      <div className="kpi-l">{kp.l}</div>
+                      <div className="kpi-v">{kp.v}</div>
+                      <div className="kpi-d" style={{ color: kp.c }}>
+                        {kp.d}
                       </div>
-                      <div className="dfa">{r.amt}</div>
                     </div>
                   ))}
+                </div>
+                <div className="dash-bottom">
+                  <div className="chart-card">
+                    <div className="chart-label">7-Day Revenue Trend</div>
+                    <div className="bars">
+                      {[
+                        22, 38, 31, 58, 50, 77, 88, 74, 92, 100, 85, 70, 60, 48,
+                        42,
+                      ].map((h, i) => {
+                        const cs = [
+                          '#3B82F6',
+                          '#06B6D4',
+                          '#8B5CF6',
+                          '#10B981',
+                          '#EC4899',
+                          '#F59E0B',
+                        ];
+                        return (
+                          <div
+                            key={i}
+                            className="bar"
+                            style={{
+                              height: `${(h / 100) * 100}%`,
+                              background: `linear-gradient(to top,${cs[i % cs.length]},${cs[(i + 2) % cs.length]})`,
+                            }}
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div className="ai-card">
+                    <div className="ai-card-h">
+                      <span className="ai-live" />
+                      Guru AI · Live
+                    </div>
+                    <div className="ai-line">
+                      Profit <span>↑ 23%</span> vs last week
+                    </div>
+                    <div className="ai-line">
+                      Expenses <span>within target</span>
+                    </div>
+                    <div className="ai-line">
+                      Best day: <span>Tuesday</span>
+                    </div>
+                    <div className="ai-line">
+                      Restock <span>Item #A12</span> in 3d
+                    </div>
+                  </div>
+                  <div className="score-card">
+                    <div className="score-n">92</div>
+                    <div className="score-l">Health Score</div>
+                    <div
+                      style={{
+                        fontSize: 9,
+                        color: 'var(--g)',
+                        marginTop: 6,
+                        fontWeight: 700,
+                        letterSpacing: '.07em',
+                      }}
+                    >
+                      EXCELLENT
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </motion.div>
         </section>
 
-        {/* STATS — honest */}
-        <section className="stats">
-          <div className="stats-inner">
-            {[
-              { n: '30s', l: 'To log your daily numbers' },
-              { n: 'AI', l: 'Insights from your real data' },
-              { n: 'KES', l: 'M-Pesa payments built in' },
-            ].map((s) => (
-              <div key={s.l} className="stat reveal">
-                <span className="stat-n">{s.n}</span>
-                <span className="stat-l">{s.l}</span>
-              </div>
-            ))}
+        {/* ══ PITCH DECK ══ */}
+        <section className="sec reveal" id="about">
+          <div style={{ textAlign: 'center' }}>
+            <div className="sec-tag" style={{ justifyContent: 'center' }}>
+              The Opportunity
+            </div>
+            <h2 className="sec-h" style={{ textAlign: 'center' }}>
+              A $150B problem. One platform.
+            </h2>
+          </div>
+          <div className="pitch-grid">
+            <div className="pitch-col prob">
+              <div className="pitch-h">❌ The Status Quo</div>
+              {[
+                {
+                  icon: '📓',
+                  title: 'Decisions made on instinct',
+                  body: 'The majority of SMEs globally have no real-time visibility into revenue, expenses, or margins.',
+                },
+                {
+                  icon: '💸',
+                  title: 'Profit is a mystery',
+                  body: "Most operators don't know their actual profit margin until the end of the month — if ever.",
+                },
+                {
+                  icon: '📦',
+                  title: 'Stockouts kill revenue',
+                  body: 'Inventory stockouts cost retailers an estimated 11% of revenue annually. No one sees them coming.',
+                },
+                {
+                  icon: '🏦',
+                  title: "Enterprise tools don't fit",
+                  body: "ERP systems cost $10K–$100K+ to implement. They're built for Fortune 500, not growing businesses.",
+                },
+              ].map((p) => (
+                <div key={p.title} className="pitch-item">
+                  <div
+                    className="pitch-icon"
+                    style={{
+                      background: 'rgba(239,68,68,.1)',
+                      border: '1px solid rgba(239,68,68,.2)',
+                    }}
+                  >
+                    {p.icon}
+                  </div>
+                  <div className="pitch-text">
+                    <strong>{p.title}</strong>
+                    {p.body}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="pitch-col sol">
+              <div className="pitch-h">✅ The B.O.S.S Way</div>
+              {[
+                {
+                  icon: '⚡',
+                  title: '30-second daily intelligence',
+                  body: 'Log sales and expenses in 30 seconds. Get AI-generated insights immediately. No training required.',
+                },
+                {
+                  icon: '🧠',
+                  title: 'AI that reads your numbers',
+                  body: 'Guru AI injects your real business data into every answer — specific, actionable, and always current.',
+                },
+                {
+                  icon: '📦',
+                  title: 'Inventory that thinks ahead',
+                  body: "Auto-reorder triggers, expiry alerts, and supplier sync. You'll never miss a stockout again.",
+                },
+                {
+                  icon: '🌍',
+                  title: 'Built for the world, priced fairly',
+                  body: 'From solo operators to multi-branch enterprises — one platform that scales with you at every stage.',
+                },
+              ].map((p) => (
+                <div key={p.title} className="pitch-item">
+                  <div
+                    className="pitch-icon"
+                    style={{
+                      background: 'rgba(16,185,129,.1)',
+                      border: '1px solid rgba(16,185,129,.2)',
+                    }}
+                  >
+                    {p.icon}
+                  </div>
+                  <div className="pitch-text">
+                    <strong>{p.title}</strong>
+                    {p.body}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
-        {/* ABOUT */}
-        <section
-          className="about"
-          id="about"
-          style={{ position: 'relative', overflow: 'hidden' }}
-        >
-          <canvas
-            ref={neuralRef}
-            style={{
-              position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-              zIndex: 0,
-              pointerEvents: 'none',
-              opacity: 0.28,
-            }}
-          />
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <div className="about-tag">What B.O.S.S actually does</div>
-            <h2 className="about-h">
-              Your business numbers.
-              <br />
-              <span>Understood in seconds.</span>
-            </h2>
-            <p className="about-p">
-              Most African business owners track their numbers in a notebook —
-              or not at all. B.O.S.S gives you a{' '}
-              <strong>30-second daily entry</strong> that turns into AI-powered
-              insights, streak accountability, and a weekly CEO briefing written
-              specifically for your business.{' '}
-              <strong>No spreadsheets. No accountant needed.</strong>
-            </p>
+        {/* ══ PRODUCT SUITE ══ */}
+        <section className="sec reveal" id="platform">
+          <div className="sec-tag">The Platform</div>
+          <h2 className="sec-h">One platform. Every tool you need to grow.</h2>
+          <p className="sec-sub">
+            Start with AI intelligence today. Unlock POS, inventory, ERP,
+            e-commerce, and more as your business scales.
+          </p>
+
+          <div className="prod-tabs" style={{ marginTop: 36 }}>
+            {PRODUCTS.map((p) => (
+              <button
+                key={p.id}
+                className={`prod-tab${activeProd === p.id ? ' on' : ''} iact`}
+                onClick={() => setActiveProd(p.id)}
+                style={
+                  activeProd === p.id
+                    ? {
+                        background: `linear-gradient(135deg,${p.color}18,${p.color}09)`,
+                        borderColor: `${p.color}38`,
+                      }
+                    : {}
+                }
+              >
+                {p.icon} {p.label}
+                {p.soon && <span className="soon-b">SOON</span>}
+              </button>
+            ))}
           </div>
-          <div style={{ position: 'relative', zIndex: 1 }}>
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeProd}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.22 }}
+              className="prod-preview"
+              style={{
+                borderColor: `${ap.color}22`,
+                borderTopColor: `${ap.color}55`,
+              }}
+            >
+              <motion.div
+                className="prod-icon"
+                animate={{ scale: [1, 1.07, 1] }}
+                transition={{
+                  duration: 2.2,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                }}
+              >
+                {ap.icon}
+              </motion.div>
+              <div>
+                <div
+                  className="prod-title"
+                  style={{
+                    background: `linear-gradient(135deg,#fff,${ap.color})`,
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }}
+                >
+                  {ap.label}
+                </div>
+                <div className="prod-desc">{ap.desc}</div>
+                {ap.soon ? (
+                  <div className="prod-coming">⏳ Coming Q3–Q4 2025</div>
+                ) : (
+                  <Link
+                    href="/register"
+                    style={{
+                      display: 'inline-flex',
+                      marginTop: 20,
+                      padding: '11px 24px',
+                      background: `linear-gradient(135deg,${ap.color},${ap.color}88)`,
+                      borderRadius: 12,
+                      color: '#fff',
+                      fontFamily: "'DM Sans',sans-serif",
+                      fontSize: 13,
+                      fontWeight: 500,
+                      textDecoration: 'none',
+                      cursor: 'none',
+                      boxShadow: `0 0 28px ${ap.color}40`,
+                    }}
+                  >
+                    Try Free →
+                  </Link>
+                )}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </section>
+
+        {/* ══ AI / INTELLIGENCE ══ */}
+        <section className="sec reveal" id="intelligence">
+          <div className="ai-sec">
+            <div>
+              <div className="sec-tag">Guru AI</div>
+              <h2 className="sec-h" style={{ marginBottom: 14 }}>
+                The AI that actually knows your business.
+              </h2>
+              <p
+                style={{
+                  color: 'var(--t2)',
+                  fontSize: 15,
+                  lineHeight: 1.78,
+                  fontWeight: 300,
+                  maxWidth: 380,
+                  marginBottom: 20,
+                }}
+              >
+                Not a generic chatbot. Guru AI reads{' '}
+                <strong style={{ color: 'var(--c)' }}>
+                  your live business data
+                </strong>{' '}
+                — revenue, margins, inventory, trends — and gives you specific,
+                actionable answers in seconds.
+              </p>
+              <ul className="ai-checks">
+                {[
+                  { q: 'Why did my profit drop on Tuesday?', c: 'var(--b)' },
+                  { q: 'Which product has the highest margin?', c: 'var(--c)' },
+                  { q: 'Am I on track for my monthly target?', c: 'var(--p)' },
+                  { q: 'Should I reorder stock now or wait?', c: 'var(--g)' },
+                  { q: 'What should I focus on tomorrow?', c: 'var(--pk)' },
+                ].map((item) => (
+                  <li key={item.q}>
+                    <span
+                      className="ai-ck"
+                      style={{
+                        background: `${item.c}18`,
+                        border: `1px solid ${item.c}30`,
+                        color: item.c,
+                      }}
+                    >
+                      ✓
+                    </span>
+                    {item.q}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="ai-window">
+              <div className="ai-hdr">
+                <div className="ai-av">G</div>
+                <div>
+                  <div className="ai-n">Guru AI</div>
+                  <div className="ai-st">
+                    <span className="ai-stdt" />
+                    Reading your data live
+                  </div>
+                </div>
+              </div>
+              <div className="msg msg-u">
+                <div className="bbl bbl-u">
+                  Why did my profit drop on Tuesday?
+                </div>
+              </div>
+              <div className="msg">
+                <div className="bbl bbl-a">
+                  Tuesday expenses were <span className="hl">$310</span> —{' '}
+                  <span className="neg">34% above average</span>. Revenue was
+                  normal at $720 but the spike cut your margin from{' '}
+                  <span className="pos">56% → 38%</span>.<br />
+                  <br />
+                  This is 3 Tuesdays in a row. You likely have a recurring
+                  supplier payment hitting on that day.
+                </div>
+              </div>
+              <div className="msg msg-u">
+                <div className="bbl bbl-u">
+                  What should I focus on this week?
+                </div>
+              </div>
+              <div className="msg">
+                <div className="bbl bbl-a">
+                  <span className="pos">
+                    One thing: get daily expenses below $260.
+                  </span>
+                  <br />
+                  <br />
+                  You hit your revenue target 5 of 7 days. The only gap between
+                  you and <span className="hl">60%+ margins</span> is the
+                  expense side.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══ REPORTS ══ */}
+        <section className="sec reveal">
+          <div className="sec-tag">Reporting</div>
+          <h2 className="sec-h">
+            Know where you stand. Every day, every quarter, every year.
+          </h2>
+          <p className="sec-sub">
+            Every pricing tier unlocks a different layer of reporting
+            intelligence — from daily snapshots to full annual P&amp;L.
+          </p>
+          <div className="reports-grid">
             {[
               {
-                icon: '⚡',
-                cls: 'ib',
-                title: '30-Second Daily Entry',
-                body: 'Log your sales and expenses in under 30 seconds. Via the app or WhatsApp — whichever you prefer.',
-              },
-              {
-                icon: '🧠',
-                cls: 'ic',
-                title: 'AI That Knows Your Business',
-                body: 'Guru AI reads your actual numbers and gives you specific insights — not generic advice. "Your profit dropped Tuesday because expenses were 18% higher."',
+                icon: '📅',
+                c: '#3B82F6',
+                bg: 'rgba(59,130,246,.1)',
+                bd: 'rgba(59,130,246,.2)',
+                title: 'Daily Digest',
+                tier: 'Growth+',
+                desc: "Every morning at 6am: yesterday's revenue, expenses, profit margin, top insight, and one action item. Read in 60 seconds.",
               },
               {
                 icon: '📊',
-                cls: 'ip',
-                title: 'Daily + Weekly Intelligence',
-                body: 'Morning digest every day. Full CEO briefing every Sunday. Know exactly how your business is doing before you open your doors.',
+                c: '#8B5CF6',
+                bg: 'rgba(139,92,246,.1)',
+                bd: 'rgba(139,92,246,.2)',
+                title: 'Monthly Report',
+                tier: 'Growth+',
+                desc: 'Full month revenue breakdown, expense categories, profit trend, and a 3-month performance comparison — auto-generated, no spreadsheets.',
               },
               {
-                icon: '🔥',
-                cls: 'ig',
-                title: 'Streak & Accountability',
-                body: 'A daily streak keeps you consistent. Businesses that track daily see 23% higher profits on average. B.O.S.S makes it effortless.',
+                icon: '📈',
+                c: '#06B6D4',
+                bg: 'rgba(6,182,212,.1)',
+                bd: 'rgba(6,182,212,.2)',
+                title: 'Quarterly Review',
+                tier: 'Growth+',
+                desc: 'Quarter-on-quarter growth analysis, seasonal patterns, top products, and a forward projection for the next 90 days.',
               },
               {
-                icon: '📱',
-                cls: 'ia',
-                title: 'M-Pesa Native',
-                body: 'Kenyan-first. Pay with M-Pesa. Log M-Pesa transactions. Built for how business actually works in East Africa.',
+                icon: '🏆',
+                c: '#10B981',
+                bg: 'rgba(16,185,129,.1)',
+                bd: 'rgba(16,185,129,.2)',
+                title: 'Annual Summary',
+                tier: 'Growth+',
+                desc: 'Your full year at a glance: revenue trajectory, best month, biggest expense, and a year-over-year comparison against industry benchmarks.',
               },
-            ].map((p) => (
-              <div key={p.title} className="pill reveal">
-                <div className={`pill-icon ${p.cls}`}>{p.icon}</div>
-                <div className="pill-text">
-                  <strong>{p.title}</strong>
-                  {p.body}
+              {
+                icon: '📋',
+                c: '#F59E0B',
+                bg: 'rgba(245,158,11,.1)',
+                bd: 'rgba(245,158,11,.2)',
+                title: 'P&L Statement',
+                tier: 'Scale+',
+                desc: 'A formatted Profit & Loss statement, ready to share with accountants, investors, or lenders. Exportable as PDF or CSV.',
+              },
+              {
+                icon: '🔮',
+                c: '#EC4899',
+                bg: 'rgba(236,72,153,.1)',
+                bd: 'rgba(236,72,153,.2)',
+                title: 'AI Forecast',
+                tier: 'Scale+',
+                desc: '30 and 90-day revenue forecasts based on your historical patterns, seasonal trends, and current trajectory. Updated weekly.',
+              },
+            ].map((r) => (
+              <div key={r.title} className="rpt iact">
+                <div
+                  className="rpt-icon"
+                  style={{ background: r.bg, border: `1px solid ${r.bd}` }}
+                >
+                  {r.icon}
+                </div>
+                <div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      marginBottom: 5,
+                    }}
+                  >
+                    <div className="rpt-title">{r.title}</div>
+                    <span
+                      style={{
+                        fontSize: 8.5,
+                        padding: '1.5px 6px',
+                        borderRadius: 4,
+                        background: `${r.c}18`,
+                        color: r.c,
+                        border: `1px solid ${r.c}28`,
+                        fontWeight: 700,
+                        letterSpacing: '.05em',
+                      }}
+                    >
+                      {r.tier}
+                    </span>
+                  </div>
+                  <div className="rpt-desc">{r.desc}</div>
                 </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* FEATURES */}
-        <section className="features" id="platform">
-          <div className="sec-tag">What you get</div>
-          <h2 className="sec-h">Everything a serious business owner needs.</h2>
-          <div className="bento">
-            {[
-              {
-                cls: 'bc bw',
-                icon: '📊',
-                icls: 'ib',
-                title: 'Real Business Intelligence',
-                body: 'Your actual revenue, expenses, profit margin and health score — updated every time you log an entry. See trends, spot problems, and understand your business in one glance.',
-                glow: 'var(--blue)',
-              },
-              {
-                cls: 'bc',
-                icon: '🤖',
-                icls: 'ic',
-                title: 'Guru AI Chat',
-                body: 'Ask anything about your business. Get answers using your real data, not generic advice.',
-                glow: 'var(--cyan)',
-              },
-              {
-                cls: 'bc',
-                icon: '📧',
-                icls: 'ip',
-                title: 'Daily Digest Email',
-                body: "6am every morning: yesterday's numbers, today's AI insight, one action to take.",
-                glow: 'var(--purple)',
-              },
-              {
-                cls: 'bc',
-                icon: '💱',
-                icls: 'ig',
-                title: 'Multi-Currency',
-                body: 'KES, USD, EUR, GBP and 20+ more. Switch instantly. All conversions are live.',
-                glow: 'var(--green)',
-              },
-              {
-                cls: 'bc bw',
-                icon: '📈',
-                icls: 'ia',
-                title: '7-Day Trend + Weekly CEO Report',
-                body: "See your week at a glance. Get a full AI-written Sunday report: what went well, what didn't, and one thing to do differently next week.",
-                glow: 'var(--amber)',
-              },
-            ].map((c) => (
-              <div key={c.title} className={c.cls}>
-                <div className={`bi ${c.icls}`}>{c.icon}</div>
-                <div className="bt">{c.title}</div>
-                <div className="bd">{c.body}</div>
-                <div className="bg" style={{ background: c.glow }} />
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* AI SECTION */}
-        <section className="ai-sec" id="intelligence">
-          <div>
-            <div className="sec-tag">Guru AI</div>
-            <h2 className="sec-h" style={{ marginBottom: 16 }}>
-              The AI that actually knows your business.
+        {/* ══ ROADMAP ══ */}
+        <section className="sec reveal" id="roadmap">
+          <div style={{ textAlign: 'center' }}>
+            <div className="sec-tag" style={{ justifyContent: 'center' }}>
+              Roadmap
+            </div>
+            <h2 className="sec-h" style={{ textAlign: 'center' }}>
+              Where we are. Where we&apos;re going.
             </h2>
             <p
               style={{
                 color: 'var(--t2)',
                 fontSize: 15,
                 lineHeight: 1.75,
+                marginTop: 14,
                 fontWeight: 300,
-                maxWidth: 380,
               }}
             >
-              B.O.S.S doesn&apos;t give generic business advice. Guru AI reads{' '}
-              <strong style={{ color: '#06B6D4' }}>your actual data</strong> —
-              your sales, your margins, your patterns — and tells you exactly
-              what&apos;s happening and what to do about it.
+              Building in public. Shipping every sprint.
             </p>
-            <ul className="ai-list">
-              {[
-                'Why did my profit drop this week?',
-                'What was my best day and why?',
-                'Am I on track for my monthly target?',
-                'What should I focus on tomorrow?',
-              ].map((i) => (
-                <li key={i}>
-                  <span className="ai-ck">✓</span>
-                  {i}
-                </li>
-              ))}
-            </ul>
           </div>
-          <div className="ai-chat">
-            <div className="ai-hdr">
-              <div className="ai-av">G</div>
-              <div>
-                <div className="ai-nm">Guru AI</div>
-                <div className="ai-st">● Online · Reading your data</div>
-              </div>
-            </div>
-            <div className="cm cu">
-              <div className="cb cbu">Why did my profit drop on Tuesday?</div>
-            </div>
-            <div className="cm">
-              <div className="cb cba">
-                Your Tuesday expenses were{' '}
-                <span className="hl">KSh 18,400</span> — 34% higher than your
-                weekly average of KSh 13,700. Revenue was normal at KSh 42,000,
-                but the expense spike cut your margin from 56% to 38%.
-                <br />
-                <br />
-                The pattern matches your last 3 Tuesdays. Check if you have a
-                recurring supplier payment hitting on Tuesdays.
-              </div>
-            </div>
-            <div className="cm cu">
-              <div className="cb cbu">What should I focus on this week?</div>
-            </div>
-            <div className="cm">
-              <div className="cb cba">
-                <span className="hl">
-                  One thing: get expenses below KSh 15,000/day.
-                </span>{' '}
-                You&apos;ve hit your revenue target 5 of the last 7 days. The
-                only thing limiting your profit is the expense side. Fix that
-                and you&apos;re at 60%+ margin.
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* PRICING — honest 2 tiers */}
-        <section className="pricing" id="pricing">
-          <div className="sec-tag">Pricing</div>
-          <h2
-            className="sec-h"
-            style={{
-              maxWidth: '100%',
-              margin: '0 auto 0',
-              textAlign: 'center',
-            }}
-          >
-            Simple. No surprises.
-          </h2>
-          <div className="pg">
-            {[
-              {
-                tier: 'Free',
-                price: 'KSh 0',
-                per: 'forever · get started today',
-                feat: [
-                  'Daily entry (sales + expenses)',
-                  'Health score + basic insights',
-                  '7-day trend chart',
-                  '14-day streak tracking',
-                ],
-                btn: 'Start Free',
-                cls: 'price-card',
-              },
-              {
-                tier: 'Pro',
-                price: 'KSh 1,499',
-                per: 'per month · cancel anytime',
-                feat: [
-                  'Everything in Free',
-                  'Guru AI chat (unlimited)',
-                  'Daily 6am digest email',
-                  'Weekly CEO briefing',
-                  'M-Pesa payment tracking',
-                  'Multi-currency support',
-                ],
-                btn: 'Start 14-Day Free Trial',
-                cls: 'price-card feat',
-              },
-            ].map((p) => (
-              <div key={p.tier} className={p.cls}>
-                <div className="pt">{p.tier}</div>
-                <div className="pp">{p.price}</div>
-                <div className="pper">{p.per}</div>
-                <ul className="pf">
-                  {p.feat.map((f) => (
-                    <li key={f}>
-                      <span className="ck">✓</span>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href="/register"
-                  className="pb"
+          <div className="rm-grid">
+            {ROADMAP.map((ph) => (
+              <motion.div
+                key={ph.phase}
+                className={`rm-card ${ph.done ? 'done' : 'next'}`}
+                whileHover={{ y: -5 }}
+                transition={{ duration: 0.2 }}
+              >
+                {ph.done && <div className="rm-done-b">✓ Shipped</div>}
+                <div className="rm-ph">Phase {ph.phase}</div>
+                <div className="rm-q" style={{ color: ph.color }}>
+                  {ph.q}
+                </div>
+                <div
+                  className="rm-label"
                   style={{
-                    display: 'block',
-                    textAlign: 'center',
-                    textDecoration: 'none',
+                    background: `linear-gradient(135deg,#fff,${ph.color})`,
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
                   }}
                 >
-                  {p.btn}
-                </Link>
-              </div>
+                  {ph.label}
+                </div>
+                {ph.items.map((item) => (
+                  <div key={item} className="rm-item">
+                    <div
+                      className="rm-dot"
+                      style={{
+                        background: ph.color,
+                        boxShadow: ph.done ? `0 0 6px ${ph.color}` : undefined,
+                      }}
+                    />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </motion.div>
             ))}
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="cta-strip">
+        {/* ══ TESTIMONIALS ══ */}
+        <section className="sec-sm reveal">
+          <div style={{ textAlign: 'center', marginBottom: 44 }}>
+            <div className="sec-tag" style={{ justifyContent: 'center' }}>
+              Social Proof
+            </div>
+            <h2 className="sec-h" style={{ textAlign: 'center' }}>
+              What our users say.
+            </h2>
+          </div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTest}
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -14 }}
+              transition={{ duration: 0.38 }}
+              className="test-card"
+            >
+              <div className="test-q">
+                &ldquo;{TESTIMONIALS[activeTest].quote}&rdquo;
+              </div>
+              <div className="test-auth">
+                <div
+                  className="test-av"
+                  style={{
+                    background: `linear-gradient(135deg,${TESTIMONIALS[activeTest].color},${TESTIMONIALS[activeTest].color}80)`,
+                  }}
+                >
+                  {TESTIMONIALS[activeTest].av}
+                </div>
+                <div>
+                  <div className="test-nm">{TESTIMONIALS[activeTest].name}</div>
+                  <div className="test-bz">{TESTIMONIALS[activeTest].biz}</div>
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+          <div className="test-dots">
+            {TESTIMONIALS.map((_, i) => (
+              <div
+                key={i}
+                className={`tdot${i === activeTest ? ' on' : ''} iact`}
+                onClick={() => setActiveTest(i)}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* ══ PRICING ══ */}
+        <section className="sec reveal" id="pricing">
+          <div style={{ textAlign: 'center', marginBottom: 36 }}>
+            <div className="sec-tag" style={{ justifyContent: 'center' }}>
+              Pricing
+            </div>
+            <h2 className="sec-h" style={{ textAlign: 'center' }}>
+              Simple, transparent pricing.
+            </h2>
+            <p
+              style={{
+                color: 'var(--t2)',
+                fontSize: 14,
+                marginTop: 12,
+                fontWeight: 300,
+              }}
+            >
+              All plans include a 14-day free trial. No credit card required to
+              start.
+            </p>
+          </div>
+
+          {/* BILLING TOGGLE */}
+          <div className="bill-toggle">
+            {(['monthly', 'quarterly', 'annual'] as const).map((b) => (
+              <button
+                key={b}
+                className={`bill-btn${billing === b ? ' on' : ''} iact`}
+                onClick={() => setBilling(b)}
+              >
+                {b.charAt(0).toUpperCase() + b.slice(1)}
+                {b === 'quarterly' && (
+                  <span className="save-tag">SAVE 14%</span>
+                )}
+                {b === 'annual' && <span className="save-tag">SAVE 34%</span>}
+              </button>
+            ))}
+          </div>
+
+          <div className="price-grid">
+            {TIERS.map((t) => {
+              const p = price(t);
+              const color = t.color;
+              return (
+                <div
+                  key={t.id}
+                  className={`pc${t.featured ? ' feat' : ''}`}
+                  style={
+                    t.featured ? {} : { borderTop: `2px solid ${color}30` }
+                  }
+                >
+                  {t.badge && (
+                    <div
+                      className="pc-badge"
+                      style={
+                        t.featured
+                          ? {
+                              background: 'rgba(59,130,246,.15)',
+                              color: '#3B82F6',
+                              border: '1px solid rgba(59,130,246,.3)',
+                            }
+                          : {
+                              background: `${color}18`,
+                              color,
+                              border: `1px solid ${color}30`,
+                            }
+                      }
+                    >
+                      {t.badge}
+                    </div>
+                  )}
+                  <div className="pc-tier">{t.label}</div>
+                  <div
+                    className="pc-price"
+                    style={{
+                      background: `linear-gradient(135deg,#fff,${color})`,
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                    }}
+                  >
+                    {p === null ? 'Custom' : p === 0 ? '$0' : `$${p}`}
+                  </div>
+                  <div className="pc-per">
+                    {p === null
+                      ? 'contact us for pricing'
+                      : p === 0
+                        ? 'forever free'
+                        : `per month · billed ${billing}`}
+                  </div>
+                  <div className="pc-tag">{t.tagline}</div>
+                  <ul className="pc-features">
+                    {t.features.map((f) => (
+                      <li key={f}>
+                        <span className="ck">✓</span>
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    href={t.ctaLink}
+                    className="pc-btn"
+                    style={t.featured ? {} : { borderColor: `${color}22` }}
+                  >
+                    {t.cta}
+                  </Link>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* MULTITENANCY CALLOUT */}
+          <div
+            style={{
+              marginTop: 28,
+              padding: '20px 28px',
+              background: 'rgba(139,92,246,.05)',
+              border: '1px solid rgba(139,92,246,.18)',
+              borderRadius: 14,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16,
+              flexWrap: 'wrap',
+            }}
+          >
+            <span style={{ fontSize: 22 }}>🏢</span>
+            <div style={{ flex: 1 }}>
+              <div
+                style={{
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: 'var(--t1)',
+                  marginBottom: 4,
+                }}
+              >
+                Multi-location &amp; multi-tenant ready
+              </div>
+              <div
+                style={{ fontSize: 12, color: 'var(--t2)', lineHeight: 1.6 }}
+              >
+                Scale and Enterprise plans support multiple branches, separate
+                P&amp;Ls per location, consolidated HQ reporting, and role-based
+                access across your entire organisation.
+              </div>
+            </div>
+            <Link
+              href="/register"
+              className="btn-cta"
+              style={{ flexShrink: 0, fontSize: 12, padding: '9px 18px' }}
+            >
+              Learn More →
+            </Link>
+          </div>
+        </section>
+
+        {/* ══ CTA ══ */}
+        <section className="cta-sec">
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              marginBottom: 32,
+            }}
+          >
+            <BossMascot size={110} float={true} />
+          </div>
           <motion.div
-            variants={stagger}
+            variants={stag}
             initial="hidden"
             whileInView="show"
             viewport={{ once: true }}
           >
-            <motion.div variants={fadeUp}>
+            <motion.div variants={fUp}>
               <div
                 style={{
-                  fontSize: 11,
-                  color: 'var(--green)',
-                  letterSpacing: '.14em',
+                  fontSize: 10.5,
+                  color: 'var(--g)',
+                  letterSpacing: '.15em',
                   textTransform: 'uppercase',
-                  marginBottom: 20,
+                  marginBottom: 22,
+                  fontFamily: "'JetBrains Mono',monospace",
                 }}
               >
-                Built in Nairobi. For Africa. 🇰🇪
+                Version 3.5 · Now Live
               </div>
             </motion.div>
             <motion.h2
-              variants={fadeUp}
+              variants={fUp}
               style={{
                 fontFamily: "'Syne',sans-serif",
-                fontSize: 'clamp(32px,5vw,64px)',
+                fontSize: 'clamp(32px,5.5vw,72px)',
                 fontWeight: 800,
-                letterSpacing: '-.04em',
-                lineHeight: 1.0,
+                letterSpacing: '-.045em',
+                lineHeight: 0.98,
                 marginBottom: 24,
                 background:
-                  'linear-gradient(135deg,#fff 0%,var(--cyan) 50%,var(--purple) 100%)',
+                  'linear-gradient(135deg,#fff 0%,var(--c) 38%,var(--p) 68%,var(--pk) 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
               }}
             >
-              Know your numbers.
+              Stop guessing.
               <br />
-              Grow your business.
+              Start knowing.
             </motion.h2>
             <motion.p
-              variants={fadeUp}
+              variants={fUp}
               style={{
                 color: 'var(--t2)',
-                fontSize: 16,
-                lineHeight: 1.7,
+                fontSize: 17,
+                lineHeight: 1.78,
                 fontWeight: 300,
-                maxWidth: 440,
-                margin: '0 auto 36px',
+                maxWidth: 480,
+                margin: '0 auto 44px',
               }}
             >
-              Log your first entry in 30 seconds. Get your first AI insight
-              immediately. Join entrepreneurs across East Africa who track daily
-              and grow faster.
+              30 seconds a day. Real AI insights. A complete business platform
+              that scales with you.
             </motion.p>
             <motion.div
-              variants={fadeUp}
+              variants={fUp}
               style={{
                 display: 'flex',
-                gap: 12,
+                gap: 14,
                 justifyContent: 'center',
                 alignItems: 'center',
+                flexWrap: 'wrap',
               }}
             >
               <Link
                 href="/register"
-                className="btn-primary"
-                style={{ fontSize: 16, padding: '16px 36px' }}
+                className="btn-hero"
+                style={{ fontSize: 17, padding: '19px 44px' }}
               >
                 Get Started Free →
               </Link>
-              <Link href="/login" className="btn-secondary">
+              <Link
+                href="/login"
+                className="btn-sec"
+                style={{ fontSize: 15, padding: '19px 32px' }}
+              >
                 Sign In
               </Link>
             </motion.div>
           </motion.div>
         </section>
+
+        {/* NEURAL CANVAS DIVIDER */}
+        <div style={{ position: 'relative', height: 180, overflow: 'hidden' }}>
+          <canvas
+            ref={neuralRef}
+            style={{ width: '100%', height: '100%', opacity: 0.38 }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(to bottom,transparent,var(--v))',
+            }}
+          />
+        </div>
       </main>
 
+      {/* ══ FOOTER ══ */}
       <footer>
-        <div style={{ maxWidth: 1140, margin: '0 auto', padding: '0 24px' }}>
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'space-between',
-              gap: 40,
-              marginBottom: 48,
-            }}
-          >
-            <div style={{ minWidth: 200 }}>
-              <div className="fl" style={{ marginBottom: 8 }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
+          <div className="foot-grid">
+            {/* Brand */}
+            <div>
+              <div
+                style={{
+                  fontFamily: "'Syne',sans-serif",
+                  fontSize: 24,
+                  fontWeight: 800,
+                  background: 'linear-gradient(135deg,#fff,var(--c))',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  marginBottom: 10,
+                }}
+              >
                 B.O.S.S
               </div>
-              <p className="ft" style={{ marginBottom: 4 }}>
-                Business Orchestration Software Systems
+              <p
+                style={{
+                  fontSize: 12,
+                  color: 'var(--t3)',
+                  fontWeight: 300,
+                  marginBottom: 16,
+                  lineHeight: 1.65,
+                }}
+              >
+                Business Orchestration Software Systems.
+                <br />
+                The complete AI business platform.
               </p>
-              <p style={{ fontSize: 11, color: '#334155', marginTop: 8 }}>
-                A product of{' '}
-                <strong style={{ color: '#475569' }}>
-                  Guru Software Group
-                </strong>
-              </p>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 7,
+                  flexWrap: 'wrap',
+                  marginBottom: 20,
+                }}
+              >
+                {[
+                  '🤖 AI-Powered',
+                  '🌍 26+ Currencies',
+                  '📱 Mobile-First',
+                  '🔒 Secure',
+                ].map((t) => (
+                  <span
+                    key={t}
+                    style={{
+                      fontSize: 10,
+                      padding: '3px 9px',
+                      borderRadius: 5,
+                      background: 'rgba(255,255,255,.04)',
+                      border: '1px solid rgba(255,255,255,.06)',
+                      color: 'var(--t3)',
+                    }}
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+              <CurrencyDropdown />
             </div>
-            <div style={{ display: 'flex', gap: 48, flexWrap: 'wrap' }}>
-              <div>
-                <div
-                  style={{
-                    fontSize: 10,
-                    color: '#334155',
-                    letterSpacing: '.1em',
-                    textTransform: 'uppercase',
-                    marginBottom: 12,
-                    fontWeight: 600,
-                  }}
-                >
-                  Product
-                </div>
-                <ul
-                  style={{
-                    listStyle: 'none',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 8,
-                  }}
-                >
-                  {[
-                    ['Platform', '#platform'],
-                    ['Intelligence', '#intelligence'],
-                    ['Pricing', '#pricing'],
-                    ['Sign In', '/login'],
-                  ].map(([l, h]) => (
-                    <li key={l}>
-                      <a
-                        href={h}
-                        style={{
-                          fontSize: 13,
-                          color: '#475569',
-                          textDecoration: 'none',
-                        }}
-                      >
-                        {l}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+
+            {/* Product */}
+            <div>
+              <div className="foot-label">Product</div>
+              {[
+                ['Platform', '#platform'],
+                ['Intelligence', '#intelligence'],
+                ['Roadmap', '#roadmap'],
+                ['Pricing', '#pricing'],
+                ['About', '#about'],
+                ['Sign In', '/login'],
+                ['Get Started', '/register'],
+              ].map(([l, h]) => (
+                <a key={l} href={h} className="foot-link">
+                  {l}
+                </a>
+              ))}
+            </div>
+
+            {/* Tech Stack */}
+            {FOOTER_TECH.slice(0, 2).map((fc) => (
+              <div key={fc.cat}>
+                <div className="foot-label">{fc.cat}</div>
+                {fc.items.map((i) => (
+                  <div key={i} className="foot-tech">
+                    {i}
+                  </div>
+                ))}
               </div>
-              <div>
-                <div
-                  style={{
-                    fontSize: 10,
-                    color: '#334155',
-                    letterSpacing: '.1em',
-                    textTransform: 'uppercase',
-                    marginBottom: 12,
-                    fontWeight: 600,
-                  }}
-                >
-                  Company
-                </div>
-                <ul
-                  style={{
-                    listStyle: 'none',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 8,
-                  }}
-                >
-                  {[
-                    ['About', '#about'],
-                    ['Privacy', '#'],
-                    ['Terms', '#'],
-                    ['Contact', 'https://wa.me/254701937625'],
-                  ].map(([l, h]) => (
-                    <li key={l}>
-                      <a
-                        href={h}
-                        style={{
-                          fontSize: 13,
-                          color: '#475569',
-                          textDecoration: 'none',
-                        }}
-                      >
-                        {l}
-                      </a>
-                    </li>
+            ))}
+            {/* Tech Stack 2 */}
+            <div>
+              {FOOTER_TECH.slice(2).map((fc) => (
+                <div key={fc.cat} style={{ marginBottom: 20 }}>
+                  <div className="foot-label">{fc.cat}</div>
+                  {fc.items.map((i) => (
+                    <div key={i} className="foot-tech">
+                      {i}
+                    </div>
                   ))}
-                </ul>
-              </div>
+                </div>
+              ))}
             </div>
           </div>
-          <div
-            style={{
-              borderTop: '1px solid rgba(255,255,255,.045)',
-              paddingTop: 24,
-              display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'space-between',
-              gap: 12,
-            }}
-          >
-            <p
-              style={{ fontSize: 11, color: '#1e293b', letterSpacing: '.06em' }}
-            >
-              © 2026 Guru Software Group. Built in Nairobi, Kenya 🇰🇪 for Africa
-              and the world.
+
+          <div className="foot-divider">
+            <p className="foot-copy">
+              © 2026 B.O.S.S · Guru Software Group. All rights reserved.
             </p>
-            <p
-              style={{ fontSize: 11, color: '#1e293b', letterSpacing: '.04em' }}
-            >
-              B.O.S.S · Guru AI Core
-            </p>
+            <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+              {[
+                ['Privacy Policy', '#'],
+                ['Terms of Service', '#'],
+                ['Contact', 'https://wa.me/254701937625'],
+                ['Status', '#'],
+              ].map(([l, h]) => (
+                <a
+                  key={l}
+                  href={h}
+                  className="foot-copy"
+                  style={{ textDecoration: 'none', transition: 'color .2s' }}
+                  onMouseEnter={(e) =>
+                    ((e.target as any).style.color = 'var(--t2)')
+                  }
+                  onMouseLeave={(e) => ((e.target as any).style.color = '')}
+                >
+                  {l}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </footer>
